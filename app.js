@@ -7,11 +7,12 @@ var express = require('express'),
 	p_prov = require('./routes/p-prov'),
 	r_prov = require('./routes/r-prov'),
 	parsers = require('./routes/parsers'),
+	models = require('./models/relational'),
+	neo4j = require('./infra/Neo4jConnector'),
 	expressValidator = require('express-validator'),
 	CustomError = require('./infra/CustomError'),
 	ValidationErrors = require('./infra/ValidationError');
 
-var env = process.env.NODE_ENV || 'development';
 var app = express();
 
 //Setting view engine
@@ -37,6 +38,29 @@ app.use(logger('dev'));
 app.use('/p-prov', p_prov);
 app.use('/r-prov', r_prov);
 app.use('/parsers', parsers);
+app.use('/query', (req, res, next) => {
+	let psqlResult;
+
+	models.sequelize.query(req.body.psqlQuery, (result, error) => {
+		if (error)
+			throw new error;
+
+		return result;
+	}).then((result) => {
+		psqlResult = result;
+
+		return neo4j.run(req.body.neo4jQuery);
+	}).then((result) => {
+		res.send({
+			success: true,
+			message: 'Success query',
+			pqslResult: psqlResult,
+			neo4jResult: result.records
+		});
+	}).catch((error) => {
+		next(error, req, res);
+	});
+});
 
 // Error handlers
 // Catch 404 and forward to error handler

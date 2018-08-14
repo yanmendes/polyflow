@@ -1,73 +1,32 @@
-/**
- * @apiDefine CurrentVersion
- * @apiVersion 0.0.0
- */
-
-/**
- * @apiDefine DefaultHeader
- * @apiHeader (Authorization) {string} Authorization The authorization token
- * @apiHeaderExample {Object} Request example:
- * {
- *    Authorization : 'Bearer XPTO'
- * }
- */
-
-/**
- * @apiDefine DefaultSuccess
- * @apiSuccess {boolean} success If the request was successful or not
- * @apiSuccess {string} message The output message.
- */
-
-/**
- * @apiDefine DefaultSuccessExample
- * @apiSuccessExample Example data on success:
- * {
- *    success: true,
- *    message: 'Data retrieved successfully'
- * }
- */
-
-/**
- * @apiDefine ValidationError
- * @apiError (400) {String} ValidationError <code>Field</code> not set
- */
-
-/**
- * @apiDefine NotFoundError
- * @apiError (404) {String} NotFoundError Object <code>id</code> not found
- */
-
 var
 	express = require('express'),
 	router = express.Router(),
 	_ = require('lodash'),
-	CustomError = require('../infra/CustomError'),
-	ValidationError = require('../infra/ValidationError');
+	models = require('../models/relational'),
+	neo4j = require('../infra/Neo4jConnector');
 
-/**
- * @api {get} /r-prov/ Creates a user
- * @apiName PostUser
- * @apiGroup User
- * @apiParam {String} name The name of the user
- * @apiParam {String} email The mail of the user
- * @apiParam {String} password The password of the user
- * @apiParamExample {Object} Request example:
- * {
- *   name: 'My name',
- *   email: 'myemail@mydomain.com',
- *   password: '123456'
- * }
- * @apiUse DefaultHeader
- * @apiUse DefaultSuccess
- * @apiUse DefaultSuccessExample
- * @apiUse ValidationError
- * @apiUse CurrentVersion
- */
+router.get('/', function (req, res, next) {
+	let psqlResult;
+	models.provone_Execution.findAll({
+		include: [
+			models.prov_Entity
+		]
+	}).then((results, err) => {
+		if (err)
+			throw err;
 
-router.get('/:graph/:workflow', function (req, res, next) {
-	res.send({
-		success: true,
-		message: 'User created'
+		psqlResult = results;
+
+		return neo4j.run('MATCH (n:ProvONE_Execution)-[r]-(m:Prov_Entity) RETURN n, r, m');
+	}).then((results) => {
+		res.send({
+			success: true,
+			message: 'Got data',
+			psqlResults: psqlResult,
+			neo4jResults: results.records
+		});
+	}).catch((err) => {
+		next(err, req, res);
 	});
 });
 

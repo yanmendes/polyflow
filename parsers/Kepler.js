@@ -236,7 +236,6 @@ Kepler.prototype.PopulatePortRelations = () => {
 Kepler.prototype.PopulateEntityRelations = () => {
 	return new Promise((resolve, reject) => {
 		return pg.query('select distinct case when write_event_id = -1 then 0 else 1 end as write, coalesce(data, file_id, data_id) as data, fire_id as execution_id from port_event', (err, res) => {
-			console.log(res.rows);
 			if (err || res === undefined)
 				reject(err);
 
