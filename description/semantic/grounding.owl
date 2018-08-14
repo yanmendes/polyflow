@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE uridef[
+  <!ENTITY rdf       "http://www.w3.org/1999/02/22-rdf-syntax-ns">
+  <!ENTITY rdfs      "http://www.w3.org/2000/01/rdf-schema">
+  <!ENTITY xsd       "http://www.w3.org/2001/XMLSchema">
+  <!ENTITY owl       "http://www.w3.org/2002/07/owl">
+  <!ENTITY grounding "http://daml.org/services/owl-s/1.2/Grounding.owl"> 
+  <!ENTITY restful   "http://fullsemanticweb.com/ontology/RESTfulGrounding/v1.0/RESTfulGrounding.owl"> 
+  <!ENTITY process "http://daml.org/services/owl-s/1.2/Process.owl">
+  <!ENTITY prov    "https://www.w3.org/ns/prov-o.owl">
+  <!ENTITY provone "https://github.com/DataONEorg/sem-prov-ontologies/blob/master/provenance/ProvONE/v1/owl/provone.owl">
+  <!ENTITY wadl      "LOCATION/Yan/description.wadl">
+  <!ENTITY ypc       "LOCATION/Yan/process.owl">
+  <!ENTITY DEFAULT   "LOCATION/Yan/grounding.owl">
+]>
+
+<rdf:RDF
+    xmlns:rdf      ="&rdf;#"
+    xmlns:rdfs     ="&rdfs;#"
+    xmlns:xsd      ="&xsd;#"
+    xmlns:owl      ="&owl;#"
+    xmlns:grounding="&grounding;#"
+    xmlns:restful  ="&restful;#"
+    xmlns:wadl     ="&wadl;"
+    xmlns:ypc      ="&ypc;#"
+    xmlns          ="&DEFAULT;#"
+    xml:base       ="&DEFAULT;"
+    xmlns:provone  ="&provone;"
+    xmlns:prov     ="&prov;"
+>
+
+    <!-- Ontology -->
+
+    <owl:Ontology rdf:about="">
+        <rdfs:comment> 
+            This ontology represents the OWL-S service grounding description for Heterogeneous Provenance Web Service.
+        </rdfs:comment>
+        <owl:imports rdf:resource="&grounding;"/>
+        <owl:imports rdf:resource="&restful;"/>
+        <owl:imports rdf:resource="&ypc;"/>
+    </owl:Ontology>
+
+    <!-- WADL Grounding -->
+
+    <restful:WadlGrounding rdf:ID="Grounding">
+        <grounding:hasAtomicProcessGrounding rdf:resource="#r-prov"/>
+        <grounding:hasAtomicProcessGrounding rdf:resource="#p-prov"/>
+        <grounding:hasAtomicProcessGrounding rdf:resource="#query"/>
+        <grounding:hasAtomicProcessGrounding rdf:resource="#taverna"/>
+        <grounding:hasAtomicProcessGrounding rdf:resource="#kepler"/>
+    </restful:WadlGrounding>
+
+    <!-- WADL Atomic Process Grounding -->
+
+    <restful:WadlAtomicProcessGrounding rdf:ID="p-prov">
+        <grounding:owlsProcess rdf:resource="&ypc;#p-prov"/>
+        <restful:wadlResourceMethod>
+            <restful:WadlResourceMethodRef>
+                <restful:resource rdf:datatype="&xsd;#anyURI">&wadl;p-prov</restful:resource>
+                <restful:method rdf:datatype="&xsd;#anyURI">&wadl;p-prov</restful:method>
+            </restful:WadlResourceMethodRef>
+        </restful:wadlResourceMethod>
+        <restful:wadlVersion rdf:datatype="&xsd;#anyURI">
+            https://wadl.dev.java.net/wadl20090202.xsd
+        </restful:wadlVersion>
+        <restful:wadlDocument rdf:datatype="&xsd;#anyURI">
+            http://localhost:3000/p-prov
+        </restful:wadlDocument>
+        
+        <!-- Response Parameters -->
+
+        <restful:wadlResponseParam>
+            <restful:WadResponseParamMap>
+                <grounding:owlsParameter rdf:resource="&ypc;#program"/>
+                <restful:wadlMessageParam rdf:datatype="&xsd;#anyURI">&provone;Program</restful:wadlMessageParam>
+            </restful:WadResponseParamMap>
+        </restful:wadlResponseParam>
+
+        <restful:wadlResponseParam>
+            <restful:WadResponseParamMap>
+                <grounding:owlsParameter rdf:resource="&ypc;#port"/>
+                <restful:wadlMessageParam rdf:datatype="&xsd;#anyURI">&provone;Port</restful:wadlMessageParam>
+            </restful:WadResponseParamMap>
+        </restful:wadlResponseParam>
+
+        <restful:wadlResponseParam>
+            <restful:WadResponseParamMap>
+                <grounding:owlsParameter rdf:resource="&ypc;#Out-Success"/>
+                <restful:wadlMessageParam rdf:datatype="&xsd;#anyURI">&wadl;Rep-Success</restful:wadlMessageParam>
+            </restful:WadResponseParamMap>
+
+        </restful:wadlResponseParam>
+
+        <restful:wadlResponseParam>
+            <restful:WadResponseParamMap>
+                <grounding:owlsParameter rdf:resource="&ypc;#Out-Failure"/>
+                <restful:wadlMessageParam rdf:datatype="&xsd;#anyURI">&wadl;Rep-Failure</restful:wadlMessageParam>
+            </restful:WadResponseParamMap>
+
+        </restful:wadlResponseParam>
+
+    </restful:WadlAtomicProcessGrounding>
+    <restful:WadlAtomicProcessGrounding rdf:ID="r-prov">
+        <grounding:owlsProcess rdf:resource="&ypc;#r-prov"/>
+        <restful:wadlResourceMethod>
+            <restful:WadlResourceMethodRef>
+                <restful:resource rdf:datatype="&xsd;#anyURI">&wadl;r-prov</restful:resource>
+                <restful:method rdf:datatype="&xsd;#anyURI">&wadl;r-prov</restful:method>
+            </restful:WadlResourceMethodRef>
+        </restful:wadlResourceMethod>
+        <restful:wadlVersion rdf:datatype="&xsd;#anyURI">
+            https://wadl.dev.java.net/wadl20090202.xsd
+        </restful:wadlVersion>
+        <restful:wadlDocument rdf:datatype="&xsd;#anyURI">
+            http://localhost:3000/r-prov
+        </restful:wadlDocument>
+
+        <!-- Response Parameters -->
+
+        <restful:wadlResponseParam>
+            <restful:WadResponseParamMap>
+                <grounding:owlsParameter rdf:resource="&ypc;#execution"/>
+                <restful:wadlMessageParam rdf:datatype="&xsd;#anyURI">&provone;Execution</restful:wadlMessageParam>
+            </restful:WadResponseParamMap>
+        </restful:wadlResponseParam>
+
+        <restful:wadlResponseParam>
+            <restful:WadResponseParamMap>
+                <grounding:owlsParameter rdf:resource="&ypc;#entity"/>
+                <restful:wadlMessageParam rdf:datatype="&xsd;#anyURI">&prov;Entity</restful:wadlMessageParam>
+            </restful:WadResponseParamMap>
+        </restful:wadlResponseParam>
+
+        <restful:wadlResponseParam>
+            <restful:WadResponseParamMap>
+                <grounding:owlsParameter rdf:resource="&ypc;#Out-Success"/>
+                <restful:wadlMessageParam rdf:datatype="&xsd;#anyURI">&wadl;Rep-Success</restful:wadlMessageParam>
+            </restful:WadResponseParamMap>
+
+        </restful:wadlResponseParam>
+
+        <restful:wadlResponseParam>
+            <restful:WadResponseParamMap>
+                <grounding:owlsParameter rdf:resource="&ypc;#Out-Failure"/>
+                <restful:wadlMessageParam rdf:datatype="&xsd;#anyURI">&wadl;Rep-Failure</restful:wadlMessageParam>
+            </restful:WadResponseParamMap>
+
+        </restful:wadlResponseParam>
+
+    </restful:WadlAtomicProcessGrounding>
+    <restful:WadlAtomicProcessGrounding rdf:ID="query">
+        <grounding:owlsProcess rdf:resource="&ypc;#query"/>
+        <restful:wadlResourceMethod>
+            <restful:WadlResourceMethodRef>
+                <restful:resource rdf:datatype="&xsd;#anyURI">&wadl;query</restful:resource>
+                <restful:method rdf:datatype="&xsd;#anyURI">&wadl;query</restful:method>
+            </restful:WadlResourceMethodRef>
+        </restful:wadlResourceMethod>
+        <restful:wadlVersion rdf:datatype="&xsd;#anyURI">
+            https://wadl.dev.java.net/wadl20090202.xsd
+        </restful:wadlVersion>
+        <restful:wadlDocument rdf:datatype="&xsd;#anyURI">
+            http://localhost:3000/query
+        </restful:wadlDocument>
+
+        <!-- Request Parameters -->
+
+        <restful:wadlRequestParam>
+            <restful:WadlRequestParamMap>
+                <grounding:owlsParameter rdf:resource="&ypc;#query"/>
+                <restful:wadlMessageParam rdf:datatype="&xsd;#string">&wadl;query</restful:wadlMessageParam>
+            </restful:WadlRequestParamMap>
+        </restful:wadlRequestParam>
+        
+        <!-- Response Parameters -->
+
+         <restful:wadlResponseParam>
+            <restful:WadResponseParamMap>
+                <grounding:owlsParameter rdf:resource="&ypc;#thing"/>
+                <restful:wadlMessageParam rdf:datatype="&xsd;#anyURI">&prov;Thing</restful:wadlMessageParam>
+            </restful:WadResponseParamMap>
+        </restful:wadlResponseParam>
+
+        <restful:wadlResponseParam>
+            <restful:WadResponseParamMap>
+                <grounding:owlsParameter rdf:resource="&ypc;#Out-Success"/>
+                <restful:wadlMessageParam rdf:datatype="&xsd;#anyURI">&wadl;Rep-Success</restful:wadlMessageParam>
+            </restful:WadResponseParamMap>
+
+        </restful:wadlResponseParam>
+
+        <restful:wadlResponseParam>
+            <restful:WadResponseParamMap>
+                <grounding:owlsParameter rdf:resource="&ypc;#Out-Failure"/>
+                <restful:wadlMessageParam rdf:datatype="&xsd;#anyURI">&wadl;Rep-Failure</restful:wadlMessageParam>
+            </restful:WadResponseParamMap>
+
+        </restful:wadlResponseParam>
+
+    </restful:WadlAtomicProcessGrounding>
+
+    <restful:WadlAtomicProcessGrounding rdf:ID="taverna">
+        <grounding:owlsProcess rdf:resource="&ypc;#taverna"/>
+        <restful:wadlResourceMethod>
+            <restful:WadlResourceMethodRef>
+                <restful:resource rdf:datatype="&xsd;#anyURI">&wadl;taverna</restful:resource>
+                <restful:method rdf:datatype="&xsd;#anyURI">&wadl;taverna</restful:method>
+            </restful:WadlResourceMethodRef>
+        </restful:wadlResourceMethod>
+        <restful:wadlVersion rdf:datatype="&xsd;#anyURI">
+            https://wadl.dev.java.net/wadl20090202.xsd
+        </restful:wadlVersion>
+        <restful:wadlDocument rdf:datatype="&xsd;#anyURI">
+            http://localhost:3000/parsers/taverna
+        </restful:wadlDocument>
+
+        <!-- Request Parameters -->
+
+        <restful:wadlRequestParam>
+            <restful:WadlRequestParamMap>
+                <grounding:owlsParameter rdf:resource="&ypc;#taverna-file"/>
+                <restful:wadlMessageParam rdf:datatype="&xsd;#anyURI">&wadl;taverna-file</restful:wadlMessageParam>
+            </restful:WadlRequestParamMap>
+        </restful:wadlRequestParam>
+        
+        <!-- Response Parameters -->
+
+        <restful:wadlResponseParam>
+            <restful:WadResponseParamMap>
+                <grounding:owlsParameter rdf:resource="&ypc;#Out-Success"/>
+                <restful:wadlMessageParam rdf:datatype="&xsd;#anyURI">&wadl;Rep-Success</restful:wadlMessageParam>
+            </restful:WadResponseParamMap>
+
+        </restful:wadlResponseParam>
+
+        <restful:wadlResponseParam>
+            <restful:WadResponseParamMap>
+                <grounding:owlsParameter rdf:resource="&ypc;#Out-Failure"/>
+                <restful:wadlMessageParam rdf:datatype="&xsd;#anyURI">&wadl;Rep-Failure</restful:wadlMessageParam>
+            </restful:WadResponseParamMap>
+
+        </restful:wadlResponseParam>
+
+    </restful:WadlAtomicProcessGrounding>
+
+    <restful:WadlAtomicProcessGrounding rdf:ID="kepler">
+        <grounding:owlsProcess rdf:resource="&ypc;#kepler"/>
+        <restful:wadlResourceMethod>
+            <restful:WadlResourceMethodRef>
+                <restful:resource rdf:datatype="&xsd;#anyURI">&wadl;kepler</restful:resource>
+                <restful:method rdf:datatype="&xsd;#anyURI">&wadl;kepler</restful:method>
+            </restful:WadlResourceMethodRef>
+        </restful:wadlResourceMethod>
+        <restful:wadlVersion rdf:datatype="&xsd;#anyURI">
+            https://wadl.dev.java.net/wadl20090202.xsd
+        </restful:wadlVersion>
+        <restful:wadlDocument rdf:datatype="&xsd;#anyURI">
+            http://localhost:3000/parsers/kepler
+        </restful:wadlDocument>
+        
+        <!-- Response Parameters -->
+
+        <restful:wadlResponseParam>
+            <restful:WadResponseParamMap>
+                <grounding:owlsParameter rdf:resource="&ypc;#Out-Success"/>
+                <restful:wadlMessageParam rdf:datatype="&xsd;#anyURI">&wadl;Rep-Success</restful:wadlMessageParam>
+            </restful:WadResponseParamMap>
+
+        </restful:wadlResponseParam>
+
+        <restful:wadlResponseParam>
+            <restful:WadResponseParamMap>
+                <grounding:owlsParameter rdf:resource="&ypc;#Out-Failure"/>
+                <restful:wadlMessageParam rdf:datatype="&xsd;#anyURI">&wadl;Rep-Failure</restful:wadlMessageParam>
+            </restful:WadResponseParamMap>
+
+        </restful:wadlResponseParam>
+
+    </restful:WadlAtomicProcessGrounding>
+</rdf:RDF>

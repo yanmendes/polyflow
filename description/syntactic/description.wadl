@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<application xmlns="http://wadl.dev.java.net/2009/02" xmlns:tcll="http://www.autentia.com/2013/BasicCollections" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <doc title="REST Service WADL"/>
+    <grammars/>
+    <resources base="http://localhost:3000">
+        <resource path="/r-prov">
+            <response status="200">
+                <representation mediaType="application/json" element="xs:string"/>
+  	  		</response>
+        </resource>
+        <resource path="/p-prov">
+            <method id="p-prov" name="GET">
+                <response status="200">
+	                <representation mediaType="application/json" element="xs:string"/>
+	  	  		</response>
+            </method>
+        </resource>
+        <resource path="/query">
+            <method id="query" name="POST">
+            	<request>
+            		<param xmlns:xs="http://www.w3.org/2001/XMLSchema" type="xs:string" style="query" name="psqlQuery"/>
+            		<param xmlns:xs="http://www.w3.org/2001/XMLSchema" type="xs:string" style="query" name="neo4jQuery"/>
+            	</request>
+                <response status="200">
+	                <representation mediaType="application/json" element="xs:string"/>
+	  	  		</response>
+            </method>
+        </resource>
+        <resource path="/parsers/taverna">
+            <method id="query" name="POST">
+                <response status="200">
+	                <representation mediaType="application/json" element="xs:string"/>
+	  	  		</response>
+            </method>
+        </resource>
+        <resource path="/parsers/kepler">
+            <method id="query" name="POST">
+            	<request>
+            		<param xmlns:xs="http://www.w3.org/2001/XMLSchema" type="text/turtle" style="query" name="tavernaFile"/>
+            	</request>
+                <response status="200">
+	                <representation mediaType="application/json" element="xs:string"/>
+	  	  		</response>
+            </method>
+        </resource>
+    </resources>
+</application>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE uridef[
+  <!ENTITY rdf     "http://www.w3.org/1999/02/22-rdf-syntax-ns">
+  <!ENTITY rdfs    "http://www.w3.org/2000/01/rdf-schema">
+  <!ENTITY owl     "http://www.w3.org/2002/07/owl">
+  <!ENTITY xsd     "http://www.w3.org/2001/XMLSchema">
+  <!ENTITY process "http://daml.org/services/owl-s/1.2/Process.owl">
+  <!ENTITY prov    "https://www.w3.org/ns/prov-o.owl">
+  <!ENTITY provone "https://github.com/DataONEorg/sem-prov-ontologies/blob/master/provenance/ProvONE/v1/owl/provone.owl">
+  <!ENTITY DEFAULT "LOCATION/Yan/process.owl">
+  <!ENTITY THIS    "LOCATION/Yan/process.owl">
+]>
+
+<rdf:RDF
+    xmlns:rdf    ="&rdf;#"
+    xmlns:rdfs   ="&rdfs;#"
+    xmlns:owl    ="&owl;#"
+    xmlns:xsd    ="&xsd;#"
+    xmlns:process="&process;#"
+    xmlns        ="&DEFAULT;#"
+    xml:base     ="&DEFAULT;"
+    xmlns:prov   ="&prov;"
+    xmlns:provone="&provone;"
+>
+
+    <!-- Ontology -->
+
+    <owl:Ontology rdf:about="">
+        <rdfs:comment> 
+            This ontology represents the OWL-S service grounding description for Heterogeneous Provenance Web Service.
+        </rdfs:comment>
+        <owl:imports rdf:resource="&process;"/>
+    </owl:Ontology>
+
+    <owl:Class rdf:ID="Output-Type">
+        <owl:unionOf rdf:parseType="Collection">
+            <owl:Class rdf:about="#Notification-Success"/>
+            <owl:Class rdf:about="#Notification-Failure"/>
+        </owl:unionOf>
+    </owl:Class>
+
+
+    <!-- Atomic Process -->
+
+    <process:AtomicProcess rdf:ID="p-prov">
+
+            <!-- Output Parameters -->
+
+            <process:hasOutput> 
+                <process:Output rdf:ID="Output">
+                    <process:parameterType rdf:datatype="&xsd;#string">&provone;#Program</process:parameterType>
+                </process:Output>
+            </process:hasOutput>
+
+    </process:AtomicProcess>
+
+    <process:AtomicProcess rdf:ID="r-prov">
+
+        <!-- Output Parameters -->
+
+        <process:hasOutput> 
+            <process:Output rdf:ID="Output">
+                <process:parameterType rdf:datatype="&xsd;#string">&provone;#Execution</process:parameterType>
+            </process:Output>
+        </process:hasOutput>
+
+    </process:AtomicProcess>
+    <process:AtomicProcess rdf:ID="query">
+
+        <!-- Input Parameters -->
+
+        <process:hasInput>
+            <process:Input rdf:ID="query">
+                <process:parameterType rdf:datatype="&xsd;#string">&xsd;#string</process:parameterType>
+            </process:Input>
+        </process:hasInput>
+
+        <!-- Output Parameters -->
+
+        <process:hasOutput> 
+            <process:Output rdf:ID="Output">
+                <process:parameterType rdf:datatype="&xsd;#string">&provone;#Thing</process:parameterType>
+            </process:Output>
+        </process:hasOutput>
+
+    </process:AtomicProcess>
+
+    <process:AtomicProcess rdf:ID="taverna">
+
+        <!-- Output Parameters -->
+
+        <process:hasOutput> 
+            <process:Output rdf:ID="Output">
+                <process:parameterType rdf:datatype="&xsd;#string">&THIS;#YSN-Output-Type</process:parameterType>
+            </process:Output>
+        </process:hasOutput>
+
+    </process:AtomicProcess>
+    <process:AtomicProcess rdf:ID="kepler">
+
+        <!-- Output Parameters -->
+
+        <process:hasOutput> 
+            <process:Output rdf:ID="Output">
+                <process:parameterType rdf:datatype="&xsd;#string">&THIS;#YSN-Output-Type</process:parameterType>
+            </process:Output>
+        </process:hasOutput>
+
+    </process:AtomicProcess>
+</rdf:RDF>
