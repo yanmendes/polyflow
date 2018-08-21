@@ -1,43 +1,4 @@
-/**
- * @apiDefine CurrentVersion
- * @apiVersion 0.0.0
- */
-
-/**
- * @apiDefine DefaultHeader
- * @apiHeader (Authorization) {string} Authorization The authorization token
- * @apiHeaderExample {Object} Request example:
- * {
- *    Authorization : 'Bearer XPTO'
- * }
- */
-
-/**
- * @apiDefine DefaultSuccess
- * @apiSuccess {boolean} success If the request was successful or not
- * @apiSuccess {string} message The output message.
- */
-
-/**
- * @apiDefine DefaultSuccessExample
- * @apiSuccessExample Example data on success:
- * {
- *    success: true,
- *    message: 'Data retrieved successfully'
- * }
- */
-
-/**
- * @apiDefine ValidationError
- * @apiError (400) {String} ValidationError <code>Field</code> not set
- */
-
-/**
- * @apiDefine NotFoundError
- * @apiError (404) {String} NotFoundError Object <code>id</code> not found
- */
-
-var
+let
 	express = require('express'),
 	router = express.Router(),
 	formidable = require('formidable'),

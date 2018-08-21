@@ -1,5 +1,4 @@
-var express = require('express'),
-	path = require('path'),
+let express = require('express'),
 	cors = require('cors'),
 	logger = require('morgan'),
 	_ = require('lodash'),
@@ -10,10 +9,9 @@ var express = require('express'),
 	models = require('./models/relational'),
 	neo4j = require('./infra/Neo4jConnector'),
 	expressValidator = require('express-validator'),
-	CustomError = require('./infra/CustomError'),
 	ValidationErrors = require('./infra/ValidationError');
 
-var app = express();
+let app = express();
 
 //Setting view engine
 app.set('view engine', 'ejs');

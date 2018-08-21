@@ -1,4 +1,4 @@
-var
+let
 	express = require('express'),
 	router = express.Router(),
 	_ = require('lodash'),
