@@ -40,7 +40,11 @@
 var
 	express = require('express'),
 	router = express.Router(),
+	formidable = require('formidable'),
+	uploadDir = __dirname + '/../',
+	fs = require('fs'),
 	Kepler = require('../parsers/Kepler'),
+	CustomError = require('../infra/CustomError'),
 	Taverna = require('../parsers/Taverna');
 
 router.post('/kepler', function (req, res, next) {
@@ -55,17 +59,36 @@ router.post('/kepler', function (req, res, next) {
 	});
 });
 
-//TODO: FILE UPLOAD
-
 router.post('/taverna', function (req, res, next) {
 	const taverna = new Taverna();
-	taverna.execute('file:///tmp/workflowrun.prov.ttl').then(() => {
-		res.send({
-			success: true,
-			message: "Taverna file parsed correctly"
+	let form = new formidable.IncomingForm();
+	form.uploadDir = uploadDir;
+	form.maxFieldsSize = 100 * 1024 * 1024;
+	form.multiples = true;
+
+	let workflowIdentifier, filePath;
+
+	form.parse(req, function (err, fields, files) {
+		if (err)
+			return next(err, req, res);
+
+		if (!files.tavernaFile || !fields.workflowIdentifier || files.tavernaFile.type !== 'text/turtle')
+			return next(new CustomError(400, 'No valid files were sent or workflow identifier was not set'), req, res);
+
+		filePath = files.tavernaFile.path;
+		workflowIdentifier = fields.workflowIdentifier;
+	});
+
+	form.on('end', () => {
+		taverna.execute(filePath, workflowIdentifier).then(() => {
+			fs.unlinkSync(filePath);
+			res.send({
+				success: true,
+				message: "Taverna file parsed correctly"
+			});
+		}).catch((err) => {
+			return next(err, req, res);
 		});
-	}).catch((err) => {
-		return next(err, req, res);
 	});
 });
 
