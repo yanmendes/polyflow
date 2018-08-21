@@ -48,8 +48,14 @@
             <!-- Output Parameters -->
 
             <process:hasOutput> 
-                <process:Output rdf:ID="Output">
+                <process:Output rdf:ID="Program">
                     <process:parameterType rdf:datatype="&xsd;#string">&provone;#Program</process:parameterType>
+                </process:Output>
+            </process:hasOutput>
+
+            <process:hasOutput> 
+                <process:Output rdf:ID="Port">
+                    <process:parameterType rdf:datatype="&xsd;#string">&provone;#Port</process:parameterType>
                 </process:Output>
             </process:hasOutput>
 
@@ -60,18 +66,31 @@
         <!-- Output Parameters -->
 
         <process:hasOutput> 
-            <process:Output rdf:ID="Output">
+            <process:Output rdf:ID="Execution">
                 <process:parameterType rdf:datatype="&xsd;#string">&provone;#Execution</process:parameterType>
             </process:Output>
         </process:hasOutput>
 
+        <process:hasOutput> 
+            <process:Output rdf:ID="Entity">
+                <process:parameterType rdf:datatype="&xsd;#string">&prov;#Entity</process:parameterType>
+            </process:Output>
+        </process:hasOutput>
+
     </process:AtomicProcess>
+
     <process:AtomicProcess rdf:ID="query">
 
         <!-- Input Parameters -->
 
         <process:hasInput>
-            <process:Input rdf:ID="query">
+            <process:Input rdf:ID="psqlQuery">
+                <process:parameterType rdf:datatype="&xsd;#string">&xsd;#string</process:parameterType>
+            </process:Input>
+        </process:hasInput>
+
+        <process:hasInput>
+            <process:Input rdf:ID="neo4jQuery">
                 <process:parameterType rdf:datatype="&xsd;#string">&xsd;#string</process:parameterType>
             </process:Input>
         </process:hasInput>
@@ -79,7 +98,7 @@
         <!-- Output Parameters -->
 
         <process:hasOutput> 
-            <process:Output rdf:ID="Output">
+            <process:Output rdf:ID="Thing">
                 <process:parameterType rdf:datatype="&xsd;#string">&provone;#Thing</process:parameterType>
             </process:Output>
         </process:hasOutput>
@@ -91,7 +110,7 @@
         <!-- Output Parameters -->
 
         <process:hasOutput> 
-            <process:Output rdf:ID="Output">
+            <process:Output rdf:ID="taverna-output">
                 <process:parameterType rdf:datatype="&xsd;#string">&THIS;#YSN-Output-Type</process:parameterType>
             </process:Output>
         </process:hasOutput>
@@ -102,7 +121,7 @@
         <!-- Output Parameters -->
 
         <process:hasOutput> 
-            <process:Output rdf:ID="Output">
+            <process:Output rdf:ID="kepler-output">
                 <process:parameterType rdf:datatype="&xsd;#string">&THIS;#YSN-Output-Type</process:parameterType>
             </process:Output>
         </process:hasOutput>
