@@ -9,7 +9,7 @@ const Taverna = function () {
 
 Taverna.prototype.execute = (filePath, workflowIdentifier) => {
 	return new Promise((resolve, reject) => {
-		const path = __dirname + '/../infra/TavernaParser.jar';
+		const path = __dirname + '/../infra/TavernaWrapper.jar';
 		exec(sprintf('java -jar "%s" %s %s %s %s "file://%s"', path, process.env.NEO4JURI, process.env.NEO4JUSER, process.env.NEO4JPASSWORD, workflowIdentifier, filePath),
 			function (error, stdout) {
 				if (error) {

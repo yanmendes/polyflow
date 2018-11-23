@@ -4,9 +4,9 @@ let
 	formidable = require('formidable'),
 	uploadDir = __dirname + '/../',
 	fs = require('fs'),
-	Kepler = require('../parsers/Kepler'),
+	Kepler = require('../wrappers/Kepler'),
 	CustomError = require('../infra/CustomError'),
-	Taverna = require('../parsers/Taverna');
+	Taverna = require('../wrappers/Taverna');
 
 router.post('/kepler', function (req, res, next) {
 	const kepler = new Kepler();

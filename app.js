@@ -5,7 +5,8 @@ let express = require('express'),
 	bodyParser = require('body-parser'),
 	p_prov = require('./routes/p-prov'),
 	r_prov = require('./routes/r-prov'),
-	parsers = require('./routes/parsers'),
+	wrappers = require('./routes/wrappers'),
+	network_analysis = require('./routes/network-analysis'),
 	models = require('./models/relational'),
 	neo4j = require('./infra/Neo4jConnector'),
 	expressValidator = require('express-validator'),
@@ -35,7 +36,8 @@ app.use(logger('dev'));
 //Mapping routes
 app.use('/p-prov', p_prov);
 app.use('/r-prov', r_prov);
-app.use('/parsers', parsers);
+app.use('/wrappers', wrappers);
+app.use('/network-analysis', network_analysis);
 app.use('/query', (req, res, next) => {
 	let psqlResult;
 
