@@ -3,12 +3,10 @@ let express = require('express'),
 	logger = require('morgan'),
 	_ = require('lodash'),
 	bodyParser = require('body-parser'),
-	p_prov = require('./routes/p-prov'),
-	r_prov = require('./routes/r-prov'),
+	query = require('./routes/query'),
 	wrappers = require('./routes/wrappers'),
 	network_analysis = require('./routes/network-analysis'),
-	models = require('./models/relational'),
-	neo4j = require('./infra/Neo4jConnector'),
+	models = require('./models/index'),
 	expressValidator = require('express-validator'),
 	ValidationErrors = require('./infra/ValidationError');
 
@@ -34,33 +32,9 @@ app.use(logger('dev'));
 // app.use(jwt({secret: config.jwt.secret}).unless({path: ['/user/authenticate', '/user/create']}));
 
 //Mapping routes
-app.use('/p-prov', p_prov);
-app.use('/r-prov', r_prov);
+app.use('/query', query);
 app.use('/wrappers', wrappers);
 app.use('/network-analysis', network_analysis);
-app.use('/query', (req, res, next) => {
-	let psqlResult;
-
-	models.sequelize.query(req.body.psqlQuery, (result, error) => {
-		if (error)
-			throw new error;
-
-		return result;
-	}).then((result) => {
-		psqlResult = result;
-
-		return neo4j.run(req.body.neo4jQuery);
-	}).then((result) => {
-		res.send({
-			success: true,
-			message: 'Success query',
-			pqslResult: psqlResult,
-			neo4jResult: result.records
-		});
-	}).catch((error) => {
-		next(error, req, res);
-	});
-});
 
 // Error handlers
 // Catch 404 and forward to error handler

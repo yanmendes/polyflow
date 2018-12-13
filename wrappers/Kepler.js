@@ -1,6 +1,6 @@
-var Prov = require('../models/Prov'),
-	Provone = require('../models/Provone'),
-	models = require('../models/relational'),
+let prov = require('../models/Prov'),
+	provone = require('../models/Provone'),
+	db = require('../models/index').sequelize,
 	pg = require('../infra/PgsqlConnector'),
 	_ = require('lodash');
 
@@ -10,22 +10,60 @@ var Kepler = function () {
 
 };
 
-Kepler.prototype.Port = () => {
+Kepler.prototype.execute = (workflowIdentifier) => {
+  return Kepler.prototype.Port(workflowIdentifier).then(() => {
+    return Kepler.prototype.Entity(workflowIdentifier);
+  }).then(() => {
+    return Kepler.prototype.Program(workflowIdentifier);
+  }).then(() => {
+    return Kepler.prototype.Execution(workflowIdentifier);
+  }).then(() => {
+    return Kepler.prototype.Usage(workflowIdentifier);
+  }).then(() => {
+    return Kepler.prototype.Generation(workflowIdentifier);
+  }).then(() => {
+    return Kepler.prototype.PopulateExecutionRelations(workflowIdentifier);
+  }).then(() => {
+    return Kepler.prototype.PopulatePortRelations(workflowIdentifier);
+  }).then(() => {
+    return Kepler.prototype.PopulateEntityRelations(workflowIdentifier);
+  });
+};
+
+let insert = (table, data) => {
+  let keys = Object.keys(data[0]);
+  let ids = keys.filter((key) => /^\w+_id$/.test(key));
+
+  data = _.map(data, (o) => {
+    _.each(ids, (key) => {
+      if(o[key] === null)
+        o[key] = 'DEFAULT';
+    });
+
+    return o;
+  });
+
+  let values = data.map(o => Object.values(o));
+  values = values.map(o => `(${_.map(o, (v) => {return typeof v === 'string' && v !== 'DEFAULT' ? `\'${v.replace('\'', '')}\'` : v === null ? 'NULL' : v}).join(',')})`);
+
+  return db.query(`INSERT INTO ${table.toLowerCase()} (${keys.join(',')}) VALUES ${values.join(',')};`, {type: db.QueryTypes.INSERT});
+};
+
+Kepler.prototype.Port = (workflowIdentifier) => {
 	return new Promise((resolve, reject) => {
-		return pg.query("select e.id as port_id, e.name as label, case when direction = 1 then 'out' when direction = 0 then 'in' end as port_type\n" +
+		return pg.query(
+		  "select e.id as port_id, e.name as label, case when direction = 1 then 'out' when direction = 0 then 'in' end as port_type\n" +
 			"from port p, entity e\n" +
 			"where p.id = e.id", (err, res) => {
 			if (err || res === undefined)
-				reject(err);
-
-			return models.provone_Port.bulkCreate(res.rows).then(() => {
-				resolve();
-			});
+				return reject(err);
+			else
+        return resolve(insert(provone.Classes.PORT, _.map(res.rows, (o) => {return _.extend({}, o, {workflow_identifier: workflowIdentifier})})));
 		});
 	});
 };
 
-Kepler.prototype.Entity = () => {
+Kepler.prototype.Entity = (workflowIdentifier) => {
 	return new Promise((resolve, reject) => {
 		return pg.query("select p.id as entity_id, e.name as label, p.type, p.value, 'provone_Data' as entity_type\n" +
 			"from parameter p, entity e\n" +
@@ -35,249 +73,227 @@ Kepler.prototype.Entity = () => {
 			"from data d\n" +
 			"left join associated_data ad on d.md5 = ad.data_id", (err, res) => {
 			if (err || res === undefined)
-				reject(err);
-
-			return models.prov_Entity.bulkCreate(res.rows).then(() => {
-				resolve();
-			});
+				return reject(err);
+      else
+        return resolve(insert(prov.Classes.ENTITY, _.map(res.rows, (o) => {return _.extend({}, o, {workflow_identifier: workflowIdentifier})})));
 		});
 	});
 };
 
-Kepler.prototype.Program = () => {
+Kepler.prototype.Program = (workflowIdentifier) => {
 	return new Promise((resolve, reject) => {
 		return pg.query('select a.id as program_id, COALESCE(w.name, e.name) as label, case when w.id is not null then true else false end as "is_provone_Workflow", case when w.id is not null then NULL else e.wf_id end as "provone_hasSubProgram"\n' +
 			"from actor a, entity e\n" +
 			"left join workflow w on w.id = e.id\n" +
 			"where a.id = e.id", (err, res) => {
 			if (err || res === undefined)
-				reject(err);
-
-			return models.provone_Program.bulkCreate(res.rows).then(() => {
-				resolve();
-			});
+				return reject(err);
+      else
+        return resolve(insert(provone.Classes.PROGRAM, _.map(res.rows, (o) => {return _.extend({}, o, {workflow_identifier: workflowIdentifier})})));
 		});
 	});
 };
 
 
 //TODO: CHANGE THIS RANDOM GENERATORS
-Kepler.prototype.Execution = () => {
+Kepler.prototype.Execution = (workflowIdentifier) => {
 	return new Promise((resolve, reject) => {
-		return pg.query('select id as execution_id, actor_id as "prov_hadPlan", start_time as "prov_startedAtTime", end_time as "prov_endedAtTime" from actor_fire\n' +
+		return pg.query(`select id as execution_id, actor_id as "prov_hadPlan", to_char(start_time, 'dd-mon-yyyy hh24:mi:ss') as "prov_startedAtTime", to_char(end_time, 'dd-mon-yyyy hh24:mi:ss') as "prov_endedAtTime" from actor_fire\n` +
 			'UNION ALL\n' +
-			'select FLOOR(random()*(10000)+1000) AS execution_id, wf_id as "prov_hadPlan", start_time as "prov_startedAtTime", end_time as "prov_endedAtTime" from workflow_exec', (err, res) => {
+			`select FLOOR(random()*(10000)+1000) AS execution_id, wf_id as "prov_hadPlan", to_char(start_time, 'dd-mon-yyyy hh24:mi:ss') as "prov_startedAtTime", to_char(end_time, 'dd-mon-yyyy hh24:mi:ss') as "prov_endedAtTime" from workflow_exec`, (err, res) => {
 			if (err || res === undefined)
-				reject(err);
+				return reject(err);
 
-			return models.prov_Association.bulkCreate(res.rows).then(() => {
-				return models.provone_Execution.bulkCreate(res.rows);
+			res.rows = _.map(res.rows, (o) => {return _.extend({}, o, {workflow_identifier: workflowIdentifier})});
+
+			let associations = _.map(res.rows, _.partialRight(_.pick, ['prov_hadPlan', 'workflow_identifier']));
+			let executions = _.map(res.rows, _.partialRight(_.pick, ['execution_id', 'prov_startedAtTime', 'prov_endedAtTime', 'workflow_identifier']));
+
+      return resolve(insert(provone.Classes.EXECUTION, executions).then (() => {
+				return insert(prov.Classes.ASSOCIATION, associations);
 			}).then(() => {
-				return models.prov_Association.findAll({
-					where: {
-						prov_hadPlan: {$in: _.map(res.rows, 'prov_hadPlan')}
-					}
-				}).then((results) => {
-					_.each(res.rows, (o) => {
-						o.association_id = (_.find(results, {'prov_hadPlan': o.prov_hadPlan})).association_id;
-						results = _.without(results, _.find(results, {'prov_hadPlan': o.prov_hadPlan}));
-					});
-
-					return models.prov_qualifiedAssociation.bulkCreate(res.rows);
-				}).then(() => {
-					resolve();
+      	return db.query(`SELECT association_id, prov_hadPlan, workflow_identifier FROM ${prov.Classes.ASSOCIATION} WHERE prov_hadPlan IN (?) AND workflow_identifier = ?`, {
+      		type: db.QueryTypes.SELECT,
+					replacements: [associations.map(a => a.prov_hadPlan), workflowIdentifier]
 				});
-			});
+			}).then((results) => {
+      	let qualifiedAssociations = _.map(_.map(results, (o) => {
+          return _.extend({}, o, {execution_id: _.find(res.rows, {'prov_hadPlan': o.prov_hadplan}).execution_id});
+				}), _.partialRight(_.pick, ['association_id', 'execution_id', 'workflow_identifier']));
+      	return insert(prov.Relationships.QUALIFIEDASSOCIATION, qualifiedAssociations)
+			}));
 		});
 	});
 };
 
-//TODO: FIX FUNCTION JOINING DATA_ID SINCE IT'S THE VALUE, NOT THE ID
-Kepler.prototype.Usage = () => {
+Kepler.prototype.Usage = (workflowIdentifier) => {
 	return new Promise((resolve, reject) => {
-		return pg.query('select data_id as "provone_hadEntity", port_id as "provone_hadInPort", fire_id as execution_id from port_event where write_event_id = -1', (err, res) => {
+		return pg.query('select data as "value", port_id as "provone_hadInPort", fire_id as execution_id from port_event where write_event_id = -1', (err, res) => {
 			if (err || res === undefined)
-				reject(err);
+				return reject(err);
 
-			return models.prov_Usage.bulkCreate(res.rows).then(() => {
-				return models.prov_Usage.findAll({
-					where: {
-						provone_hadInPort: {$in: _.map(res.rows, 'provone_hadInPort')}
-					}
-				}).then((results) => {
-					_.each(res.rows, (o) => {
-						o.usage_id = (_.find(results, {'provone_hadInPort': o.provone_hadInPort})).usage_id;
-						results = _.without(results, _.find(results, {'provone_hadInPort': o.provone_hadInPort}));
-					});
+			res.rows = _.map(res.rows, (o) => {return _.extend({}, o, {workflow_identifier: workflowIdentifier})});
+			let search = 'e.value LIKE \'' + _.join(res.rows.map(a => a.value.replace('\'', '')), '\' OR e.value LIKE \'');
 
-					return models.prov_qualifiedUsage.bulkCreate(res.rows)
-				}).then(() => {
-					resolve();
-				});
-			});
+			resolve(db.query(`SELECT entity_id, value FROM ${prov.Classes.ENTITY} e WHERE ${search}\' AND workflow_identifier = ?`, {
+        type: db.QueryTypes.SELECT,
+        replacements: [workflowIdentifier]
+      }).then((results) => {
+        let usage = _.map(_.map(res.rows, (o) => {
+          return _.extend({}, o, {provone_hadEntity: _.find(results, (a) => {return a.value.replace('\'', '') === o.value.replace('\'', '')}).entity_id});
+        }), _.partialRight(_.pick, ['provone_hadInPort', 'provone_hadEntity', 'workflow_identifier']));
+
+        return insert(prov.Classes.USAGE, usage);
+			}).then(() => {
+        return db.query(`SELECT usage_id, provone_hadinport, workflow_identifier FROM ${prov.Classes.USAGE} e WHERE workflow_identifier = ?`, {
+          type: db.QueryTypes.SELECT,
+          replacements: [workflowIdentifier]
+        });
+			}).then((results) => {
+        let qualifiedUsage = _.map(_.map(results, (o) => {
+          return _.extend({}, o, {execution_id: _.find(res.rows, {'provone_hadInPort': o.provone_hadinport}).execution_id});
+        }), _.partialRight(_.pick, ['usage_id', 'execution_id', 'workflow_identifier']));
+
+        return insert(prov.Relationships.QUALIFIEDUSAGE, qualifiedUsage);
+			}));
 		});
 	});
 };
 
-//TODO: FIX FUNCTION JOINING DATA_ID SINCE IT'S THE VALUE, NOT THE ID
-Kepler.prototype.Generation = () => {
-	return new Promise((resolve, reject) => {
-		return pg.query('select data_id as "provone_hadEntity", port_id as "provone_hadOutPort", fire_id as execution_id from port_event where write_event_id != -1', (err, res) => {
-			if (err || res === undefined)
-				reject(err);
+Kepler.prototype.Generation = (workflowIdentifier) => {
+  return new Promise((resolve, reject) => {
+    return pg.query('select data as "value", port_id as "provone_hadOutPort", fire_id as execution_id from port_event where write_event_id != -1', (err, res) => {
+      if (err || res === undefined)
+        return reject(err);
 
-			return models.prov_Generation.bulkCreate(res.rows).then(() => {
-				return models.prov_Generation.findAll({
-					where: {
-						provone_hadOutPort: {$in: _.map(res.rows, 'provone_hadOutPort')}
-					}
-				}).then((results) => {
-					_.each(res.rows, (o) => {
-						o.generation_id = (_.find(results, {'provone_hadOutPort': o.provone_hadOutPort})).generation_id;
-						results = _.without(results, _.find(results, {'provone_hadOutPort': o.provone_hadOutPort}));
-					});
+      res.rows = _.map(res.rows, (o) => {return _.extend({}, o, {workflow_identifier: workflowIdentifier})});
+      let search = 'e.value LIKE \'' + _.join(res.rows.map(a => a.value === null ? '' : a.value.replace('\'', '')), '\' OR e.value LIKE \'');
 
-					return models.prov_qualifiedGeneration.bulkCreate(res.rows)
-				}).then(() => {
-					resolve();
-				});
-			});
-		});
-	});
+      resolve(db.query(`SELECT entity_id, value FROM ${prov.Classes.ENTITY} e WHERE ${search}\' AND workflow_identifier = ?`, {
+        type: db.QueryTypes.SELECT,
+        replacements: [workflowIdentifier]
+      }).then((results) => {
+        let generation = _.map(_.map(res.rows, (o) => {
+        	let hadEntity = _.find(results, (a) => {return a.value === null || o.value === null ? false : a.value.replace('\'', '') === o.value.replace('\'', '')}) ?
+            _.find(results, (a) => {return a.value === null || o.value === null ? false : a.value.replace('\'', '') === o.value.replace('\'', '')}).entity_id : null;
+          return _.extend({}, o, {provone_hadEntity: hadEntity});
+        }), _.partialRight(_.pick, ['provone_hadOutPort', 'provone_hadEntity', 'workflow_identifier']));
+
+        return insert(prov.Classes.GENERATION, generation);
+      }).then(() => {
+        return db.query(`SELECT generation_id, provone_hadoutport, workflow_identifier FROM ${prov.Classes.GENERATION} e WHERE workflow_identifier = ?`, {
+          type: db.QueryTypes.SELECT,
+          replacements: [workflowIdentifier]
+        });
+      }).then((results) => {
+        let qualifiedGeneration = _.map(_.map(results, (o) => {
+          return _.extend({}, o, {execution_id: _.find(res.rows, {'provone_hadOutPort': o.provone_hadoutport}).execution_id});
+        }), _.partialRight(_.pick, ['generation_id', 'execution_id', 'workflow_identifier']));
+
+        return insert(prov.Relationships.QUALIFIEDGENERATION, qualifiedGeneration);
+      }));
+    });
+  });
 };
 
-Kepler.prototype.PopulateExecutionRelations = () => {
+Kepler.prototype.PopulateExecutionRelations = (workflowIdentifier) => {
 	let users = null;
 	return new Promise((resolve, reject) => {
-		return pg.query("select user as label, wf_id from workflow_exec", (err, res) => {
-			if (err || res === undefined)
-				throw new err;
+		return pg.query("select user as label, wf_id AS program_id from workflow_exec", (err, res) => {
+      if (err || res === undefined)
+        return reject(err);
 
-			return models.provone_User.bulkCreate(res.rows).then(function (results) {
-				return models.provone_User.findAll();
-			}).then((results) => {
-				users = results;
-				return models.provone_Execution.findAll({
-					include: [{
-						model: models.prov_Association,
-						include: [
-							{
-								model: models.provone_Program,
-								where: {
-									$or: {
-										provone_hasSubProgram: {$in: _.map(res.rows, 'wf_id')},
-										program_id: {$in: _.map(res.rows, 'wf_id')}
-									}
-								}
-							}
-						]
-					}]
-				}).then(function (results) {
-					let promises = [];
+      res.rows = _.map(res.rows, (o) => {
+        return _.extend({}, o, {workflow_identifier: workflowIdentifier})
+      });
 
-					_.each(results, (o) => {
-						let wfExec = _.find(results, (execution) => {
-							return execution.prov_Associations[0].provone_Program.program_id === o.prov_Associations[0].provone_Program.provone_hasSubProgram;
-						});
+      return resolve(insert(provone.Classes.USER, _.map(res.rows, _.partialRight(_.pick, ['label', 'workflow_identifier'])
+      )).then(() => {
+        return db.query(`SELECT * FROM ${provone.Classes.USER} u WHERE workflow_identifier = ?`, {type: db.QueryTypes.SELECT, replacements: [workflowIdentifier]});
+      }).then((results) => {
+        users = _.map(results, (o) => {
+          return _.extend({}, o, {program_id: _.find(res.rows, {'label': o.label}).program_id})
+        });
 
-						//TODO: IMPROVE THIS CODE'S READABILITY
-						//Since Kepler models Execution to Program 1:1, this is correct
-						promises.push(models.sequelize.query('UPDATE "provone_Executions" SET "prov_wasAssociatedWith" = :user, "provone_wasPartOf" = :wfexec WHERE execution_id = :execution_id', {
-							replacements: {
-								user: (_.find(users, {
-									'label': (_.find(res.rows, (user) => {
-										return user.wf_id === o.prov_Associations[0].provone_Program.provone_hasSubProgram || user.wf_id === o.prov_Associations[0].provone_Program.program_id;
-									})).label
-								})).user_id,
-								wfexec: wfExec !== undefined ? wfExec.execution_id : null,
-								execution_id: o.execution_id
-							}
-						}));
-					});
+        return db.query(`SELECT e.execution_id, e2.execution_id AS provone_waspartof, p.program_id, p.provone_hassubprogram AS wf_id ` +
+          `FROM ${provone.Classes.EXECUTION} e ` +
+          `INNER JOIN ${prov.Relationships.QUALIFIEDASSOCIATION} qa ON qa.execution_id = e.execution_id AND qa.workflow_identifier = e.workflow_identifier ` +
+          `INNER JOIN ${prov.Classes.ASSOCIATION} a ON qa.association_id = a.association_id AND qa.workflow_identifier = a.workflow_identifier ` +
+          `INNER JOIN ${provone.Classes.PROGRAM} p ON p.program_id = a.prov_hadplan AND p.workflow_identifier = a.workflow_identifier ` +
+          `LEFT JOIN ${prov.Classes.ASSOCIATION} a2 ON p.provone_hassubprogram = a.prov_hadplan AND p.workflow_identifier = a2.workflow_identifier ` +
+          `LEFT JOIN ${prov.Relationships.QUALIFIEDASSOCIATION} qa2 ON qa2.association_id = a2.association_id AND qa2.workflow_identifier = a2.workflow_identifier ` +
+          `LEFT JOIN ${provone.Classes.EXECUTION} e2 ON qa2.execution_id = e2.execution_id AND qa2.workflow_identifier = e2.workflow_identifier ` +
+          `WHERE e.workflow_identifier = :wid AND (p.program_id IN (:programs) OR p.provone_hassubprogram IN (:programs))`, {
+          type: db.QueryTypes.SELECT,
+          replacements: {wid: workflowIdentifier, programs: res.rows.map(a => a.program_id)}
+        });
+      }).then((results) => {
+        let promises = [];
 
-					return Promise.all(promises);
-				}).then(() => {
-					resolve();
-				}).catch(() => {
-					reject();
-				});
-			});
-		});
+        _.each(results, (o) => {
+          promises.push(db.query(`UPDATE ${provone.Classes.EXECUTION} SET prov_wasassociatedwith = :uid, provone_waspartof = :partof WHERE execution_id = :eid AND workflow_identifier = :wid`, {
+            replacements: {
+              uid: (_.find(users, (u) => {return u.program_id === o.program_id || u.program_id === o.wf_id})) ?
+                (_.find(users, (u) => {return u.program_id === o.program_id || u.program_id === o.wf_id})).user_id : null,
+              partof: o.provone_waspartof,
+              eid: o.execution_id,
+              wid: workflowIdentifier
+            }
+          }));
+        });
+
+        return Promise.all(promises);
+      }));
+    });
 	});
 };
 
-Kepler.prototype.PopulatePortRelations = () => {
+Kepler.prototype.PopulatePortRelations = (workflowIdentifier) => {
 	return new Promise((resolve, reject) => {
 		return pg.query('select distinct case when write_event_id = -1 then 0 else 1 end as write, pe.port_id, af.actor_id from port_event pe\n' +
 			'inner join actor_fire af on pe.fire_id = af.id', (err, res) => {
 			if (err || res === undefined)
-				reject(err);
+				return reject(err);
 
 			let promises = [];
 
 			_.each(res.rows, (o) => {
 				var replacements = {
-					port_id: o.port_id,
-					value: o.actor_id
+					pid: o.port_id,
+					eid: o.actor_id,
+          portType: (o.write) ? 'provone_hasOutPort' : 'provone_hasInPort',
+          wid: workflowIdentifier
 				};
 
-				replacements.portType = (o.write) ? 'provone_hasOutPort' : 'provone_hasInPort';
-
-				promises.push(models.sequelize.query('UPDATE "provone_Ports" SET "' + replacements.portType + '" = :value WHERE port_id = :port_id', {
-					replacements: replacements
-				}));
+				promises.push(db.query(`UPDATE ${provone.Classes.PORT} SET ${replacements.portType} = :eid WHERE port_id = :pid AND workflow_identifier = :wid`, {replacements: replacements}));
 			});
 
-			resolve(Promise.all(promises));
+			return resolve(Promise.all(promises));
 		});
 	});
 };
 
-Kepler.prototype.PopulateEntityRelations = () => {
+Kepler.prototype.PopulateEntityRelations = (workflowIdentifier) => {
 	return new Promise((resolve, reject) => {
 		return pg.query('select distinct case when write_event_id = -1 then 0 else 1 end as write, coalesce(data, file_id, data_id) as data, fire_id as execution_id from port_event', (err, res) => {
 			if (err || res === undefined)
-				reject(err);
+				return reject(err);
 
 			let promises = [];
 
 			_.each(res.rows, (o) => {
 				var replacements = {
-					entity_id: o.entity_id,
 					data: o.data,
-					execution_id: o.execution_id
+					exeid: o.execution_id,
+          rtype: (o.write) ? 'prov_wasGeneratedBy' : 'prov_used',
+          wid: workflowIdentifier
 				};
 
-				replacements.relationType = (o.write) ? 'prov_wasGeneratedBy' : 'prov_used';
-
-				promises.push(models.sequelize.query('UPDATE "prov_Entities" SET "' + replacements.relationType + '" = :execution_id WHERE value = :data ', {
-					replacements: replacements
-				}));
+				promises.push(db.query(`UPDATE ${prov.Classes.ENTITY} SET ${replacements.rtype} = :exeid WHERE value = :data AND workflow_identifier = :wid`, {replacements: replacements}));
 			});
 
-			resolve(Promise.all(promises));
+			return resolve(Promise.all(promises));
 		});
-	});
-};
-
-
-Kepler.prototype.execute = () => {
-	return Kepler.prototype.Port().then(() => {
-		return Kepler.prototype.Entity();
-	}).then(() => {
-		return Kepler.prototype.Program();
-	}).then(() => {
-		return Kepler.prototype.Execution();
-	}).then(() => {
-		return Kepler.prototype.Usage();
-	}).then(() => {
-		return Kepler.prototype.Generation();
-	}).then(() => {
-		return Kepler.prototype.PopulateExecutionRelations();
-	}).then(() => {
-		return Kepler.prototype.PopulatePortRelations();
-	}).then(() => {
-		return Kepler.prototype.PopulateEntityRelations();
 	});
 };
 

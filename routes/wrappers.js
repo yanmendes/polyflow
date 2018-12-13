@@ -10,12 +10,17 @@ let
 
 router.post('/kepler', function (req, res, next) {
 	const kepler = new Kepler();
-	kepler.execute().then(() => {
+
+  if (!req.body.workflowIdentifier)
+    return next(new CustomError(400, 'Workflow identifier was not set'), req, res);
+
+	kepler.execute(req.body.workflowIdentifier).then(() => {
 		res.send({
 			success: true,
 			message: "Kepler workflow imported correctly"
 		});
 	}).catch((err) => {
+		console.log(err);
 		return next(err, req, res);
 	});
 });
