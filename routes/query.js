@@ -2,20 +2,22 @@ let
   express = require('express'),
   router = express.Router(),
   _ = require('lodash'),
-  models = require('../models/index'),
+  db = require('../models/index').sequelize,
+  prov = require('../models/Prov'),
+  provone = require('../models/Provone'),
   neo4j = require('../infra/Neo4jConnector');
 
 let psqlInterface = function (query) {
   return new Promise((resolve, reject) => {
     if(query)
-      models.sequelize.query(query, { type: models.sequelize.QueryTypes.SELECT}).then((result, error) => {
+      db.query(query, { type: db.QueryTypes.SELECT}).then((result, error) => {
         if (error)
           reject(error);
 
         resolve(result);
       });
     else
-      resolve();
+      resolve('No query issued to this interface');
   });
 };
 
@@ -26,7 +28,7 @@ let neo4jInterface = function(query) {
         resolve(result.records)
       });
     else
-      resolve();
+      resolve('No query issued to this interface');
   });
 };
 
@@ -75,16 +77,12 @@ router.post('/', (req, res, next) => {
 
 router.get('/r-prov', (req, res, next) => {
   let psqlResult;
-  models.provone_Execution.findAll({
-    include: [
-      models.prov_Entity
-    ]
-  }).then((results, err) => {
-    if (err)
-      throw err;
-
+  psqlInterface(
+  `SELECT * FROM ${provone.Classes.EXECUTION} exe ` +
+  `LEFT JOIN ${prov.Classes.ENTITY} use ON exe.execution_id = use.prov_used ` +
+  `LEFT JOIN ${prov.Classes.ENTITY} gen ON exe.execution_id = gen.prov_wasgeneratedby `
+  ).then((results) => {
     psqlResult = results;
-
     return neo4jInterface('MATCH (n:ProvONE_Execution)-[r]-(m:Prov_Entity) RETURN n, r, m');
   }).then((results) => {
     res.send({
@@ -100,16 +98,12 @@ router.get('/r-prov', (req, res, next) => {
 
 router.get('/p-prov', function (req, res, next) {
   let psqlResult;
-  models.provone_Program.findAll({
-    include: [
-      models.provone_Port
-    ]
-  }).then((results, err) => {
-    if (err)
-      throw err;
-
+  psqlInterface(
+    `SELECT * FROM ${provone.Classes.PROGRAM} p ` +
+    `LEFT JOIN ${provone.Classes.PORT} inport ON p.program_id = inport.provone_hasinport AND p.workflow_identifier = inport.workflow_identifier ` +
+    `LEFT JOIN ${provone.Classes.PORT} outport ON p.program_id = outport.provone_hasoutport AND p.workflow_identifier = outport.workflow_identifier `
+  ).then((results) => {
     psqlResult = results;
-
     return neo4jInterface('MATCH (n:ProvONE_Program)-[r]-(m:ProvONE_Port) RETURN n, r, m');
   }).then((results) => {
     res.send({

@@ -285,7 +285,7 @@ Kepler.prototype.PopulateEntityRelations = (workflowIdentifier) => {
 				var replacements = {
 					data: o.data,
 					exeid: o.execution_id,
-          rtype: (o.write) ? 'prov_wasGeneratedBy' : 'prov_used',
+          rtype: (o.write) ? 'prov_wasgeneratedby' : 'prov_used',
           wid: workflowIdentifier
 				};
 
