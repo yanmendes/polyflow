@@ -21,6 +21,7 @@
     "express-jwt": "^5.3.1",
     "express-session": "^1.15.6",
     "express-validator": "^5.3.0",
+    "flora-sql-parser": "^0.8.0",
     "formidable": "^1.2.1",
     "lodash": "^4.17.10",
     "morgan": "^1.9.0",
@@ -30,7 +31,6 @@
     "owljs": "^0.9.1",
     "pg": "^7.4.3",
     "promise-mysql": "^3.3.1",
-    "sequelize": "^4.38.0",
     "sequelize-cli": "^5.3.0",
     "sprintf-js": "^1.1.1"
   },
