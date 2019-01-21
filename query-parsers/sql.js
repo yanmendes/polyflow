@@ -31,17 +31,18 @@ module.exports = async function (query) {
     let ast = parser.parse(query)
     let { columns, from } = ast
 
-    let firstFromIteration = true
+    let i = 0
     let fromTable
 
     _.forEach(from, table => {
-        if (firstFromIteration) {
+        if (!i) {
             fromTable = table.table
-            firstFromIteration = false
+            table.as = table.as ? table.as : ('table_' + i)
         } else {
             //This means there is a join
             throw new Error("Can't handle that yet")
         }
+        ++i
     })
 
     let mediatedEntity = avengersAssemble(fromTable)
