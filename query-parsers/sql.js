@@ -29,7 +29,7 @@ function avengersAssemble(tableName) {
 module.exports = async function (query) {
     const parser = new Parser()
     let ast = parser.parse(query)
-    let { columns, from } = ast
+    let { from } = ast
 
     let i = 0
     let fromTable
