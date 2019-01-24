@@ -9,7 +9,7 @@ module.exports = async (query, callback) => {
   if (!query)
     throw new Error("No query issued to this interface")
 
-  await client.query(query, async (err, res) => {
+  client.query(query, async (err, res) => {
     if (err)
       throw err
 
