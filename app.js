@@ -5,6 +5,7 @@ let express = require('express'),
   _ = require('lodash'),
   bodyParser = require('body-parser'),
   query = require('./routes/query'),
+  user = require('./routes/user'),
   expressValidator = require('express-validator'),
   ValidationErrors = require('./infra/ValidationError');
 
@@ -28,6 +29,7 @@ app.use(logger('dev'));
 
 //Mapping routes
 app.use('/query', query);
+app.use('/', user);
 
 // Error handlers
 // Catch 404 and forward to error handler
