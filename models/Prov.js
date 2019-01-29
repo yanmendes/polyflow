@@ -1,12 +1,12 @@
 var Prov = {
 	Classes: {
 		//R-Prov
-		ASSOCIATION: 'prov_Association',
-		USAGE: 'prov_Usage',
-		GENERATION: 'prov_Generation',
+		ASSOCIATION: 'prov_association',
+		USAGE: 'prov_usage',
+		GENERATION: 'prov_generation',
 		//Data representation
-		ENTITY: 'prov_Entity',
-		COLLECTION: 'prov_Collection'
+		ENTITY: 'prov_entity',
+		COLLECTION: 'prov_collection'
 	},
 	Relationships: {
 		//P-Prov

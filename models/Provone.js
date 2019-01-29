@@ -1,18 +1,18 @@
 var Provone = {
 	Classes: {
 		//P-Prov
-		PROGRAM : "provone_Program",
-		PORT : "provone_Port",
-		CHANNEL : "provone_Channel",
-		CONTROLLER : "provone_Controller",
-		WORKFLOW : "provone_Workflow",
+		PROGRAM : "provone_program",
+		PORT : "provone_port",
+		CHANNEL : "provone_channel",
+		CONTROLLER : "provone_controller",
+		WORKFLOW : "provone_workflow",
 		//R-Prov
-		EXECUTION : "provone_Execution",
-		USER : "provone_User",
+		EXECUTION : "provone_execution",
+		USER : "provone_user",
 		//Data representation
-		VISUALIZATION : "provone_Visualization",
-		DATA : "provone_Data",
-		DOCUMENT : "provone_Document",
+		VISUALIZATION : "provone_visualization",
+		DATA : "provone_data",
+		DOCUMENT : "provone_document",
 	},
 	Relationships: {
 		//P-Prov
