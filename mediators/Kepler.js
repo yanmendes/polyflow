@@ -10,16 +10,45 @@ let prov = require('../models/Prov'),
 
 module.exports = {
   [provone.Classes.PORT]: {
-    entity1: {name: 'port', alias: 'port'},
-    entity2: {name: 'entity', alias: 'entity'},
-    type: 'join',
+    entity1: { name: 'port', alias: 'port', columns: [] },
+    entity2: { name: 'entity', alias: 'entity', columns: [] },
+    type: 'inner',
     params: ['port.id', 'entity.id'],
     columns: {
       port_id: 'entity.id',
       label: 'entity.name',
       port_type: `CASE WHEN port.direction = 1 THEN 'out' WHEN port.direction = 0 THEN 'in' END`
     }
-  }
+  },
+  [prov.Classes.ENTITY]: {
+    entity1: {
+      entity1: { name: 'parameter', alias: 'p' },
+      entity2: { name: 'entity', alias: 'e' },
+      type: 'inner',
+      params: ['p.id', 'e.id'],
+      columns: {
+        entity_id: 'p.id',
+        label: 'e.name',
+        type: 'p.type',
+        value: 'p.value',
+        entity_type: `'provone_Data'`
+      }
+    },
+    entity2: {
+      entity1: { name: 'data', alias: 'd' },
+      entity2: { name: 'associated_data', alias: 'ad' },
+      type: 'left',
+      params: ['d.md5', 'ad.data_id'],
+      columns: {
+        entity_id: 'NULL',
+        label: 'ad.name',
+        type: `'md5'`,
+        value: 'd.md5',
+        entity_type: `'provone_Data'`
+      }
+    },
+    type: 'union'
+  },
 }
 
 
@@ -46,23 +75,6 @@ Kepler.prototype.execute = (workflowIdentifier) => {
     return Kepler.prototype.PopulatePortRelations(workflowIdentifier);
   }).then(() => {
     return Kepler.prototype.PopulateEntityRelations(workflowIdentifier);
-  });
-};
-
-Kepler.prototype.Entity = (workflowIdentifier) => {
-  return new Promise((resolve, reject) => {
-    return pg.query("select p.id as entity_id, e.name as label, p.type, p.value, 'provone_Data' as entity_type\n" +
-      "from parameter p, entity e\n" +
-      "where p.id = e.id\n" +
-      "UNION ALL " +
-      "select NULL as entity_id, ad.name as label, 'md5' as type, d.md5 as value, 'provone_Data' as entity_type\n" +
-      "from data d\n" +
-      "left join associated_data ad on d.md5 = ad.data_id", (err, res) => {
-        if (err || res === undefined)
-          return reject(err);
-        else
-          return resolve(insert(prov.Classes.ENTITY, _.map(res.rows, (o) => { return _.extend({}, o, { workflow_identifier: workflowIdentifier }) })));
-      });
   });
 };
 
