@@ -14,8 +14,8 @@ router.post('/', async (req, res, next) => {
     let { parser, dbInterface } = contexts[context]
 
     query = await parser(query)
+    console.log(query)
     results = await dbInterface(query, results => {
-      console.log(query)
       res.send({
         success: true,
         results: results
