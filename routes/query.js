@@ -22,7 +22,7 @@ router.post('/', async (req, res, next) => {
       })
     })
 
-  } catch(e) {
+  } catch (e) {
     next(req, res, next, e)
   }
 });
