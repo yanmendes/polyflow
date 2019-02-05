@@ -7,10 +7,16 @@ const router = express.Router()
 
 router.post('/', async (req, res, next) => {
   try {
+    if (!req.body.query.trim()) {
+      throw new Error(`You need a parameter query to consume this endpoint`)
+    }
+
     const contextualizedQueries = contextualizeSubQueries(req.body.query)
 
     if (contextualizedQueries.length > 1) {
       throw new Error(`Can't support multiple queries yet`)
+    } else if (contextualizedQueries.length === 0) {
+      throw new Error(`${req.body.query} is not a valid query`)
     }
 
     for (const contextualizedQuery of contextualizedQueries) {
@@ -28,7 +34,10 @@ router.post('/', async (req, res, next) => {
     }
   } catch (e) {
     logger.error(e)
-    res.send(e).status(500)
+    res.send({
+      success: false,
+      message: e.message
+    }).status(500)
   }
 })
 
