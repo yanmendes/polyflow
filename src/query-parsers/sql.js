@@ -67,7 +67,7 @@ function mediateEntity (tableName) {
   }
 }
 
-module.exports = async function (query) {
+export default async function (query) {
   const parser = new Parser()
   let ast = parser.parse(query)
   const { from } = ast
