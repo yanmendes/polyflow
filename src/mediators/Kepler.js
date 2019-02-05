@@ -2,8 +2,7 @@ import Prov from '../../models/Prov'
 import Provone from '../../models/Provone'
 import pg from '../../infra/PsqlInterface'
 import _ from 'lodash'
-
-const { SQL_INNER_JOIN, SQL_UNION, SQL_LEFT_JOIN } = require('../mediators/mediationTypes')
+import { SQL_INNER_JOIN, SQL_UNION, SQL_LEFT_JOIN } from '../mediators/mediationTypes'
 
 // TODO: REFACTOR CODE USING PROV-PROVONE
 

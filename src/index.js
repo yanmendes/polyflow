@@ -4,11 +4,12 @@ import query from './routes/query'
 import user from './routes/user'
 import bodyParser from 'body-parser'
 import path from 'path'
+import dotenv from 'dotenv'
 
 if (process.env === 'production') {
-  require('dotenv').config({ path: path.join(__dirname, '/../envs/.prod') })
+  dotenv.config({ path: path.join(__dirname, '/../envs/.prod') })
 } else {
-  require('dotenv').config({ path: path.join(__dirname, '/../envs/.dev') })
+  dotenv.config({ path: path.join(__dirname, '/../envs/.dev') })
 }
 
 const app = express()

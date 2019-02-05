@@ -1,6 +1,6 @@
 'use strict'
 
-const { Client } = require('pg')
+import { Client } from 'pg'
 
 export default async (query, callback) => {
   const client = new Client()
