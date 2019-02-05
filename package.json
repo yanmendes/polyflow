@@ -24,15 +24,12 @@
   "homepage": "https://github.com/yanmendes/Polyflow#readme",
   "dependencies": {
     "body-parser": "^1.18.3",
-    "cors": "^2.8.4",
     "dotenv": "^6.0.0",
     "express": "^4.16.3",
     "flora-sql-parser": "^0.8.0",
     "lodash": "^4.17.10",
-    "morgan": "^1.9.0",
-    "neo4j-driver": "^1.6.3",
     "pg": "^7.4.3",
-    "sprintf-js": "^1.1.1"
+    "pino": "^5.11.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.3",

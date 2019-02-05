@@ -5,6 +5,9 @@ import user from './routes/user'
 import bodyParser from 'body-parser'
 import path from 'path'
 import dotenv from 'dotenv'
+import Pino from 'pino'
+
+const logger = Pino()
 
 if (process.env === 'production') {
   dotenv.config({ path: path.join(__dirname, '/../envs/.prod') })
@@ -22,4 +25,4 @@ app.get('/', (req, res) => res.status(200).send('ok!'))
 app.use('/query', query)
 app.use('/', user)
 
-app.listen(port, () => console.log(`Listening on port ${port}`))
+app.listen(port, () => logger.info(`Listening on port ${port}`))

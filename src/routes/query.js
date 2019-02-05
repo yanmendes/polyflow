@@ -1,24 +1,31 @@
 import express from 'express'
-import { resolveContext, contexts } from '../query-parsers'
+import { contextualizeSubQueries, getParserAndInterface } from '../query-parsers'
+import Pino from 'pino'
+
+const logger = Pino()
 const router = express.Router()
 
 router.post('/', async (req, res, next) => {
   try {
-    let { context, query } = resolveContext(req.body.query)
+    const contextualizedQueries = contextualizeSubQueries(req.body.query)
 
-    // Nested queries in bigdawg
-    if (typeof query === 'object') { throw new Error("Can't handle that yet") }
+    if (contextualizedQueries.length > 1) {
+      throw new Error(`Can't support multiple queries yet`)
+    }
 
-    let { parser, dbInterface } = contexts[context]
+    for (const contextualizedQuery of contextualizedQueries) {
+      const { context, query } = contextualizedQuery
+      const { parser, dbInterface } = getParserAndInterface(context)
 
-    query = await parser(query)
-    console.log(query)
-    await dbInterface(query, results => {
-      res.send({
-        success: true,
-        results: results
+      const parsedQuery = await parser(query)
+      logger.info(parsedQuery)
+      await dbInterface(parsedQuery, results => {
+        res.send({
+          success: true,
+          results: results
+        })
       })
-    })
+    }
   } catch (e) {
     console.log(e)
     res.send(e).status(500)
