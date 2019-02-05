@@ -1,19 +1,19 @@
-'use strict';
+'use strict'
 
 const { Client } = require('pg')
 
-module.exports = async (query, callback) => {
-  const client = new Client();
-  await client.connect();
+export default async (query, callback) => {
+  const client = new Client()
+  await client.connect()
 
-  if (!query)
-    throw new Error("No query issued to this interface")
+  if (!query) {
+    throw new Error('No query issued to this interface')
+  }
 
   client.query(query, async (err, res) => {
-    if (err)
-      throw err
+    if (err) { throw err }
 
-    await client.end();
+    await client.end()
 
     callback(res.rows)
   })

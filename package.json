@@ -4,37 +4,62 @@
   "description": "",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "dev": "nodemon -w src --exec \"babel-node src\"",
+    "start": "babel-node src",
+    "lint": "standard",
+    "build": "babel src -s -D -d dist",
+    "start:prod": "node dist",
+    "test": "jest && codecov",
+    "scrape-data": "babel-node src/scraper"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yanmendes/Polyflow.git"
   },
   "author": "Yan Mendes",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yanmendes/Polyflow/issues"
+  },
+  "homepage": "https://github.com/yanmendes/Polyflow#readme",
   "dependencies": {
-    "apidoc": "^0.17.6",
     "body-parser": "^1.18.3",
-    "cookie-parser": "^1.4.3",
     "cors": "^2.8.4",
-    "debug": "^3.1.0",
     "dotenv": "^6.0.0",
-    "ejs": "^2.6.1",
     "express": "^4.16.3",
-    "express-flash": "0.0.2",
-    "express-jwt": "^5.3.1",
-    "express-session": "^1.15.6",
-    "express-validator": "^5.3.0",
     "flora-sql-parser": "^0.8.0",
-    "formidable": "^1.2.1",
     "lodash": "^4.17.10",
     "morgan": "^1.9.0",
     "neo4j-driver": "^1.6.3",
-    "node-expat": "^2.3.16",
-    "nodemon": "^1.18.6",
-    "owljs": "^0.9.1",
     "pg": "^7.4.3",
-    "promise-mysql": "^3.3.1",
-    "sequelize-cli": "^5.3.0",
     "sprintf-js": "^1.1.1"
   },
   "devDependencies": {
-    "apidoc": "^0.17.5"
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.2.2",
+    "@babel/node": "^7.2.2",
+    "@babel/preset-env": "^7.3.1",
+    "babel-core": "^7.0.0-bridge.0",
+    "babel-eslint": "^10.0.1",
+    "codecov": "^3.1.0",
+    "husky": "^1.3.1",
+    "nodemon": "^1.18.9",
+    "standard": "^12.0.1"
+  },
+  "standard": {
+    "parser": "babel-eslint",
+    "env": {
+      "jest": true
+    }
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-env"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint"
+    }
   }
 }
