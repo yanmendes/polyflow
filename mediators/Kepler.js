@@ -3,55 +3,79 @@ let prov = require('../models/Prov'),
   pg = require('../infra/PsqlInterface'),
   _ = require('lodash');
 
+const { SQL_INNER_JOIN, SQL_UNION, SQL_LEFT_JOIN } = require('../mediators/mediationTypes')
+
 //TODO: REFACTOR CODE USING PROV-PROVONE
 
+// Avoid giving the same alias to different entities
+const ePort = { name: 'port', alias: 'p', columns: { port_id: 'p.id', port_type: `CASE WHEN p.direction = 1 THEN 'out' WHEN p.direction = 0 THEN 'in' END` } }
+const eEntity = { name: 'entity', alias: 'e', columns: { label: 'e.name' } }
 
+const eParameter = {
+  name: 'parameter', alias: 'param', columns: {
+    entity_id: 'param.id',
+    type: 'param.type',
+    value: 'param.value',
+    entity_type: `'provone_Data'`
+  }
+}
 
+const eAssociatedData = { name: 'associated_data', alias: 'ad', columns: { label: 'ad.name' } }
+const eData = { name: 'data', alias: 'd', columns: { value: 'd.md5' } }
+
+const eActor = { name: 'actor', alias: 'a', columns: { program_id: 'a.id', } }
+const eWorkflow = { name: 'workflow', alias: 'w' }
 
 module.exports = {
   [provone.Classes.PORT]: {
-    entity1: { name: 'port', alias: 'port', columns: [] },
-    entity2: { name: 'entity', alias: 'entity', columns: [] },
-    type: 'inner',
-    params: ['port.id', 'entity.id'],
-    columns: {
-      port_id: 'entity.id',
-      label: 'entity.name',
-      port_type: `CASE WHEN port.direction = 1 THEN 'out' WHEN port.direction = 0 THEN 'in' END`
-    }
+    entity1: ePort,
+    entity2: eEntity,
+    type: SQL_INNER_JOIN,
+    columns: { ...ePort.columns, ...eEntity.columns },
+    params: ['p.id', 'e.id'],
   },
   [prov.Classes.ENTITY]: {
     entity1: {
-      entity1: { name: 'parameter', alias: 'p' },
-      entity2: { name: 'entity', alias: 'e' },
-      type: 'inner',
-      params: ['p.id', 'e.id'],
-      columns: {
-        entity_id: 'p.id',
-        label: 'e.name',
-        type: 'p.type',
-        value: 'p.value',
-        entity_type: `'provone_Data'`
-      }
+      entity1: eParameter,
+      entity2: eEntity,
+      type: SQL_INNER_JOIN,
+      columns: { ...eParameter.columns, ...eEntity.columns },
+      params: ['param.id', 'e.id']
     },
     entity2: {
-      entity1: { name: 'data', alias: 'd' },
-      entity2: { name: 'associated_data', alias: 'ad' },
-      type: 'left',
+      entity1: eData,
+      entity2: eAssociatedData,
+      type: SQL_LEFT_JOIN,
       params: ['d.md5', 'ad.data_id'],
       columns: {
         entity_id: 'NULL',
-        label: 'ad.name',
         type: `'md5'`,
-        value: 'd.md5',
-        entity_type: `'provone_Data'`
+        ...eData.columns,
+        entity_type: `'provone_Data'`,
+        ...eAssociatedData.columns
       }
     },
-    type: 'union'
+    type: SQL_UNION
   },
+  [provone.Classes.PROGRAM]: {
+    entity1: eActor,
+    entity2: {
+      entity1: eEntity,
+      entity2: eWorkflow,
+      type: SQL_LEFT_JOIN,
+      columns: {
+        joinId: `e.id`,
+        label: `COALESCE(w.name, e.name)`,
+        ipw: `CASE WHEN w.id IS NOT NULL THEN TRUE ELSE FALSE END`,
+        phssubp: `CASE WHEN w.id IS NOT NULL THEN NULL ELSE e.wf_id END`
+      },
+      params: ['w.id', 'e.id']
+    },
+    columns: { program_id: 'a.id', label: 'label', is_provone_Workflow: 'ipw', provone_hasSubProgram: 'phssubp' },
+    type: SQL_INNER_JOIN,
+    params: ['program_id', 'joinId']
+  }
 }
-
-
 
 
 var Kepler = function () {

@@ -1,10 +1,11 @@
+const { SQL_INNER_JOIN, SQL_RIGHT_JOIN, SQL_LEFT_JOIN } = require('../mediators/mediationTypes')
 const KeplerMediator = require('../mediators/Kepler')
 const { Parser } = require('flora-sql-parser');
 const toSQL = require('flora-sql-parser').util.astToSQL;
 const _ = require('lodash')
 
-function handleSimpleMediation({ entity }) {
-  return `(SELECT ${parseCols(entity.cols)} FROM ${entity.name} AS ${entity.alias})`
+function handleSimpleMediation(entity) {
+  return `(SELECT ${parseCols(entity.columns)} FROM ${entity.name} AS ${entity.alias})`
 }
 
 function parseCols(columns) {
@@ -12,7 +13,9 @@ function parseCols(columns) {
   let aliases = Object.keys(columns)
 
   cols.forEach((v, k) => {
-    cols[k] = v + ` as ${aliases[k]}`
+    if (k !== 'all') {
+      cols[k] = v + ` as ${aliases[k]}`
+    }
   })
 
   return _.join(cols, ', ')
@@ -34,7 +37,7 @@ function handleComplexMediation({ entity1, entity2, type, columns, params }) {
     const query1 = entity1.entity1 ? handleComplexMediation(entity1) : handleSimpleMediation(entity1)
     const query2 = entity2.entity1 ? handleComplexMediation(entity2) : handleSimpleMediation(entity2)
 
-    if (type === 'inner' || type === 'left') {
+    if (type === SQL_INNER_JOIN || type === SQL_LEFT_JOIN || type === SQL_RIGHT_JOIN) {
       return `(SELECT * FROM (${query1}) AS t1 ${type} JOIN (${query2}) AS t2 ON t1.${params[0]} = t2.${params[1]})`
     } else if (type === 'union') {
       return `(SELECT * FROM (${query1}) AS t1 UNION ALL (${query2}))`
@@ -42,7 +45,7 @@ function handleComplexMediation({ entity1, entity2, type, columns, params }) {
       throw new Error("No valid type was defined")
     }
   } else {
-    if (type === 'inner' || type === 'left') {
+    if (type === SQL_INNER_JOIN || type === SQL_LEFT_JOIN || type === SQL_RIGHT_JOIN) {
       return resolveJoin(columns, entity1, entity2, type, params)
     } else if (type === 'union') {
       return resolveUnion(entity1, entity2)
