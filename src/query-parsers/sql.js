@@ -2,12 +2,9 @@ import { SQL_INNER_JOIN, SQL_RIGHT_JOIN, SQL_LEFT_JOIN } from '../mediators/medi
 import KeplerMediator from '../mediators/Kepler'
 import { Parser } from 'flora-sql-parser'
 import _ from 'lodash'
+import { MediationError } from '../CustomErrors'
 
 const toSQL = require('flora-sql-parser').util.astToSQL
-
-function handleSimpleMediation (entity) {
-  return `(SELECT ${parseCols(entity.columns)} FROM ${entity.name} AS ${entity.alias})`
-}
 
 function parseCols (columns) {
   let cols = Object.values(columns)
@@ -23,14 +20,28 @@ function parseCols (columns) {
 }
 
 function resolveJoin (columns, fromTable, joinTable, joinType, params) {
+  if (!columns || !fromTable || !joinTable || !joinType || !params) {
+    throw new MediationError(`Error resolving join`, { columns, fromTable, joinTable, joinType, params })
+  }
+
   return `(SELECT ${parseCols(columns)} FROM ${fromTable.name} AS ${fromTable.alias}
   ${joinType} JOIN ${joinTable.name} AS ${joinTable.alias} ON ${params[0]} = ${params[1]})`
 }
 
-function resolveUnion (entity1, entity2, cols1, cols2) {
-  return `((SELECT ${parseCols(cols1)} FROM ${entity1.name} AS ${entity1.alias})
+function resolveUnion (entity1, entity2, colsEntity1, colsEntity2) {
+  if (!entity1 || !entity2 || !colsEntity1 || !colsEntity2) {
+    throw new MediationError(`Error resolving union`, { entity1, entity2, cols1: colsEntity1, cols2: colsEntity2 })
+  }
+  return `((SELECT ${parseCols(colsEntity1)} FROM ${entity1.name} AS ${entity1.alias})
           UNION ALL
-           (SELECT ${parseCols(cols2)} FROM ${entity2.name} AS ${entity2.alias}))`
+           (SELECT ${parseCols(colsEntity2)} FROM ${entity2.name} AS ${entity2.alias}))`
+}
+
+function handleSimpleMediation (entity) {
+  if (!entity || !entity.columns || !entity.name || !entity.alias) {
+    throw new MediationError(`Invalid entity`, entity)
+  }
+  return `(SELECT ${parseCols(entity.columns)} FROM ${entity.name} AS ${entity.alias})`
 }
 
 function handleComplexMediation ({ entity1, entity2, type, columns, params }) {

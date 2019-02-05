@@ -33,7 +33,9 @@ router.post('/', async (req, res, next) => {
       })
     }
   } catch (e) {
-    logger.error(e)
+    const child = logger.child({ aditionalInfo: e.mediationInfo })
+    child.error(e.message)
+
     res.send({
       success: false,
       message: e.message
