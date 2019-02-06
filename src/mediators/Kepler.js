@@ -2,6 +2,7 @@ import Prov from '../../models/Prov'
 import Provone from '../../models/Provone'
 import pg from '../../infra/PsqlInterface'
 import { SQL_INNER_JOIN, SQL_UNION, SQL_LEFT_JOIN } from '../mediators/mediationTypes'
+import filterObjectByKeys from '../filterObjectByKeys'
 
 const Port = {
   name: 'port',
@@ -72,11 +73,47 @@ const provoneProgram = {
   params: ['program_id', 'joinId']
 }
 
-export default {
-  [Provone.Classes.PORT]: provonePort,
-  [Prov.Classes.ENTITY]: provEntity,
-  [Provone.Classes.PROGRAM]: provoneProgram
+const ActorFire = {
+  name: 'actor_fire',
+  alias: 'af',
+  columns: {
+    execution_id: 'af.id',
+    prov_hadPlan: 'actor_id',
+    prov_startedAtTime: `TO_CHAR(af.start_time, 'dd-mon-yyyy hh24:mi:ss')`,
+    prov_endedAtTime: `TO_CHAR(af.end_time, 'dd-mon-yyyy hh24:mi:ss')`
+  }
 }
+
+const WorkflowExec = {
+  name: 'actor_fire',
+  alias: 'af',
+  columns: {
+    execution_id: 'af.id',
+    prov_hadPlan: 'actor_id',
+    prov_startedAtTime: `TO_CHAR(af.start_time, 'dd-mon-yyyy hh24:mi:ss')`,
+    prov_endedAtTime: `TO_CHAR(af.end_time, 'dd-mon-yyyy hh24:mi:ss')`
+  }
+}
+
+const provoneExecution = {
+  entity1: { ...ActorFire, columns: filterObjectByKeys(ActorFire.columns, ['execution_id', 'prov_startedAtTime', 'prov_endedAtTime']) },
+  entity2: { ...WorkflowExec, columns: filterObjectByKeys(WorkflowExec.columns, ['execution_id', 'prov_startedAtTime', 'prov_endedAtTime']) },
+  type: SQL_UNION
+}
+
+const provoneAssociation = {
+  entity1: { ...ActorFire, columns: filterObjectByKeys(ActorFire.columns, ['execution_id', 'prov_hadPlan']) },
+  entity2: { ...WorkflowExec, columns: filterObjectByKeys(WorkflowExec.columns, ['execution_id', 'prov_hadPlan']) },
+  type: SQL_UNION
+}
+
+export default new Map([
+  [Provone.Classes.PORT, provonePort],
+  [Prov.Classes.ENTITY, provEntity],
+  [Provone.Classes.PROGRAM, provoneProgram],
+  [Provone.Classes.EXECUTION, provoneExecution],
+  [Prov.Classes.ASSOCIATION, provoneAssociation]
+])
 
 var Kepler = function () {
 
@@ -101,36 +138,6 @@ Kepler.prototype.execute = (workflowIdentifier) => {
     return Kepler.prototype.PopulatePortRelations(workflowIdentifier)
   }).then(() => {
     return Kepler.prototype.PopulateEntityRelations(workflowIdentifier)
-  })
-}
-
-// TODO: CHANGE THIS RANDOM GENERATORS
-Kepler.prototype.Execution = (workflowIdentifier) => {
-  return new Promise((resolve, reject) => {
-    return pg.query(`select id as execution_id, actor_id as "prov_hadPlan", to_char(start_time, 'dd-mon-yyyy hh24:mi:ss') as "prov_startedAtTime", to_char(end_time, 'dd-mon-yyyy hh24:mi:ss') as "prov_endedAtTime" from actor_fire\n` +
-      'UNION ALL\n' +
-      `select FLOOR(random()*(10000)+1000) AS execution_id, wf_id as "prov_hadPlan", to_char(start_time, 'dd-mon-yyyy hh24:mi:ss') as "prov_startedAtTime", to_char(end_time, 'dd-mon-yyyy hh24:mi:ss') as "prov_endedAtTime" from workflow_exec`, (err, res) => {
-      if (err || res === undefined) { return reject(err) }
-
-      res.rows = _.map(res.rows, (o) => { return _.extend({}, o, { workflow_identifier: workflowIdentifier }) })
-
-      let associations = _.map(res.rows, _.partialRight(_.pick, ['prov_hadPlan', 'workflow_identifier']))
-      let executions = _.map(res.rows, _.partialRight(_.pick, ['execution_id', 'prov_startedAtTime', 'prov_endedAtTime', 'workflow_identifier']))
-
-      return resolve(insert(Provone.Classes.EXECUTION, executions).then(() => {
-        return insert(Prov.Classes.ASSOCIATION, associations)
-      }).then(() => {
-        return db.query(`SELECT association_id, prov_hadPlan, workflow_identifier FROM ${Prov.Classes.ASSOCIATION} WHERE prov_hadPlan IN (?) AND workflow_identifier = ?`, {
-          type: db.QueryTypes.SELECT,
-          replacements: [associations.map(a => a.prov_hadPlan), workflowIdentifier]
-        })
-      }).then((results) => {
-        let qualifiedAssociations = _.map(_.map(results, (o) => {
-          return _.extend({}, o, { execution_id: _.find(res.rows, { 'prov_hadPlan': o.prov_hadplan }).execution_id })
-        }), _.partialRight(_.pick, ['association_id', 'execution_id', 'workflow_identifier']))
-        return insert(Prov.Relationships.QUALIFIEDASSOCIATION, qualifiedAssociations)
-      }))
-    })
   })
 }
 
