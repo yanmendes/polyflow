@@ -9,7 +9,7 @@
     "lint": "standard",
     "build": "babel src -s -D -d dist",
     "start:prod": "node dist",
-    "test": "jest && codecov",
+    "test": "jest",
     "scrape-data": "babel-node src/scraper"
   },
   "repository": {
@@ -39,6 +39,7 @@
     "babel-eslint": "^10.0.1",
     "codecov": "^3.1.0",
     "husky": "^1.3.1",
+    "jest": "^24.1.0",
     "nodemon": "^1.18.9",
     "standard": "^12.0.1"
   },
