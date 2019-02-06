@@ -1,88 +1,88 @@
 import Prov from '../../models/Prov'
 import Provone from '../../models/Provone'
 import pg from '../../infra/PsqlInterface'
-import _ from 'lodash'
 import { SQL_INNER_JOIN, SQL_UNION, SQL_LEFT_JOIN } from '../mediators/mediationTypes'
 
-// TODO: REFACTOR CODE USING PROV-PROVONE
+const Port = {
+  name: 'port',
+  alias: 'p',
+  columns: { port_id: 'p.id', port_type: `CASE WHEN p.direction = 1 THEN 'out' WHEN p.direction = 0 THEN 'in' END` }
+}
+const Entity = { name: 'entity', alias: 'e', columns: { label: 'e.name' } }
 
-// Avoid giving the same alias to different entities
-const ePort = { name: 'port', alias: 'p', columns: { port_id: 'p.id', port_type: `CASE WHEN p.direction = 1 THEN 'out' WHEN p.direction = 0 THEN 'in' END` } }
-const eEntity = { name: 'entity', alias: 'e', columns: { label: 'e.name' } }
-
-const eParameter = {
-  name: 'parameter',
-  alias: 'param',
-  columns: {
-    entity_id: 'param.id',
-    type: 'param.type',
-    value: 'param.value',
-    entity_type: `'provone_Data'`
-  }
+const provonePort = {
+  entity1: Port,
+  entity2: Entity,
+  type: SQL_INNER_JOIN,
+  columns: { ...Port.columns, ...Entity.columns },
+  params: ['p.id', 'e.id']
 }
 
-const eAssociatedData = { name: 'associated_data', alias: 'ad', columns: { label: 'ad.name' } }
-const eData = { name: 'data', alias: 'd', columns: { value: 'd.md5' } }
+const Parameter = {
+  name: 'parameter',
+  alias: 'param',
+  columns: { entity_id: 'param.id', type: 'param.type', value: 'param.value', entity_type: `'provone_Data'` }
+}
+const AssociatedData = { name: 'associated_data', alias: 'ad', columns: { label: 'ad.name' } }
+const Data = { name: 'data', alias: 'd', columns: { value: 'd.md5' } }
 
-const eActor = { name: 'actor', alias: 'a', columns: { program_id: 'a.id' } }
-const eWorkflow = { name: 'workflow', alias: 'w' }
+const provEntity = {
+  entity1: {
+    entity1: Parameter,
+    entity2: Entity,
+    type: SQL_INNER_JOIN,
+    columns: { ...Parameter.columns, ...Entity.columns },
+    params: ['param.id', 'e.id']
+  },
+  entity2: {
+    entity1: Data,
+    entity2: AssociatedData,
+    type: SQL_LEFT_JOIN,
+    params: ['d.md5', 'ad.data_id'],
+    columns: {
+      entity_id: 'NULL',
+      type: `'md5'`,
+      ...Data.columns,
+      entity_type: `'provone_Data'`,
+      ...AssociatedData.columns
+    }
+  },
+  type: SQL_UNION
+}
+
+const Actor = { name: 'actor', alias: 'a', columns: { program_id: 'a.id' } }
+const Workflow = { name: 'workflow', alias: 'w' }
+
+const provoneProgram = {
+  entity1: Actor,
+  entity2: {
+    entity1: Entity,
+    entity2: Workflow,
+    type: SQL_LEFT_JOIN,
+    columns: {
+      joinId: `e.id`,
+      label: `COALESCE(w.name, e.name)`,
+      ipw: `CASE WHEN w.id IS NOT NULL THEN TRUE ELSE FALSE END`,
+      phssubp: `CASE WHEN w.id IS NOT NULL THEN NULL ELSE e.wf_id END`
+    },
+    params: ['w.id', 'e.id']
+  },
+  columns: { program_id: 'a.id', label: 'label', is_provone_Workflow: 'ipw', provone_hasSubProgram: 'phssubp' },
+  type: SQL_INNER_JOIN,
+  params: ['program_id', 'joinId']
+}
 
 export default {
-  [Provone.Classes.PORT]: {
-    entity1: ePort,
-    entity2: eEntity,
-    type: SQL_INNER_JOIN,
-    columns: { ...ePort.columns, ...eEntity.columns },
-    params: ['p.id', 'e.id']
-  },
-  [Prov.Classes.ENTITY]: {
-    entity1: {
-      entity1: eParameter,
-      entity2: eEntity,
-      type: SQL_INNER_JOIN,
-      columns: { ...eParameter.columns, ...eEntity.columns },
-      params: ['param.id', 'e.id']
-    },
-    entity2: {
-      entity1: eData,
-      entity2: eAssociatedData,
-      type: SQL_LEFT_JOIN,
-      params: ['d.md5', 'ad.data_id'],
-      columns: {
-        entity_id: 'NULL',
-        type: `'md5'`,
-        ...eData.columns,
-        entity_type: `'provone_Data'`,
-        ...eAssociatedData.columns
-      }
-    },
-    type: SQL_UNION
-  },
-  [Provone.Classes.PROGRAM]: {
-    entity1: eActor,
-    entity2: {
-      entity1: eEntity,
-      entity2: eWorkflow,
-      type: SQL_LEFT_JOIN,
-      columns: {
-        joinId: `e.id`,
-        label: `COALESCE(w.name, e.name)`,
-        ipw: `CASE WHEN w.id IS NOT NULL THEN TRUE ELSE FALSE END`,
-        phssubp: `CASE WHEN w.id IS NOT NULL THEN NULL ELSE e.wf_id END`
-      },
-      params: ['w.id', 'e.id']
-    },
-    columns: { program_id: 'a.id', label: 'label', is_provone_Workflow: 'ipw', provone_hasSubProgram: 'phssubp' },
-    type: SQL_INNER_JOIN,
-    params: ['program_id', 'joinId']
-  }
+  [Provone.Classes.PORT]: provonePort,
+  [Prov.Classes.ENTITY]: provEntity,
+  [Provone.Classes.PROGRAM]: provoneProgram
 }
 
 var Kepler = function () {
 
 }
 
-/* global insert, db */
+/* global insert, db, _ */
 
 Kepler.prototype.execute = (workflowIdentifier) => {
   return Kepler.prototype.Port(workflowIdentifier).then(() => {
@@ -101,17 +101,6 @@ Kepler.prototype.execute = (workflowIdentifier) => {
     return Kepler.prototype.PopulatePortRelations(workflowIdentifier)
   }).then(() => {
     return Kepler.prototype.PopulateEntityRelations(workflowIdentifier)
-  })
-}
-
-Kepler.prototype.Program = (workflowIdentifier) => {
-  return new Promise((resolve, reject) => {
-    return pg.query('select a.id as program_id, COALESCE(w.name, e.name) as label, case when w.id is not null then true else false end as "is_provone_Workflow", case when w.id is not null then NULL else e.wf_id end as "provone_hasSubProgram"\n' +
-      'from actor a, entity e\n' +
-      'left join workflow w on w.id = e.id\n' +
-      'where a.id = e.id', (err, res) => {
-      if (err || res === undefined) { return reject(err) } else { return resolve(insert(Provone.Classes.PROGRAM, _.map(res.rows, (o) => { return _.extend({}, o, { workflow_identifier: workflowIdentifier }) }))) }
-    })
   })
 }
 

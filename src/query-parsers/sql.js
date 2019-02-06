@@ -1,7 +1,6 @@
 import { SQL_INNER_JOIN, SQL_RIGHT_JOIN, SQL_LEFT_JOIN } from '../mediators/mediationTypes'
 import KeplerMediator from '../mediators/Kepler'
 import { Parser } from 'flora-sql-parser'
-import _ from 'lodash'
 import { MediationError } from '../CustomErrors'
 
 const toSQL = require('flora-sql-parser').util.astToSQL
@@ -16,7 +15,7 @@ function parseCols (columns) {
     }
   })
 
-  return _.join(cols, ', ')
+  return cols.join(',')
 }
 
 function resolveJoin (columns, fromTable, joinTable, joinType, params) {
@@ -86,12 +85,12 @@ export default async function (query) {
   let i = 0
   let entities = {}
 
-  _.forEach(from, table => {
+  for (const table of from) {
     entities[[table.table]] = mediateEntity(table.table)
     // Forcefully adding an alias if they don't have one
     // This is done because subqueries must have an alias in SQL
     table.as = table.as ? table.as : ('table_' + i++)
-  })
+  }
 
   let sql = toSQL(ast)
 
