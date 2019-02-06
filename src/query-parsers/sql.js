@@ -27,13 +27,13 @@ function resolveJoin (columns, fromTable, joinTable, joinType, params) {
   ${joinType} JOIN ${joinTable.name} AS ${joinTable.alias} ON ${params[0]} = ${params[1]})`
 }
 
-function resolveUnion (entity1, entity2, colsEntity1, colsEntity2) {
-  if (!entity1 || !entity2 || !colsEntity1 || !colsEntity2) {
-    throw new MediationError(`Error resolving union`, { entity1, entity2, cols1: colsEntity1, cols2: colsEntity2 })
+function resolveUnion (entity1, entity2) {
+  if (!entity1 || !entity2 || !entity1.columns || !entity2.columns) {
+    throw new MediationError(`Error resolving union`, { entity1, entity2 })
   }
-  return `((SELECT ${parseCols(colsEntity1)} FROM ${entity1.name} AS ${entity1.alias})
+  return `((SELECT ${parseCols(entity1.columns)} FROM ${entity1.name} AS ${entity1.alias})
           UNION ALL
-           (SELECT ${parseCols(colsEntity2)} FROM ${entity2.name} AS ${entity2.alias}))`
+           (SELECT ${parseCols(entity2.columns)} FROM ${entity2.name} AS ${entity2.alias}))`
 }
 
 function handleSimpleMediation (entity) {
