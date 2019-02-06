@@ -66,8 +66,21 @@ function handleComplexMediation ({ entity1, entity2, type, columns, params }) {
   }
 }
 
-function mediateEntity (tableName) {
-  const mediator = KeplerMediator[[tableName.toLowerCase()]]
+function validateMediator (mediator) {
+  if (!mediator.entity1) {
+    throw new MediationError('Entity 2 not set for mediator', mediator)
+  } else if (mediator.entity2 && !mediator.type) {
+    throw new MediationError('Type not set for mediator', mediator)
+  }
+}
+
+function mediateEntity (entityName) {
+  if (!KeplerMediator.has(entityName)) {
+    throw new MediationError(`Entity does not exist in mediator`, { mediator: KeplerMediator, tableName: entityName })
+  }
+  const mediator = KeplerMediator.get(entityName)
+
+  validateMediator(mediator)
   // This means this is a 1-1
   if (!mediator.entity2) {
     return handleSimpleMediation(mediator)
@@ -75,6 +88,10 @@ function mediateEntity (tableName) {
   } else {
     return handleComplexMediation(mediator)
   }
+}
+
+if (process.env.NODE_ENV === 'test') {
+  module.exports = { validateMediator }
 }
 
 export default async function (query) {
@@ -86,7 +103,7 @@ export default async function (query) {
   let entities = {}
 
   for (const table of from) {
-    entities[[table.table]] = mediateEntity(table.table)
+    entities[[table.table]] = mediateEntity(table.table.toLowerCase())
     // Forcefully adding an alias if they don't have one
     // This is done because subqueries must have an alias in SQL
     table.as = table.as ? table.as : ('table_' + i++)

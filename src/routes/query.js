@@ -33,7 +33,7 @@ router.post('/', async (req, res, next) => {
       })
     }
   } catch (e) {
-    const child = logger.child({ aditionalInfo: e.mediationInfo })
+    const child = logger.child({ aditionalInfo: e.mediationInfo, stack: e.stack })
     child.error(e.message)
 
     res.send({
