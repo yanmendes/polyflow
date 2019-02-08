@@ -24,7 +24,6 @@ router.post('/', async (req, res, next) => {
       const { parser, dbInterface } = getParserAndInterface(context)
 
       const parsedQuery = await parser(query)
-      logger.info(parsedQuery)
       await dbInterface(parsedQuery, (results: any) => {
         res.send({
           success: true,
