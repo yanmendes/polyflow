@@ -1,5 +1,7 @@
 class MediationError extends Error {
-  constructor (message, mediationInfo) {
+  mediationInfo: Object | Array<Object>
+
+  constructor (message: string, mediationInfo: Object | Array<Object>) {
     super(message)
     this.mediationInfo = mediationInfo
     Error.captureStackTrace(this, MediationError)

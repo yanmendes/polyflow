@@ -9,11 +9,11 @@ import Pino from 'pino'
 
 const logger = Pino()
 
-if (process.env === 'production') {
-  dotenv.config({ path: path.join(__dirname, '/../envs/.prod') })
-} else {
-  dotenv.config({ path: path.join(__dirname, '/../envs/.dev') })
-}
+// if (process.env === 'production') {
+//   dotenv.config({ path: path.join(__dirname, '/../envs/.prod') })
+// } else {
+dotenv.config({ path: path.join(__dirname, '../../envs/.dev') })
+// }
 
 const app = express()
 

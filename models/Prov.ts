@@ -1,4 +1,4 @@
-var Prov = {
+export default {
   Classes: {
     // R-Prov
     ASSOCIATION: 'prov_association',
@@ -29,5 +29,3 @@ var Prov = {
     ENDEDATTIME: 'prov_endedAtTime'
   }
 }
-
-export default Prov

@@ -1,4 +1,4 @@
-var Provone = {
+export default {
   Classes: {
     // P-Prov
     PROGRAM: 'provone_program',
@@ -30,5 +30,3 @@ var Provone = {
     HADOUTPORT: 'provone_hadOutPort'
   }
 }
-
-export default Provone

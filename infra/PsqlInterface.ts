@@ -2,7 +2,7 @@
 
 import { Client } from 'pg'
 
-export default async (query, callback) => {
+export default async (query: string, callback: Function) => {
   const client = new Client()
   await client.connect()
 

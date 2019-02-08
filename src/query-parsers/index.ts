@@ -1,11 +1,11 @@
-import sqlParser from '../query-parsers/sql'
+import sqlParser from './sql'
 import psqlInterface from '../../infra/PsqlInterface'
 
 const contexts = new Map([
   ['bdrel', { parser: sqlParser, dbInterface: psqlInterface }]
 ])
 
-export const contextualizeSubQueries = (queryStmt) => {
+export const contextualizeSubQueries = (queryStmt: string) => {
   const regex = /^(bd\w+)\((.*)\)$/gmi
   let regexResult = regex.exec(queryStmt)
   const contextualizedQueries = []
@@ -19,7 +19,7 @@ export const contextualizeSubQueries = (queryStmt) => {
   return contextualizedQueries
 }
 
-export const getParserAndInterface = context => {
+export const getParserAndInterface = (context: string) => {
   if (!contexts.has(context)) {
     throw new Error(`Invalid context`)
   }

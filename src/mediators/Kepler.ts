@@ -1,6 +1,5 @@
 import Prov from '../../models/Prov'
 import Provone from '../../models/Provone'
-import pg from '../../infra/PsqlInterface'
 import { SQL_INNER_JOIN, SQL_UNION, SQL_LEFT_JOIN } from '../mediators/mediationTypes'
 import filterObjectByKeys from '../filterObjectByKeys'
 
@@ -85,13 +84,13 @@ const ActorFire = {
 }
 
 const WorkflowExec = {
-  name: 'actor_fire',
-  alias: 'af',
+  name: 'workflow_exec',
+  alias: 'wfe',
   columns: {
-    execution_id: 'af.id',
-    prov_hadPlan: 'actor_id',
-    prov_startedAtTime: `TO_CHAR(af.start_time, 'dd-mon-yyyy hh24:mi:ss')`,
-    prov_endedAtTime: `TO_CHAR(af.end_time, 'dd-mon-yyyy hh24:mi:ss')`
+    execution_id: 'NULL',
+    prov_hadPlan: 'wfe.wf_id',
+    prov_startedAtTime: `TO_CHAR(wfe.start_time, 'dd-mon-yyyy hh24:mi:ss')`,
+    prov_endedAtTime: `TO_CHAR(wfe.end_time, 'dd-mon-yyyy hh24:mi:ss')`
   }
 }
 
@@ -101,25 +100,24 @@ const provoneExecution = {
   type: SQL_UNION
 }
 
-const provoneAssociation = {
+const provAssociation = {
   entity1: { ...ActorFire, columns: filterObjectByKeys(ActorFire.columns, ['execution_id', 'prov_hadPlan']) },
   entity2: { ...WorkflowExec, columns: filterObjectByKeys(WorkflowExec.columns, ['execution_id', 'prov_hadPlan']) },
   type: SQL_UNION
 }
 
-export default new Map([
+export default new Map<string, MediationEntity | SQLTable>([
   [Provone.Classes.PORT, provonePort],
   [Prov.Classes.ENTITY, provEntity],
   [Provone.Classes.PROGRAM, provoneProgram],
   [Provone.Classes.EXECUTION, provoneExecution],
-  [Prov.Classes.ASSOCIATION, provoneAssociation]
+  [Prov.Classes.ASSOCIATION, provAssociation]
 ])
 
+/*
 var Kepler = function () {
 
 }
-
-/* global insert, db, _ */
 
 Kepler.prototype.execute = (workflowIdentifier) => {
   return Kepler.prototype.Port(workflowIdentifier).then(() => {
@@ -269,7 +267,7 @@ Kepler.prototype.PopulatePortRelations = (workflowIdentifier) => {
       let promises = []
 
       _.each(res.rows, (o) => {
-        var replacements = {
+        let replacements = {
           pid: o.port_id,
           eid: o.actor_id,
           portType: (o.write) ? 'provone_hasOutPort' : 'provone_hasInPort',
@@ -292,7 +290,7 @@ Kepler.prototype.PopulateEntityRelations = (workflowIdentifier) => {
       let promises = []
 
       _.each(res.rows, (o) => {
-        var replacements = {
+        let replacements = {
           data: o.data,
           exeid: o.execution_id,
           rtype: (o.write) ? 'prov_wasgeneratedby' : 'prov_used',
@@ -306,3 +304,4 @@ Kepler.prototype.PopulateEntityRelations = (workflowIdentifier) => {
     })
   })
 }
+*/
