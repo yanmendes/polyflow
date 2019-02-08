@@ -8,6 +8,7 @@ import dotenv from 'dotenv'
 import Pino from 'pino'
 
 const logger = Pino()
+const expressPino = require('express-pino-logger')({ logger })
 
 // if (process.env === 'production') {
 //   dotenv.config({ path: path.join(__dirname, '/../envs/.prod') })
@@ -16,6 +17,8 @@ dotenv.config({ path: path.join(__dirname, '../../envs/.dev') })
 // }
 
 const app = express()
+
+app.use(expressPino)
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
