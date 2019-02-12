@@ -1,9 +1,7 @@
 import express from 'express'
 import { contextualizeSubQueries, getParserAndInterface } from '../query-parsers'
-import Pino from 'pino'
 import { LoggedRequest } from 'request'
 
-const logger = Pino()
 const router = express.Router()
 
 router.post('/', async (req: LoggedRequest, res, next) => {
@@ -25,6 +23,7 @@ router.post('/', async (req: LoggedRequest, res, next) => {
       const { parser, dbInterface } = getParserAndInterface(context)
 
       const parsedQuery = await parser(query)
+      req.log.info(parsedQuery)
       await dbInterface(parsedQuery, (results: any) => {
         res.send({
           success: true,

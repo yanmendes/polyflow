@@ -104,8 +104,6 @@ function mediateEntity (entityName: string): string {
   }
   const mediator = KeplerMediator.get(entityName)
 
-  console.log(mediator)
-
   // This means this is a 1-1
   if (isSQLTable(mediator)) {
     return handleSimpleMediation(mediator)
