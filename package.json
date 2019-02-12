@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "watch-node": "nodemon dist/src",
-    "start": "node dist/src",
+    "start": "PORT=3050 node dist/src",
     "build": "npm run build-ts && npm run tslint",
     "dev": "npm run watch-node",
     "build-ts": "tsc",
@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/yanmendes/Polyflow#readme",
   "dependencies": {
+    "@types/cors": "^2.8.4",
     "@types/dotenv": "^6.1.0",
     "@types/express": "^4.16.1",
     "@types/jest": "^24.0.0",
@@ -33,13 +34,15 @@
     "@types/pg": "^7.4.11",
     "@types/pino": "^5.8.4",
     "body-parser": "^1.18.3",
+    "cors": "^2.8.5",
     "dotenv": "^6.0.0",
     "express": "^4.16.3",
     "express-pino-logger": "^4.0.0",
     "flora-sql-parser": "^0.8.0",
     "lodash": "^4.17.11",
     "pg": "^7.4.3",
-    "pino": "^5.11.1"
+    "pino": "^5.11.1",
+    "pino-pretty": "^2.5.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.3",
