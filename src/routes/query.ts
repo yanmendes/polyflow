@@ -1,11 +1,12 @@
 import express from 'express'
 import { contextualizeSubQueries, getParserAndInterface } from '../query-parsers'
 import Pino from 'pino'
+import { LoggedRequest } from 'request'
 
 const logger = Pino()
 const router = express.Router()
 
-router.post('/', async (req, res, next) => {
+router.post('/', async (req: LoggedRequest, res, next) => {
   try {
     if (!req.body.query.trim()) {
       throw new Error(`You need a parameter query to consume this endpoint`)
@@ -32,13 +33,14 @@ router.post('/', async (req, res, next) => {
       })
     }
   } catch (e) {
-    const child = logger.child({ aditionalInfo: e.mediationInfo, stack: e.stack })
+    const child = req.log.child({ aditionalInfo: e.mediationInfo, stack: e.stack })
     child.error(e.message)
 
+    res.status(500)
     res.send({
       success: false,
       message: e.message
-    }).status(500)
+    })
   }
 })
 
