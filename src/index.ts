@@ -5,20 +5,20 @@ import user from './routes/user'
 import bodyParser from 'body-parser'
 import path from 'path'
 import dotenv from 'dotenv'
-import Pino from 'pino'
+import pino from 'express-pino-logger'
+import logger from './logger'
+import cors from 'cors'
 
-const logger = Pino()
-const expressPino = require('express-pino-logger')({ logger })
-
-// if (process.env === 'production') {
-//   dotenv.config({ path: path.join(__dirname, '/../envs/.prod') })
-// } else {
-dotenv.config({ path: path.join(__dirname, '../../envs/.dev') })
-// }
+if (process.env.NODE_ENV === 'production') {
+  dotenv.config({ path: path.join(__dirname, '/../envs/.prod') })
+} else {
+  dotenv.config({ path: path.join(__dirname, '../../envs/.dev') })
+}
 
 const app = express()
+app.use(cors())
 
-app.use(expressPino)
+app.use(pino({ logger }))
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
