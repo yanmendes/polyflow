@@ -4,7 +4,7 @@
   "description": "",
   "private": true,
   "scripts": {
-    "watch-node": "nodemon dist/src",
+    "watch-node": "PORT=3050 nodemon dist/src",
     "start": "PORT=3050 node dist/src",
     "build": "npm run build-ts && npm run tslint",
     "dev": "npm run watch-node",
@@ -41,6 +41,7 @@
     "flora-sql-parser": "^0.8.0",
     "lodash": "^4.17.11",
     "pg": "^7.4.3",
+    "pg-promise": "^8.5.5",
     "pino": "^5.11.1",
     "pino-pretty": "^2.5.0"
   },
