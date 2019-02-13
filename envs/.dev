@@ -1,9 +1,5 @@
 # PGSQL SETTINGS
-PGHOST=34.203.242.255
-PGPORT=5432
-PGDATABASE=kepler_test
-PGUSER=root
-PGPASSWORD=root
+PG_URI=postgres://root:root@34.203.242.255:5432/kepler_test
 
 # NEO4J SETTINGS
 NEO4JURI=bolt://localhost:7687
