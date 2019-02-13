@@ -1,4 +1,4 @@
-import { SQL_INNER_JOIN, SQL_RIGHT_JOIN, SQL_LEFT_JOIN } from '../mediators/mediationTypes'
+import { SQL_INNER_JOIN, SQL_RIGHT_JOIN, SQL_LEFT_JOIN, SQL_UNION } from '../mediators/mediationTypes'
 import KeplerMediator from '../mediators/Kepler'
 import { Parser } from 'flora-sql-parser'
 import { MediationError } from '../CustomErrors'
@@ -59,19 +59,19 @@ function handleComplexMediation (mediator: MediationEntity): string {
     const query2 = isMediationEntity(entity2) ? handleComplexMediation(entity2) : handleSimpleMediation(entity2)
 
     if (type === SQL_INNER_JOIN || type === SQL_LEFT_JOIN || type === SQL_RIGHT_JOIN) {
-      return `(SELECT * FROM (${query1}) AS t1 ${type} JOIN (${query2}) AS t2 ON t1.${params[0]} = t2.${params[1]})`
-    } else if (type === 'union') {
-      return `(SELECT * FROM (${query1}) AS t1 UNION ALL (${query2}))`
+      return `(SELECT ${parseCols(columns)} FROM (${query1}) AS t1 ${type} JOIN (${query2}) AS t2 ON t1.${params[0]} = t2.${params[1]})`
+    } else if (type === SQL_UNION) {
+      return `(SELECT ${parseCols(columns)} FROM (${query1}) AS t1 UNION ALL (${query2}))`
     } else {
-      throw new Error('No valid type was defined')
+      throw new MediationError('No valid type was defined', mediator)
     }
   } else if (isSQLTable(entity1) && isSQLTable(entity2)) {
     if (type === SQL_INNER_JOIN || type === SQL_LEFT_JOIN || type === SQL_RIGHT_JOIN) {
       return resolveJoin(columns, entity1, entity2, type, params)
-    } else if (type === 'union') {
+    } else if (type === SQL_UNION) {
       return resolveUnion(entity1, entity2)
     } else {
-      throw new Error('No valid type was defined')
+      throw new MediationError('No valid type was defined', mediator)
     }
   }
 }
