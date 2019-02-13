@@ -15,6 +15,9 @@ function isSQLTable (entity: MediationEntity | SQLTable): entity is SQLTable {
 }
 
 function parseCols (columns: any) {
+  if (!columns || !Object.entries(columns).length) {
+    return '*'
+  }
   let cols = Object.values(columns)
   let aliases = Object.keys(columns)
 
