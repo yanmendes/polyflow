@@ -67,7 +67,7 @@ const provoneProgram = {
     },
     params: ['w.id', 'e.id']
   },
-  columns: { program_id: 'a.id', label: 'label', is_provone_Workflow: 'ipw', provone_hasSubProgram: 'phssubp' },
+  columns: { program_id: 'program_id', label: 'label', is_provone_Workflow: 'ipw', provone_hasSubProgram: 'phssubp' },
   type: SQL_INNER_JOIN,
   params: ['program_id', 'joinId']
 }
