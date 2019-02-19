@@ -1,7 +1,9 @@
 import Prov from '../../models/Prov'
 import Provone from '../../models/Provone'
 import { SQL_INNER_JOIN, SQL_UNION, SQL_LEFT_JOIN } from '../mediators/mediationTypes'
-import filterObjectByKeys from '../filterObjectByKeys'
+import _ from 'lodash'
+
+const filterObjectByKeys = (object: any, allowed: Array<any>): Object => _.pick(object, allowed)
 
 const Port = {
   name: 'port',
