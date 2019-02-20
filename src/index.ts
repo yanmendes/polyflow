@@ -13,7 +13,7 @@ import { port } from './config'
 import logger from './logger'
 import query from './routes/query'
 import user from './routes/user'
-import typeDefs from './TypeDefinitions'
+import typeDefs from './types/GraphQLTypes'
 import resolvers from './resolvers'
 
 if (process.env.NODE_ENV === 'production') {

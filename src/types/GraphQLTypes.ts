@@ -4,8 +4,6 @@ export default gql`
   type User {
     id: ID!
     email: String!
-    type: String!
-    ccLast4: String
   }
   type Query {
     me: User
