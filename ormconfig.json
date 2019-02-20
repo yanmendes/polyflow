@@ -1,0 +1,15 @@
+
+{
+  "type": "postgres",
+  "host": "localhost",
+  "port": 5432,
+  "username": "postgres",
+  "password": "postgres",
+  "database": "polyflow",
+  "synchronize": true,
+  "logging": false,
+  "entities": ["dist/src/models/Polyflow/**/*.js"],
+  "cli": {
+    "entitiesDir": "src/models/polyflow"
+  }
+}

@@ -1,12 +1,12 @@
-import express from 'express'
+import * as express from 'express'
 import { contextualizeSubQueries, getParserAndInterface } from '../query-parsers'
-import { LoggedRequest } from 'request'
+import { LoggedRequest } from '../types/request'
 
 const router = express.Router()
 
-router.post('/', async (req: LoggedRequest, res, next) => {
+router.post('/', async (req: LoggedRequest, res) => {
   try {
-    if (!req.body.query.trim()) {
+    if (!req.body.query || !req.body.query.trim()) {
       throw new Error(`You need a parameter query to consume this endpoint`)
     }
 

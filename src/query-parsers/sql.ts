@@ -2,7 +2,6 @@ import { SQL_INNER_JOIN, SQL_RIGHT_JOIN, SQL_LEFT_JOIN, SQL_UNION } from '../med
 import KeplerMediator from '../mediators/Kepler'
 import { Parser } from 'flora-sql-parser'
 import { MediationError } from '../CustomErrors'
-import { stringify } from 'querystring'
 
 const toSQL = require('flora-sql-parser').util.astToSQL
 

@@ -1,8 +1,8 @@
-import express from 'express'
+import * as express from 'express'
 const router = express.Router()
 
-router.post('/authenticate', async (req, res, next) => {
-  res.send({
+router.post('/authenticate', async (_, res) => {
+  return res.send({
     success: true
   })
 })
