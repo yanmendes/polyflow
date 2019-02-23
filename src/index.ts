@@ -53,7 +53,13 @@ const startServer = async () => {
     })
   )
 
-  server.applyMiddleware({ app })
+  server.applyMiddleware({
+    app,
+    cors: {
+      credentials: true,
+      origin: '*'
+    }
+  })
 
   app.listen({ port }, () =>
     console.log(`Server ready. Lestining on ${port}`)
