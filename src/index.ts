@@ -6,6 +6,7 @@ import * as bodyParser from "body-parser";
 import * as session from "express-session";
 import * as pino from "express-pino-logger";
 import { createConnection } from "typeorm";
+import * as cors from "cors";
 
 import { port } from "./config";
 import logger from "./logger";
@@ -18,6 +19,9 @@ const startServer = async () => {
 
   const app = express();
 
+  const options = { origin: process.env.FRONTEND_URL };
+
+  app.use(cors(options));
   app.use(pino({ logger }));
 
   app.use(bodyParser.json());
@@ -41,13 +45,7 @@ const startServer = async () => {
     })
   );
 
-  server.applyMiddleware({
-    app,
-    cors: {
-      credentials: true,
-      origin: process.env.FRONTEND_URL
-    }
-  });
+  server.applyMiddleware({ app });
 
   app.listen({ port }, () => console.log(`Server ready. Lestining on ${port}`));
 };
