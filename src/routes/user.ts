@@ -1,10 +1,10 @@
-import * as express from 'express'
-const router = express.Router()
+import * as express from "express";
+const router = express.Router();
 
-router.post('/authenticate', async (_, res) => {
+router.post("/authenticate", async (_, res) => {
   return res.send({
     success: true
-  })
-})
+  });
+});
 
-export default router
+export default router;

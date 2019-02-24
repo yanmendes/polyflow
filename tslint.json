@@ -1,6 +1,8 @@
 {
   "extends": "tslint-config-standard",
   "rules": {
-    "no-floating-promises": false
+    "semicolon": true,
+    "space-before-function-paren": false,
+    "quotemark": true
   }
 }

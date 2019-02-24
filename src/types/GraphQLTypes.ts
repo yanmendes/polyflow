@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server-express'
+import { gql } from "apollo-server-express";
 
 export default gql`
   type User {
@@ -13,4 +13,4 @@ export default gql`
     login(email: String!, password: String!): User
     logout: Boolean!
   }
-`
+`;

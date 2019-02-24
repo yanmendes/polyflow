@@ -1,13 +1,13 @@
-'use strict'
+"use strict";
 
-const pgp = require('pg-promise')()
+const pgp = require("pg-promise")();
 
 export default (query: string) => {
-  const db = pgp(process.env.PG_URI)
+  const db = pgp(process.env.PG_URI);
 
   if (!query) {
-    throw new Error('No query issued to this interface')
+    throw new Error("No query issued to this interface");
   }
 
-  return db.any(query)
-}
+  return db.any(query);
+};

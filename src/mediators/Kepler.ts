@@ -1,32 +1,49 @@
-import Prov from '../models/Prov'
-import Provone from '../models/Provone'
-import { SQL_INNER_JOIN, SQL_UNION, SQL_LEFT_JOIN } from '../mediators/mediationTypes'
-import * as lodash from 'lodash'
+import Prov from "../models/Prov";
+import Provone from "../models/Provone";
+import {
+  SQL_INNER_JOIN,
+  SQL_UNION,
+  SQL_LEFT_JOIN
+} from "../mediators/mediationTypes";
+import * as lodash from "lodash";
 
-const filterObjectByKeys = (object: any, allowed: Array<any>): Object => lodash.pick(object, allowed)
+const filterObjectByKeys = (object: any, allowed: Array<any>): Object =>
+  lodash.pick(object, allowed);
 
 const Port = {
-  name: 'port',
-  alias: 'p',
-  columns: { port_id: 'p.id', port_type: `CASE WHEN p.direction = 1 THEN 'out' WHEN p.direction = 0 THEN 'in' END` }
-}
-const Entity = { name: 'entity', alias: 'e', columns: { label: 'e.name' } }
+  name: "port",
+  alias: "p",
+  columns: {
+    port_id: "p.id",
+    port_type: `CASE WHEN p.direction = 1 THEN 'out' WHEN p.direction = 0 THEN 'in' END`
+  }
+};
+const Entity = { name: "entity", alias: "e", columns: { label: "e.name" } };
 
 const provonePort = {
   entity1: Port,
   entity2: Entity,
   type: SQL_INNER_JOIN,
   columns: { ...Port.columns, ...Entity.columns },
-  params: ['p.id', 'e.id']
-}
+  params: ["p.id", "e.id"]
+};
 
 const Parameter = {
-  name: 'parameter',
-  alias: 'param',
-  columns: { entity_id: 'param.id', type: 'param.type', value: 'param.value', entity_type: `'provone_Data'` }
-}
-const AssociatedData = { name: 'associated_data', alias: 'ad', columns: { label: 'ad.name' } }
-const Data = { name: 'data', alias: 'd', columns: { value: 'd.md5' } }
+  name: "parameter",
+  alias: "param",
+  columns: {
+    entity_id: "param.id",
+    type: "param.type",
+    value: "param.value",
+    entity_type: `'provone_Data'`
+  }
+};
+const AssociatedData = {
+  name: "associated_data",
+  alias: "ad",
+  columns: { label: "ad.name" }
+};
+const Data = { name: "data", alias: "d", columns: { value: "d.md5" } };
 
 const provEntity = {
   entity1: {
@@ -34,15 +51,15 @@ const provEntity = {
     entity2: Entity,
     type: SQL_INNER_JOIN,
     columns: { ...Parameter.columns, ...Entity.columns },
-    params: ['param.id', 'e.id']
+    params: ["param.id", "e.id"]
   },
   entity2: {
     entity1: Data,
     entity2: AssociatedData,
     type: SQL_LEFT_JOIN,
-    params: ['d.md5', 'ad.data_id'],
+    params: ["d.md5", "ad.data_id"],
     columns: {
-      entity_id: 'NULL',
+      entity_id: "NULL",
       type: `'md5'`,
       ...Data.columns,
       entity_type: `'provone_Data'`,
@@ -50,10 +67,10 @@ const provEntity = {
     }
   },
   type: SQL_UNION
-}
+};
 
-const Actor = { name: 'actor', alias: 'a', columns: { program_id: 'a.id' } }
-const Workflow = { name: 'workflow', alias: 'w' }
+const Actor = { name: "actor", alias: "a", columns: { program_id: "a.id" } };
+const Workflow = { name: "workflow", alias: "w" };
 
 const provoneProgram = {
   entity1: Actor,
@@ -67,46 +84,77 @@ const provoneProgram = {
       ipw: `CASE WHEN w.id IS NOT NULL THEN TRUE ELSE FALSE END`,
       phssubp: `CASE WHEN w.id IS NOT NULL THEN NULL ELSE e.wf_id END`
     },
-    params: ['w.id', 'e.id']
+    params: ["w.id", "e.id"]
   },
-  columns: { program_id: 'program_id', label: 'label', is_provone_Workflow: 'ipw', provone_hasSubProgram: 'phssubp' },
+  columns: {
+    program_id: "program_id",
+    label: "label",
+    is_provone_Workflow: "ipw",
+    provone_hasSubProgram: "phssubp"
+  },
   type: SQL_INNER_JOIN,
-  params: ['program_id', 'joinId']
-}
+  params: ["program_id", "joinId"]
+};
 
 const ActorFire = {
-  name: 'actor_fire',
-  alias: 'af',
+  name: "actor_fire",
+  alias: "af",
   columns: {
-    execution_id: 'af.id',
-    prov_hadPlan: 'actor_id',
+    execution_id: "af.id",
+    prov_hadPlan: "actor_id",
     prov_startedAtTime: `TO_CHAR(af.start_time, 'dd-mon-yyyy hh24:mi:ss')`,
     prov_endedAtTime: `TO_CHAR(af.end_time, 'dd-mon-yyyy hh24:mi:ss')`
   }
-}
+};
 
 const WorkflowExec = {
-  name: 'workflow_exec',
-  alias: 'wfe',
+  name: "workflow_exec",
+  alias: "wfe",
   columns: {
-    execution_id: 'NULL',
-    prov_hadPlan: 'wfe.wf_id',
+    execution_id: "NULL",
+    prov_hadPlan: "wfe.wf_id",
     prov_startedAtTime: `TO_CHAR(wfe.start_time, 'dd-mon-yyyy hh24:mi:ss')`,
     prov_endedAtTime: `TO_CHAR(wfe.end_time, 'dd-mon-yyyy hh24:mi:ss')`
   }
-}
+};
 
 const provoneExecution = {
-  entity1: { ...ActorFire, columns: filterObjectByKeys(ActorFire.columns, ['execution_id', 'prov_startedAtTime', 'prov_endedAtTime']) },
-  entity2: { ...WorkflowExec, columns: filterObjectByKeys(WorkflowExec.columns, ['execution_id', 'prov_startedAtTime', 'prov_endedAtTime']) },
+  entity1: {
+    ...ActorFire,
+    columns: filterObjectByKeys(ActorFire.columns, [
+      "execution_id",
+      "prov_startedAtTime",
+      "prov_endedAtTime"
+    ])
+  },
+  entity2: {
+    ...WorkflowExec,
+    columns: filterObjectByKeys(WorkflowExec.columns, [
+      "execution_id",
+      "prov_startedAtTime",
+      "prov_endedAtTime"
+    ])
+  },
   type: SQL_UNION
-}
+};
 
 const provAssociation = {
-  entity1: { ...ActorFire, columns: filterObjectByKeys(ActorFire.columns, ['execution_id', 'prov_hadPlan']) },
-  entity2: { ...WorkflowExec, columns: filterObjectByKeys(WorkflowExec.columns, ['execution_id', 'prov_hadPlan']) },
+  entity1: {
+    ...ActorFire,
+    columns: filterObjectByKeys(ActorFire.columns, [
+      "execution_id",
+      "prov_hadPlan"
+    ])
+  },
+  entity2: {
+    ...WorkflowExec,
+    columns: filterObjectByKeys(WorkflowExec.columns, [
+      "execution_id",
+      "prov_hadPlan"
+    ])
+  },
   type: SQL_UNION
-}
+};
 
 export default new Map<string, MediationEntity | SQLTable>([
   [Provone.Classes.PORT, provonePort],
@@ -114,7 +162,7 @@ export default new Map<string, MediationEntity | SQLTable>([
   [Provone.Classes.PROGRAM, provoneProgram],
   [Provone.Classes.EXECUTION, provoneExecution],
   [Prov.Classes.ASSOCIATION, provAssociation]
-])
+]);
 
 /*
 var Kepler = function () {
