@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "watch-node": "nodemon dist/src",
-    "start": "node dist/src",
+    "start": "PORT=3050 node dist/src",
     "build": "npm run build-ts && npm run tslint",
     "dev": "npm run watch-ts && npm run watch-node",
     "build-ts": "tsc",
