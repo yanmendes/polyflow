@@ -1,15 +1,21 @@
-import { User } from "./models/Polyflow/User";
 import * as bcrypt from "bcryptjs";
+import { getConnection } from "typeorm";
+
+import { User } from "./models/Polyflow/User";
+import { Workspace } from "./models/Polyflow/Workspace";
+
+const getCurrentUser = req => {
+  if (!req.session.userId) {
+    throw new Error("You must be logged in to access this feature");
+  }
+
+  return User.findOne(req.session.userId, { relations: ["workspaces"] });
+};
 
 export default {
   Query: {
-    me: (_, __, { req }) => {
-      if (!req.session.userId) {
-        return null;
-      }
-
-      return User.findOne(req.session.userId);
-    }
+    getWorkspaces: (_, __, { req }) =>
+      getCurrentUser(req).then(user => user.workspaces)
   },
   Mutation: {
     logout: async (_, __, { req, res }) => {
@@ -40,6 +46,44 @@ export default {
       req.session.userId = user.id;
 
       return user;
-    }
+    },
+    createWorkspace: async (_, { name }, { req }) => {
+      const user = await getCurrentUser(req.session.userId);
+      const workspace = (new Workspace().name = name);
+
+      await workspace.save();
+
+      return getConnection()
+        .createQueryBuilder()
+        .relation(User, "workspaces")
+        .of(user)
+        .add(workspace)
+        .then(_ => workspace)
+        .catch(e => req.log.error(e));
+    },
+    addUserToWorkspace: (_, { workspaceId, userId }, { req }) =>
+      getCurrentUser(req)
+        .then(user =>
+          user.workspaces.find(item => item.id === parseInt(workspaceId, 10))
+        )
+        .then(async workspace => {
+          if (!workspace) {
+            throw new Error("User does not belong to workspace");
+          }
+
+          const user = await User.findOne(userId);
+
+          if (!user) {
+            throw new Error("User does not exist");
+          }
+
+          await getConnection()
+            .createQueryBuilder()
+            .relation(User, "workspaces")
+            .of(user)
+            .add(workspace);
+
+          return true;
+        })
   }
 };

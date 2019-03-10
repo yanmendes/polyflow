@@ -1,4 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  BaseEntity,
+  ManyToMany,
+  JoinTable
+} from "typeorm";
+import { Workspace } from "./Workspace";
 
 @Entity("users")
 export class User extends BaseEntity {
@@ -10,4 +18,10 @@ export class User extends BaseEntity {
 
   @Column("text")
   password: string;
+
+  @ManyToMany(_ => Workspace, workspace => workspace.users, {
+    cascade: true
+  })
+  @JoinTable()
+  workspaces: Workspace[];
 }

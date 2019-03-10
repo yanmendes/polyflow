@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import "dotenv/config";
-import { ApolloServer } from "apollo-server-express";
+import { ApolloServer, gql } from "apollo-server-express";
 import * as express from "express";
 import * as bodyParser from "body-parser";
 import * as session from "express-session";
@@ -13,6 +13,7 @@ import logger from "./logger";
 import query from "./routes/query";
 import typeDefs from "./types/GraphQLTypes";
 import resolvers from "./resolvers";
+import { userBelongsToWorkspace } from "./middlewares";
 
 const startServer = async () => {
   await createConnection();
@@ -23,20 +24,8 @@ const startServer = async () => {
 
   app.use(cors(options));
   app.use(pino({ logger }));
-
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
-
-  app.get("/", (_, res) => res.status(200).send("ok!"));
-
-  app.use("/query", query);
-
-  const server = new ApolloServer({
-    typeDefs,
-    resolvers,
-    context: ({ req, res }: any) => ({ req, res })
-  });
-
   app.use(
     session({
       secret: "i5n31io13ip5h1p",
@@ -44,6 +33,15 @@ const startServer = async () => {
       saveUninitialized: false
     })
   );
+
+  app.get("/", (_, res) => res.status(200).send("ok!"));
+  app.use("/workspace/:workspaceId/query", userBelongsToWorkspace, query);
+
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+    context: ({ req, res }: any) => ({ req, res })
+  });
 
   server.applyMiddleware({ app });
 
