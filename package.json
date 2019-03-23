@@ -4,14 +4,14 @@
   "description": "",
   "private": true,
   "scripts": {
-    "watch-node": "PORT=3050 nodemon dist/src",
-    "start": "PORT=3050 node dist/src",
+    "watch-node": "nodemon dist/src",
+    "start": "node dist/src",
     "build": "npm run build-ts && npm run tslint",
     "build-ts": "tsc",
     "watch-ts": "tsc -w",
     "lint": "standard",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
-    "start:prod": "node dist",
+    "start:prod": "node dist/src",
     "test": "jest"
   },
   "repository": {
