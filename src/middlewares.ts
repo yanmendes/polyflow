@@ -1,4 +1,4 @@
-import { User } from "./models/Polyflow/User";
+import { User } from "./models/polyflow/User";
 
 const getUser = userId => {
   if (!userId) {

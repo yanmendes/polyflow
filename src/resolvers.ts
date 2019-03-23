@@ -1,8 +1,8 @@
 import * as bcrypt from "bcryptjs";
 import { getConnection } from "typeorm";
 
-import { User } from "./models/Polyflow/User";
-import { Workspace } from "./models/Polyflow/Workspace";
+import { User } from "./models/polyflow/User";
+import { Workspace } from "./models/polyflow/Workspace";
 
 const getCurrentUser = req => {
   if (!req.session.userId) {
