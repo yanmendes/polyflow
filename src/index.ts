@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import "dotenv/config";
-import { ApolloServer, gql } from "apollo-server-express";
+import { ApolloServer } from "apollo-server-express";
 import * as express from "express";
 import * as bodyParser from "body-parser";
 import * as session from "express-session";
@@ -26,13 +26,6 @@ const startServer = async () => {
   app.use(pino({ logger }));
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
-  app.use(
-    session({
-      secret: "i5n31io13ip5h1p",
-      resave: false,
-      saveUninitialized: false
-    })
-  );
 
   app.get("/", (_, res) => res.status(200).send("ok!"));
   app.use("/workspace/:workspaceId/query", userBelongsToWorkspace, query);
@@ -42,6 +35,13 @@ const startServer = async () => {
     resolvers,
     context: ({ req, res }: any) => ({ req, res })
   });
+  app.use(
+    session({
+      secret: "i5n31io13ip5h1p",
+      resave: false,
+      saveUninitialized: false
+    })
+  );
 
   server.applyMiddleware({ app });
 
