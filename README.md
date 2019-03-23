@@ -10,6 +10,7 @@ You need to copy your `.env.sample` to a `.env` file an write your local setting
 
 ```sh
 $ npm i
+$ npm i typescript -g
 $ npm run build
 $ npm run start:prod
 ```
