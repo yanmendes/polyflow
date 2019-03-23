@@ -11,7 +11,7 @@
     "watch-ts": "tsc -w",
     "lint": "standard",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
-    "start:prod": "node dist",
+    "start:prod": "npm run build-ts && npm run start",
     "test": "jest"
   },
   "repository": {
