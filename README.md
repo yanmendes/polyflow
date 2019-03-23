@@ -4,13 +4,14 @@
 
 ### Configuration
 
-All database connections are handled by their respective connectors and its' settings are defined by the environment variables set in the env folder files.
+You need to copy your `.env.sample` to a `.env` file an write your local settings there
 
 ### Running
 
 ```sh
-$ npm install
-$ npm start bin/www
+$ npm i
+$ npm run build
+$ npm run start:prod
 ```
 
 ### Extensions
