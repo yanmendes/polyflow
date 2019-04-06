@@ -1,19 +1,25 @@
 import { gql } from "apollo-server-express";
 
 export default gql`
+  scalar JSON
+
   type User {
     id: ID!
     email: String!
     workspaces: [Workspace]
   }
+
   type Workspace {
     id: ID!
     name: String!
     user: User!
   }
+
   type Query {
     getWorkspaces: [Workspace]
+    shootQuery(query: String!): JSON
   }
+
   type Mutation {
     register(email: String!, password: String!): Boolean!
     login(email: String!, password: String!): User

@@ -2,7 +2,6 @@ import "reflect-metadata";
 import "dotenv/config";
 import { ApolloServer } from "apollo-server-express";
 import * as express from "express";
-import * as bodyParser from "body-parser";
 import * as session from "express-session";
 import * as pino from "express-pino-logger";
 import { createConnection } from "typeorm";
@@ -10,31 +9,23 @@ import * as cors from "cors";
 
 import { port } from "./config";
 import logger from "./logger";
-import query from "./routes/query";
-import typeDefs from "./types/GraphQLTypes";
-import resolvers from "./resolvers";
-import { userBelongsToWorkspace } from "./middlewares";
+import schema from "./GraphQL";
 
 const startServer = async () => {
   await createConnection();
 
   const app = express();
 
-  const options = { origin: process.env.FRONTEND_URL };
-
-  app.use(cors(options));
+  app.use(cors());
   app.use(pino({ logger }));
-  app.use(bodyParser.json());
-  app.use(bodyParser.urlencoded({ extended: true }));
 
   app.get("/", (_, res) => res.status(200).send("ok!"));
-  app.use("/workspace/:workspaceId/query", userBelongsToWorkspace, query);
 
   const server = new ApolloServer({
-    typeDefs,
-    resolvers,
+    schema,
     context: ({ req, res }: any) => ({ req, res })
   });
+
   app.use(
     session({
       secret: "i5n31io13ip5h1p",
