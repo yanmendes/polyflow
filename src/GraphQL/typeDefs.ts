@@ -17,7 +17,6 @@ export default gql`
 
   type Query {
     getWorkspaces: [Workspace]
-    shootQuery(query: String!): JSON
   }
 
   type Mutation {
@@ -26,5 +25,6 @@ export default gql`
     logout: Boolean!
     createWorkspace(name: String!): Workspace!
     addUserToWorkspace(workspaceId: ID!, userId: ID!): Boolean!
+    query(query: String!): JSON
   }
 `;
