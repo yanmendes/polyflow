@@ -6,7 +6,7 @@
   "scripts": {
     "watch-node": "nodemon dist/src",
     "start": "node dist/src",
-    "build": "npm run build-ts && npm run tslint",
+    "build": "yarn run build-ts && yarn run tslint",
     "build-ts": "tsc",
     "watch-ts": "tsc -w",
     "lint": "standard",
@@ -16,14 +16,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yanmendes/Polyflow.git"
+    "url": "git+https://github.com/yanmendes/polyflow.api.git"
   },
   "author": "Yan Mendes",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/yanmendes/Polyflow/issues"
+    "url": "https://github.com/yanmendes/polyflow.api/issues"
   },
-  "homepage": "https://github.com/yanmendes/Polyflow#readme",
+  "homepage": "https://github.com/yanmendes/polyflow.api#readme",
   "dependencies": {
     "apollo-server-express": "^2.4.2",
     "bcryptjs": "^2.4.3",
@@ -73,7 +73,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run tslint"
+      "pre-commit": "yarn run tslint"
     }
   }
 }

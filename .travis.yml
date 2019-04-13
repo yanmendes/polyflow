@@ -1,0 +1,16 @@
+language: node_js
+node_js:
+  - "8"
+install:
+  - yarn
+script:
+  - yarn run build
+deploy:
+  - provider: script
+    skip_cleanup: true
+    script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/dist ubuntu@ec2-184-73-126-109.compute-1.amazonaws.com:projects/polyflow.api/
+    on:
+      branch: master
+before_install:
+  - openssl aes-256-cbc -K $encrypted_642f0b81daf0_key -iv $encrypted_642f0b81daf0_iv
+    -in deploy_rsa.enc -out deploy_rsa -d
