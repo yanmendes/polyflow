@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: 'polyflow.api',
-      script: 'yarn',
+      script: 'npm',
       args: 'start',
       watch: true,
       env_production: {
