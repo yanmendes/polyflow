@@ -103,7 +103,8 @@ const ActorFire = {
     execution_id: "af.id",
     prov_hadPlan: "actor_id",
     prov_startedAtTime: `TO_CHAR(af.start_time, 'dd-mon-yyyy hh24:mi:ss')`,
-    prov_endedAtTime: `TO_CHAR(af.end_time, 'dd-mon-yyyy hh24:mi:ss')`
+    prov_endedAtTime: `TO_CHAR(af.end_time, 'dd-mon-yyyy hh24:mi:ss')`,
+    provone_wasPartOf: "af.wf_exec_id"
   }
 };
 
@@ -114,25 +115,33 @@ const WorkflowExec = {
     execution_id: "NULL",
     prov_hadPlan: "wfe.wf_id",
     prov_startedAtTime: `TO_CHAR(wfe.start_time, 'dd-mon-yyyy hh24:mi:ss')`,
-    prov_endedAtTime: `TO_CHAR(wfe.end_time, 'dd-mon-yyyy hh24:mi:ss')`
+    prov_endedAtTime: `TO_CHAR(wfe.end_time, 'dd-mon-yyyy hh24:mi:ss')`,
+    prov_wasAssociatedWith: `wfe."USER"`,
+    provone_wasPartOf: "wfe.wf_id"
   }
 };
 
 const provoneExecution = {
   entity1: {
     ...ActorFire,
-    columns: filterObjectByKeys(ActorFire.columns, [
-      "execution_id",
-      "prov_startedAtTime",
-      "prov_endedAtTime"
-    ])
+    columns: {
+      ...filterObjectByKeys(ActorFire.columns, [
+        "execution_id",
+        "prov_startedAtTime",
+        "prov_endedAtTime",
+        "provone_wasPartOf"
+      ]),
+      prov_wasAssociatedWith: null
+    }
   },
   entity2: {
     ...WorkflowExec,
     columns: filterObjectByKeys(WorkflowExec.columns, [
       "execution_id",
       "prov_startedAtTime",
-      "prov_endedAtTime"
+      "prov_endedAtTime",
+      "provone_wasPartOf",
+      "prov_wasAssociatedWith"
     ])
   },
   type: SQL_UNION
@@ -178,6 +187,15 @@ const provGeneration = {
   where: `pe.write_event_id != -1`
 };
 
+const provoneUser = {
+  name: "workflow_exec",
+  alias: "we",
+  columns: {
+    label: `we."USER"`,
+    program_id: "we.wf_id"
+  }
+};
+
 export default new Map<string, MediationEntity | SQLTable>([
   [Provone.Classes.PORT, provonePort],
   [Prov.Classes.ENTITY, provEntity],
@@ -185,67 +203,15 @@ export default new Map<string, MediationEntity | SQLTable>([
   [Provone.Classes.EXECUTION, provoneExecution],
   [Prov.Classes.ASSOCIATION, provAssociation],
   [Prov.Classes.USAGE, provUsage],
-  [Prov.Classes.GENERATION, provGeneration]
+  [Prov.Classes.GENERATION, provGeneration],
+  [Provone.Classes.USER, provoneUser]
 ]);
 
 /*
 Kepler.prototype.execute = (workflowIdentifier) => {
-    return Kepler.prototype.PopulateExecutionRelations(workflowIdentifier)
-  }).then(() => {
     return Kepler.prototype.PopulatePortRelations(workflowIdentifier)
   }).then(() => {
     return Kepler.prototype.PopulateEntityRelations(workflowIdentifier)
-  })
-}
-
-Kepler.prototype.PopulateExecutionRelations = (workflowIdentifier) => {
-  let users = null
-  return new Promise((resolve, reject) => {
-    return pg.query('select user as label, wf_id AS program_id from workflow_exec', (err, res) => {
-      if (err || res === undefined) { return reject(err) }
-
-      res.rows = _.map(res.rows, (o) => {
-        return _.extend({}, o, { workflow_identifier: workflowIdentifier })
-      })
-
-      return resolve(insert(Provone.Classes.USER, _.map(res.rows, _.partialRight(_.pick, ['label', 'workflow_identifier'])
-      )).then(() => {
-        return db.query(`SELECT * FROM ${Provone.Classes.USER} u WHERE workflow_identifier = ?`, { type: db.QueryTypes.SELECT, replacements: [workflowIdentifier] })
-      }).then((results) => {
-        users = _.map(results, (o) => {
-          return _.extend({}, o, { program_id: _.find(res.rows, { 'label': o.label }).program_id })
-        })
-
-        return db.query(`SELECT e.execution_id, e2.execution_id AS provone_waspartof, p.program_id, p.provone_hassubprogram AS wf_id ` +
-          `FROM ${Provone.Classes.EXECUTION} e ` +
-          `INNER JOIN ${Prov.Relationships.QUALIFIEDASSOCIATION} qa ON qa.execution_id = e.execution_id AND qa.workflow_identifier = e.workflow_identifier ` +
-          `INNER JOIN ${Prov.Classes.ASSOCIATION} a ON qa.association_id = a.association_id AND qa.workflow_identifier = a.workflow_identifier ` +
-          `INNER JOIN ${Provone.Classes.PROGRAM} p ON p.program_id = a.prov_hadplan AND p.workflow_identifier = a.workflow_identifier ` +
-          `LEFT JOIN ${Prov.Classes.ASSOCIATION} a2 ON p.provone_hassubprogram = a.prov_hadplan AND p.workflow_identifier = a2.workflow_identifier ` +
-          `LEFT JOIN ${Prov.Relationships.QUALIFIEDASSOCIATION} qa2 ON qa2.association_id = a2.association_id AND qa2.workflow_identifier = a2.workflow_identifier ` +
-          `LEFT JOIN ${Provone.Classes.EXECUTION} e2 ON qa2.execution_id = e2.execution_id AND qa2.workflow_identifier = e2.workflow_identifier ` +
-          `WHERE e.workflow_identifier = :wid AND (p.program_id IN (:programs) OR p.provone_hassubprogram IN (:programs))`, {
-          type: db.QueryTypes.SELECT,
-          replacements: { wid: workflowIdentifier, programs: res.rows.map(a => a.program_id) }
-        })
-      }).then((results) => {
-        let promises = []
-
-        _.each(results, (o) => {
-          promises.push(db.query(`UPDATE ${Provone.Classes.EXECUTION} SET prov_wasassociatedwith = :uid, provone_waspartof = :partof WHERE execution_id = :eid AND workflow_identifier = :wid`, {
-            replacements: {
-              uid: (_.find(users, (u) => { return u.program_id === o.program_id || u.program_id === o.wf_id }))
-                ? (_.find(users, (u) => { return u.program_id === o.program_id || u.program_id === o.wf_id })).user_id : null,
-              partof: o.provone_waspartof,
-              eid: o.execution_id,
-              wid: workflowIdentifier
-            }
-          }))
-        })
-
-        return Promise.all(promises)
-      }))
-    })
   })
 }
 
