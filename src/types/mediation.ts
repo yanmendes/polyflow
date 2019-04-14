@@ -2,6 +2,7 @@ class SQLTable {
   name: string;
   alias: string;
   columns?: Object;
+  where?: string;
 }
 
 class MediationEntity {

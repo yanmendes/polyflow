@@ -79,7 +79,7 @@ function handleSimpleMediation(SQLTable: SQLTable) {
   }
   return `(SELECT ${parseCols(SQLTable.columns)} FROM ${SQLTable.name} AS ${
     SQLTable.alias
-  })`;
+  } ${SQLTable.where ? `WHERE ${SQLTable.where}` : ""} )`;
 }
 
 function handleComplexMediation(mediator: MediationEntity): string {
