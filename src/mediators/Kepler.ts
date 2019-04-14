@@ -156,27 +156,28 @@ const provAssociation = {
   type: SQL_UNION
 };
 
+const provUsage = {
+  name: "port_event",
+  alias: "pe",
+  columns: {
+    execution_id: "pe.fire_id",
+    provone_hadInPort: "pe.port_id",
+    data: `data`
+  },
+  where: `pe.write_event_id = -1`
+};
+
 export default new Map<string, MediationEntity | SQLTable>([
   [Provone.Classes.PORT, provonePort],
   [Prov.Classes.ENTITY, provEntity],
   [Provone.Classes.PROGRAM, provoneProgram],
   [Provone.Classes.EXECUTION, provoneExecution],
-  [Prov.Classes.ASSOCIATION, provAssociation]
+  [Prov.Classes.ASSOCIATION, provAssociation],
+  [Prov.Classes.USAGE, provUsage]
 ]);
 
 /*
-var Kepler = function () {
-
-}
-
 Kepler.prototype.execute = (workflowIdentifier) => {
-  return Kepler.prototype.Port(workflowIdentifier).then(() => {
-    return Kepler.prototype.Entity(workflowIdentifier)
-  }).then(() => {
-    return Kepler.prototype.Program(workflowIdentifier)
-  }).then(() => {
-    return Kepler.prototype.Execution(workflowIdentifier)
-  }).then(() => {
     return Kepler.prototype.Usage(workflowIdentifier)
   }).then(() => {
     return Kepler.prototype.Generation(workflowIdentifier)
@@ -186,39 +187,6 @@ Kepler.prototype.execute = (workflowIdentifier) => {
     return Kepler.prototype.PopulatePortRelations(workflowIdentifier)
   }).then(() => {
     return Kepler.prototype.PopulateEntityRelations(workflowIdentifier)
-  })
-}
-
-Kepler.prototype.Usage = (workflowIdentifier) => {
-  return new Promise((resolve, reject) => {
-    return pg.query('select data as "value", port_id as "provone_hadInPort", fire_id as execution_id from port_event where write_event_id = -1', (err, res) => {
-      if (err || res === undefined) { return reject(err) }
-
-      res.rows = _.map(res.rows, (o) => { return _.extend({}, o, { workflow_identifier: workflowIdentifier }) })
-      let search = 'e.value LIKE \'' + _.join(res.rows.map(a => a.value.replace('\'', '')), '\' OR e.value LIKE \'')
-
-      resolve(db.query(`SELECT entity_id, value FROM ${Prov.Classes.ENTITY} e WHERE ${search} AND workflow_identifier = ?`, {
-        type: db.QueryTypes.SELECT,
-        replacements: [workflowIdentifier]
-      }).then((results) => {
-        let usage = _.map(_.map(res.rows, (o) => {
-          return _.extend({}, o, { provone_hadEntity: _.find(results, (a) => { return a.value.replace('\'', '') === o.value.replace('\'', '') }).entity_id })
-        }), _.partialRight(_.pick, ['provone_hadInPort', 'provone_hadEntity', 'workflow_identifier']))
-
-        return insert(Prov.Classes.USAGE, usage)
-      }).then(() => {
-        return db.query(`SELECT usage_id, provone_hadinport, workflow_identifier FROM ${Prov.Classes.USAGE} e WHERE workflow_identifier = ?`, {
-          type: db.QueryTypes.SELECT,
-          replacements: [workflowIdentifier]
-        })
-      }).then((results) => {
-        let qualifiedUsage = _.map(_.map(results, (o) => {
-          return _.extend({}, o, { execution_id: _.find(res.rows, { 'provone_hadInPort': o.provone_hadinport }).execution_id })
-        }), _.partialRight(_.pick, ['usage_id', 'execution_id', 'workflow_identifier']))
-
-        return insert(Prov.Relationships.QUALIFIEDUSAGE, qualifiedUsage)
-      }))
-    })
   })
 }
 
