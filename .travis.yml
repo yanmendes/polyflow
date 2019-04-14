@@ -12,9 +12,10 @@ install:
   - yarn
 script:
   - yarn run build
+  - mkdir -p /tmp/workspace && mv dist node_modules ecosystem.config.js /tmp/workspace
 deploy:
   - provider: script
     skip_cleanup: true
-    script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/dist ubuntu@ec2-184-73-126-109.compute-1.amazonaws.com:projs/polyflow.api/
+    script: rsync -r --delete-after --quiet /tmp/workspace/* ubuntu@ec2-184-73-126-109.compute-1.amazonaws.com:projs/polyflow.api/
     on:
       branch: master
