@@ -167,61 +167,34 @@ const provUsage = {
   where: `pe.write_event_id = -1`
 };
 
+const provGeneration = {
+  name: "port_event",
+  alias: "pe",
+  columns: {
+    execution_id: "pe.fire_id",
+    provone_hadInPort: "pe.port_id",
+    data: `data`
+  },
+  where: `pe.write_event_id != -1`
+};
+
 export default new Map<string, MediationEntity | SQLTable>([
   [Provone.Classes.PORT, provonePort],
   [Prov.Classes.ENTITY, provEntity],
   [Provone.Classes.PROGRAM, provoneProgram],
   [Provone.Classes.EXECUTION, provoneExecution],
   [Prov.Classes.ASSOCIATION, provAssociation],
-  [Prov.Classes.USAGE, provUsage]
+  [Prov.Classes.USAGE, provUsage],
+  [Prov.Classes.GENERATION, provGeneration]
 ]);
 
 /*
 Kepler.prototype.execute = (workflowIdentifier) => {
-    return Kepler.prototype.Usage(workflowIdentifier)
-  }).then(() => {
-    return Kepler.prototype.Generation(workflowIdentifier)
-  }).then(() => {
     return Kepler.prototype.PopulateExecutionRelations(workflowIdentifier)
   }).then(() => {
     return Kepler.prototype.PopulatePortRelations(workflowIdentifier)
   }).then(() => {
     return Kepler.prototype.PopulateEntityRelations(workflowIdentifier)
-  })
-}
-
-Kepler.prototype.Generation = (workflowIdentifier) => {
-  return new Promise((resolve, reject) => {
-    return pg.query('select data as "value", port_id as "provone_hadOutPort", fire_id as execution_id from port_event where write_event_id != -1', (err, res) => {
-      if (err || res === undefined) { return reject(err) }
-
-      res.rows = _.map(res.rows, (o) => { return _.extend({}, o, { workflow_identifier: workflowIdentifier }) })
-      let search = 'e.value LIKE \'' + _.join(res.rows.map(a => a.value === null ? '' : a.value.replace('\'', '')), '\' OR e.value LIKE \'')
-
-      resolve(db.query(`SELECT entity_id, value FROM ${Prov.Classes.ENTITY} e WHERE ${search} AND workflow_identifier = ?`, {
-        type: db.QueryTypes.SELECT,
-        replacements: [workflowIdentifier]
-      }).then((results) => {
-        let generation = _.map(_.map(res.rows, (o) => {
-          let hadEntity = _.find(results, (a) => { return a.value === null || o.value === null ? false : a.value.replace('\'', '') === o.value.replace('\'', '') })
-            ? _.find(results, (a) => { return a.value === null || o.value === null ? false : a.value.replace('\'', '') === o.value.replace('\'', '') }).entity_id : null
-          return _.extend({}, o, { provone_hadEntity: hadEntity })
-        }), _.partialRight(_.pick, ['provone_hadOutPort', 'provone_hadEntity', 'workflow_identifier']))
-
-        return insert(Prov.Classes.GENERATION, generation)
-      }).then(() => {
-        return db.query(`SELECT generation_id, provone_hadoutport, workflow_identifier FROM ${Prov.Classes.GENERATION} e WHERE workflow_identifier = ?`, {
-          type: db.QueryTypes.SELECT,
-          replacements: [workflowIdentifier]
-        })
-      }).then((results) => {
-        let qualifiedGeneration = _.map(_.map(results, (o) => {
-          return _.extend({}, o, { execution_id: _.find(res.rows, { 'provone_hadOutPort': o.provone_hadoutport }).execution_id })
-        }), _.partialRight(_.pick, ['generation_id', 'execution_id', 'workflow_identifier']))
-
-        return insert(Prov.Relationships.QUALIFIEDGENERATION, qualifiedGeneration)
-      }))
-    })
   })
 }
 
