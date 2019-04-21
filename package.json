@@ -9,6 +9,7 @@
     "build": "yarn run build-ts && yarn run tslint",
     "build-ts": "tsc",
     "watch-ts": "tsc -w",
+    "dev": "nodemon",
     "lint": "standard",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
     "start:prod": "node dist/src",
@@ -37,7 +38,6 @@
     "graphql-type-json": "^0.2.4",
     "lodash": "^4.17.11",
     "pg": "^7.4.3",
-    "pg-promise": "^8.5.5",
     "pino": "^5.11.1",
     "pino-pretty": "^2.5.0",
     "typeorm": "^0.2.13"

@@ -27,7 +27,7 @@ export const runQuery = async (query, req) => {
       const parsedQuery = await parser(query);
 
       req.log.info(parsedQuery);
-      const results = await dbInterface(parsedQuery);
+      const results = await dbInterface(process.env.PG_URI, parsedQuery);
       return results;
     })
   );

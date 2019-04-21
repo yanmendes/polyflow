@@ -28,7 +28,7 @@ router.post("/", async (req: LoggedRequest, res) => {
       const parsedQuery = await parser(query);
 
       req.log.info(parsedQuery);
-      const results = await dbInterface(parsedQuery);
+      const results = await dbInterface(process.env.PG_URI, parsedQuery);
       res.send({
         success: true,
         results: results

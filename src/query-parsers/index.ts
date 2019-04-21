@@ -1,5 +1,5 @@
 import sqlParser from "./sql";
-import psqlInterface from "../../infra/PsqlInterface";
+import { psqlInterface } from "../databases";
 
 const contexts = new Map([
   ["bdrel", { parser: sqlParser, dbInterface: psqlInterface }]
