@@ -5,7 +5,7 @@ import { getCurrentUser } from "../../../services";
 
 export default {
   createWorkspace: async (_, { name }, { req }) => {
-    const user = await getCurrentUser(req.session.userId);
+    const user = await getCurrentUser(req);
     const workspace = (new Workspace().name = name);
 
     await workspace.save();
