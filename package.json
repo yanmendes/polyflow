@@ -4,15 +4,15 @@
   "description": "",
   "private": true,
   "scripts": {
-    "watch-node": "nodemon dist/src",
-    "start": "node dist/src",
+    "watch-node": "nodemon dist",
+    "start": "node dist",
     "build": "yarn run build-ts && yarn run tslint",
     "build-ts": "tsc",
     "watch-ts": "tsc -w",
     "dev": "nodemon",
     "lint": "standard",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
-    "start:prod": "node dist/src",
+    "start:prod": "node dist",
     "test": "jest"
   },
   "repository": {
