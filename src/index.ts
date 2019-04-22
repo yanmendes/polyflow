@@ -5,26 +5,20 @@ import * as express from "express";
 import * as session from "express-session";
 import * as pino from "express-pino-logger";
 import { createConnection } from "typeorm";
-import * as cors from "cors";
 
 import { port } from "./config";
 import logger from "./logger";
 import schema from "./GraphQL";
 
 const startServer = async () => {
-  await createConnection();
-
-  const app = express();
-
-  app.use(cors());
-  app.use(pino({ logger }));
-
-  app.get("/", (_, res) => res.status(200).send("ok!"));
-
   const server = new ApolloServer({
     schema,
     context: ({ req, res }: any) => ({ req, res })
   });
+
+  await createConnection();
+
+  const app = express();
 
   app.use(
     session({
@@ -34,7 +28,15 @@ const startServer = async () => {
     })
   );
 
-  server.applyMiddleware({ app });
+  app.use(pino({ logger }));
+
+  server.applyMiddleware({
+    app,
+    cors: {
+      credentials: true,
+      origin: process.env.FRONTEND_URL || "https://polyflow.yanmendes.dev"
+    }
+  });
 
   app.listen({ port }, () => console.log(`Server ready. Lestining on ${port}`));
 };
