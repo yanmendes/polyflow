@@ -4,6 +4,18 @@ import {
   getParserAndInterface
 } from "../query-parsers";
 
+export const getWorkspace = (req, workspaceId) =>
+  getCurrentUser(req)
+    .then(user =>
+      user.workspaces.find(({ id }) => parseInt(workspaceId, 10) === id)
+    )
+    .then(workspace => {
+      if (!workspace) {
+        throw new Error("user does not belong to workspace");
+      }
+      return workspace;
+    });
+
 export const getCurrentUser = req => {
   if (!req.session.userId) {
     throw new Error("You must be logged in to access this feature");
@@ -27,7 +39,7 @@ export const runQuery = async (query, req) => {
       const parsedQuery = await parser(query);
 
       req.log.info(parsedQuery);
-      const results = await dbInterface(process.env.PG_URI, parsedQuery);
+      const results = await dbInterface.query(process.env.PG_URI, parsedQuery);
       return results;
     })
   );

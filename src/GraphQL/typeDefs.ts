@@ -15,8 +15,14 @@ export default gql`
     user: User!
   }
 
+  type DataSource {
+    id: ID!
+    uri: String
+  }
+
   type Query {
     getWorkspaces: [Workspace]
+    getDataSource(uri: String): DataSource
   }
 
   type Mutation {
@@ -26,5 +32,6 @@ export default gql`
     createWorkspace(name: String!): Workspace!
     addUserToWorkspace(workspaceId: ID!, userId: ID!): Boolean!
     query(query: String!): JSON
+    addDataSource(workspaceId: ID!, type: String, uri: String): Boolean
   }
 `;

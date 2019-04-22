@@ -4,9 +4,10 @@ import {
   Column,
   BaseEntity,
   ManyToMany,
-  JoinTable
+  JoinTable,
+  OneToMany
 } from "typeorm";
-import { User } from "./User";
+import { User, DataSource } from ".";
 
 @Entity("workspaces")
 export class Workspace extends BaseEntity {
@@ -19,4 +20,8 @@ export class Workspace extends BaseEntity {
   @ManyToMany(_ => User, user => user.workspaces)
   @JoinTable()
   users: User[];
+
+  @OneToMany(_ => User, user => user.workspaces)
+  @JoinTable()
+  dataSources: DataSource[];
 }
