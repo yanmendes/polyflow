@@ -6,9 +6,7 @@ import { getCurrentUser } from "../../../services";
 export default {
   createWorkspace: async (_, { name }, { req }) => {
     const user = await getCurrentUser(req);
-    const workspace = (new Workspace().name = name);
-
-    await workspace.save();
+    const workspace = await Workspace.create({ name }).save();
 
     return getConnection()
       .createQueryBuilder()
