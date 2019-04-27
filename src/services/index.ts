@@ -73,9 +73,9 @@ export const runQuery = async (query, req) => {
   }
 
   const results = await Promise.all(
-    // Gotta use this "context" variable later to inject the possible mediated entities and rewrite the parser method
+    // Gotta also get the "context" variable later to inject the possible mediated entities and rewrite the parser method
     contextualizedQueries.map(
-      async ({ context, query, dataSource_type, dataSource_uri }) => {
+      async ({ query, dataSource_type, dataSource_uri }) => {
         const { parser, dbInterface } = getParserAndInterface(dataSource_type);
         const parsedQuery = await parser(query);
 
