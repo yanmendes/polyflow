@@ -33,5 +33,12 @@ export default gql`
     addUserToWorkspace(workspaceId: ID!, userId: ID!): Boolean!
     query(query: String!): JSON
     addDataSource(workspaceId: ID!, type: String, uri: String): Boolean
+    addMediator(
+      name: String!
+      slug: String!
+      entityMapper: JSON!
+      workspaceId: ID!
+      dataSourceId: ID!
+    ): Boolean
   }
 `;

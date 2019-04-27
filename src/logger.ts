@@ -6,5 +6,6 @@ export default require("pino")({
 });
 
 export const categories = {
-  DATA_SOURCE: "data_source"
+  DATA_SOURCE: "data_source",
+  MEDIATOR: "mediator"
 };

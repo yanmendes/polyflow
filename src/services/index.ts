@@ -1,4 +1,4 @@
-import { User } from "../models/polyflow";
+import { User, DataSource } from "../models/polyflow";
 import {
   contextualizeSubQueries,
   getParserAndInterface
@@ -46,3 +46,18 @@ export const runQuery = async (query, req) => {
 
   return results;
 };
+
+export const getDataSource = (req, workspaceId, dataSourceId) =>
+  // Gotta replace this later by adding all nested fields to getUser query.. https://typeorm.io/#/find-options/basic-options
+  getWorkspace(req, workspaceId)
+    .then(_ => DataSource.findOne(dataSourceId, { relations: ["workspace"] }))
+    .then(
+      dataSource =>
+        dataSource.workspace.id === parseInt(workspaceId, 10) && dataSource
+    )
+    .then(dataSource => {
+      if (!dataSource) {
+        throw new Error("Data source does not belong to workspace");
+      }
+      return dataSource;
+    });
