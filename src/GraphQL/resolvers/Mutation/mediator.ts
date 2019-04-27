@@ -1,4 +1,4 @@
-import { getConnection } from "typeorm";
+import { getRepository } from "typeorm";
 import { UserInputError } from "apollo-server-core";
 
 import { getDataSource } from "../../../services";
@@ -18,16 +18,12 @@ export default {
     const dataSource = await getDataSource(req, workspaceId, dataSourceId);
 
     try {
-      const mediator = await Mediator.create({
+      await getRepository(Mediator).save({
         name,
         slug,
-        entityMapper
-      }).save();
-      await getConnection()
-        .createQueryBuilder()
-        .relation(Mediator, "dataSource")
-        .of(mediator)
-        .set(dataSource);
+        entityMapper,
+        dataSource
+      });
 
       return true;
     } catch (e) {
@@ -36,7 +32,7 @@ export default {
           error: e,
           action: "adding_mediator"
         })
-        .error("Mediator name/slug already in for this data source");
+        .error("Mediator name/slug already in use for this data source");
       throw new UserInputError(
         "Mediator name/slug already in for this data source"
       );

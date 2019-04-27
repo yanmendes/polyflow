@@ -4,11 +4,13 @@ import {
   Column,
   BaseEntity,
   ManyToMany,
-  JoinTable
+  JoinTable,
+  Unique
 } from "typeorm";
 import { Workspace } from "./Workspace";
 
 @Entity("users")
+@Unique(["email"])
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
