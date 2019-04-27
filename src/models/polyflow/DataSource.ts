@@ -8,7 +8,7 @@ import {
   Unique
 } from "typeorm";
 
-import { Workspace } from "./Workspace";
+import { Workspace, Mediator } from ".";
 
 enum Type {
   Postgres = "postgres"
@@ -31,4 +31,7 @@ export class DataSource extends BaseEntity {
   })
   @JoinTable()
   workspace: Workspace;
+
+  @JoinTable()
+  mediators: [Mediator];
 }
