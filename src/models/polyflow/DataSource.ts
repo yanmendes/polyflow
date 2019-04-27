@@ -4,7 +4,8 @@ import {
   Column,
   BaseEntity,
   JoinTable,
-  ManyToOne
+  ManyToOne,
+  Unique
 } from "typeorm";
 
 import { Workspace } from "./Workspace";
@@ -14,6 +15,7 @@ enum Type {
 }
 
 @Entity("data_source")
+@Unique(["uri", "workspace"])
 export class DataSource extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;

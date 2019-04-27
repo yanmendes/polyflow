@@ -6,6 +6,7 @@ import userMutations from "./user";
 import workspaceMutations from "./workspace";
 import { runQuery, getWorkspace } from "../../../services";
 import { DataSource } from "../../../models/polyflow";
+import logger, { categories } from "../../../logger";
 
 export default {
   ...userMutations,
@@ -21,15 +22,25 @@ export default {
       throw new UserInputError("Invalid URI for the chosen type");
     }
 
-    const dataSource = await DataSource.create({ uri, type }).save();
+    try {
+      const dataSource = await DataSource.create({ uri, type }).save();
+      await getConnection()
+        .createQueryBuilder()
+        .relation(DataSource, "workspace")
+        .of(dataSource)
+        .set(workspace);
 
-    await getConnection()
-      .createQueryBuilder()
-      .relation(DataSource, "workspace")
-      .of(dataSource)
-      .set(workspace);
-
-    return true;
+      return true;
+    } catch (e) {
+      logger
+        .child({
+          error: e,
+          category: categories.DATA_SOURCE,
+          action: "adding_data_source"
+        })
+        .error("URI already registered in this workspace");
+      throw new UserInputError("URI already registered in this workspace");
+    }
   },
 
   query: (_, { query }, { req }) => runQuery(query, req)
