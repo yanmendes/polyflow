@@ -1,8 +1,7 @@
-import { User, DataSource } from "../models/polyflow";
-import {
-  contextualizeSubQueries,
-  getParserAndInterface
-} from "../query-parsers";
+import { User, DataSource, Mediator, Workspace } from "../models/polyflow";
+import { contextualizeSubQueries } from "../databases/query-parsers";
+import { getParserAndInterface } from "../databases";
+import { getConnection } from "typeorm";
 
 export const getWorkspace = (req, workspaceId) =>
   getCurrentUser(req)
@@ -24,24 +23,67 @@ export const getCurrentUser = req => {
   return User.findOne(req.session.userId, { relations: ["workspaces"] });
 };
 
+const getMediators = req =>
+  getCurrentUser(req).then(user =>
+    getConnection()
+      .createQueryBuilder()
+      .addSelect("mediator")
+      .from(Mediator, "mediator")
+      .innerJoinAndSelect(
+        DataSource,
+        "dataSource",
+        `dataSource.id=mediator."dataSourceId"`
+      )
+      .innerJoinAndSelect(
+        Workspace,
+        "workspace",
+        `workspace.id="dataSource"."workspaceId"`
+      )
+      .getRawMany()
+      .then(mediators =>
+        mediators.filter(({ workspace_id }) =>
+          user.workspaces.find(({ id }) => parseInt(workspace_id, 10) === id)
+        )
+      )
+  );
+
 export const runQuery = async (query, req) => {
-  const contextualizedQueries = contextualizeSubQueries(query);
+  const mediators = await getMediators(req);
+
+  if (!mediators.length) {
+    throw new Error("No mediatiors found");
+  }
+
+  const contextualizedQueries = contextualizeSubQueries(query)
+    .map(
+      ctx =>
+        ({
+          ...ctx,
+          ...mediators.find(
+            ({ mediator_slug }) => mediator_slug === ctx.context
+          )
+        } || undefined)
+    )
+    .filter(ctx => ctx);
 
   if (contextualizedQueries.length > 1) {
     throw new Error(`Can't support multiple queries yet`);
   } else if (contextualizedQueries.length === 0) {
-    throw new Error(`${query} is not a valid query`);
+    throw new Error(`${query} is not a valid query or mediator does not exist`);
   }
 
   const results = await Promise.all(
-    contextualizedQueries.map(async ({ context, query }) => {
-      const { parser, dbInterface } = getParserAndInterface(context);
-      const parsedQuery = await parser(query);
+    // Gotta use this "context" variable later to inject the possible mediated entities and rewrite the parser method
+    contextualizedQueries.map(
+      async ({ context, query, dataSource_type, dataSource_uri }) => {
+        const { parser, dbInterface } = getParserAndInterface(dataSource_type);
+        const parsedQuery = await parser(query);
 
-      req.log.info(parsedQuery);
-      const results = await dbInterface.query(process.env.PG_URI, parsedQuery);
-      return results;
-    })
+        req.log.info(parsedQuery);
+        const results = await dbInterface.query(dataSource_uri, parsedQuery);
+        return results;
+      }
+    )
   );
 
   return results;

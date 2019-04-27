@@ -1,12 +1,13 @@
+import { Parser } from "flora-sql-parser";
+
 import {
   SQL_INNER_JOIN,
   SQL_RIGHT_JOIN,
   SQL_LEFT_JOIN,
   SQL_UNION
-} from "../mediators/mediationTypes";
-import KeplerMediator from "../mediators/Kepler";
-import { Parser } from "flora-sql-parser";
-import { MediationError } from "../CustomErrors";
+} from "../../mediators/mediationTypes";
+import KeplerMediator from "../../mediators/Kepler";
+import { MediationError } from "../../CustomErrors";
 
 const toSQL = require("flora-sql-parser").util.astToSQL;
 
