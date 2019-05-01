@@ -1,16 +1,17 @@
 import {
-  Entity,
+  Entity as TypeORMEntity,
   PrimaryGeneratedColumn,
   Column,
   BaseEntity,
   JoinTable,
   Unique,
-  ManyToOne
+  ManyToOne,
+  OneToMany
 } from "typeorm";
 
-import { DataSource } from "./DataSource";
+import { DataSource, Entity } from ".";
 
-@Entity("mediator")
+@TypeORMEntity("mediator")
 @Unique(["name", "dataSource"])
 @Unique(["slug", "dataSource"])
 export class Mediator extends BaseEntity {
@@ -23,8 +24,9 @@ export class Mediator extends BaseEntity {
   @Column("varchar")
   slug: string;
 
-  @Column("json")
-  entityMapper: JSON;
+  @OneToMany(_ => Entity, entity => entity.mediator)
+  @JoinTable()
+  entities: [Entity];
 
   @ManyToOne(_ => DataSource, dataSource => dataSource.mediators, {
     cascade: true
