@@ -7,5 +7,6 @@ export default require("pino")({
 
 export const categories = {
   DATA_SOURCE: "data_source",
-  MEDIATOR: "mediator"
+  MEDIATOR: "mediator",
+  ENTITY: "entity"
 };

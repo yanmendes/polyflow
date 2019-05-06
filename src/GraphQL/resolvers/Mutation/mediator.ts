@@ -12,7 +12,7 @@ const log = logger.child({
 export default {
   addMediator: async (
     _,
-    { name, slug, entityMapper, workspaceId, dataSourceId },
+    { name, slug, workspaceId, dataSourceId },
     { req }
   ) => {
     const dataSource = await getDataSource(req, workspaceId, dataSourceId);
@@ -21,7 +21,6 @@ export default {
       await getRepository(Mediator).save({
         name,
         slug,
-        entityMapper,
         dataSource
       });
 

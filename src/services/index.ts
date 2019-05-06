@@ -103,3 +103,17 @@ export const getDataSource = (req, workspaceId, dataSourceId) =>
       }
       return dataSource;
     });
+
+export const getMediator = (req, workspaceId, dataSourceId, mediatorId) =>
+  getDataSource(req, workspaceId, dataSourceId)
+    .then(_ => Mediator.findOne(mediatorId, { relations: ["dataSource"] }))
+    .then(
+      mediator =>
+        mediator.dataSource.id === parseInt(dataSourceId, 10) && mediator
+    )
+    .then(mediator => {
+      if (!mediator) {
+        throw new Error("Mediator does not belong to data source");
+      }
+      return mediator;
+    });

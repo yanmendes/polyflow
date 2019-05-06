@@ -25,6 +25,19 @@ export default gql`
     getDataSource(uri: String): DataSource
   }
 
+  input SQLColumnInput {
+    projection: String
+    alias: String
+  }
+
+  input SQLEntityMapperInput {
+    entity1: JSON!
+    entity2: JSON
+    type: String
+    columns: [SQLColumnInput]
+    params: [String]
+  }
+
   type Mutation {
     register(email: String!, password: String!): Boolean!
     login(email: String!, password: String!): User
@@ -36,9 +49,16 @@ export default gql`
     addMediator(
       name: String!
       slug: String!
-      entityMapper: JSON!
       workspaceId: ID!
       dataSourceId: ID!
+    ): Boolean
+    addEntity(
+      name: String!
+      slug: String!
+      entityMapper: SQLEntityMapperInput!
+      workspaceId: ID!
+      dataSourceId: ID!
+      mediatorId: ID!
     ): Boolean
   }
 `;
