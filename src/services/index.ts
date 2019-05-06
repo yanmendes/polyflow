@@ -51,7 +51,7 @@ export const runQuery = async (query, req) => {
   const mediators = await getMediators(req);
 
   if (!mediators.length) {
-    throw new Error("No mediatiors found");
+    throw new Error("No mediators found");
   }
 
   const contextualizedQueries = contextualizeSubQueries(query)
