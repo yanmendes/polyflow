@@ -6,8 +6,8 @@ import {
   SQL_LEFT_JOIN,
   SQL_UNION
 } from "../../mediators/mediationTypes";
-import KeplerMediator from "../../mediators/Kepler";
 import { MediationError } from "../../CustomErrors";
+import { Entity } from "../../models/polyflow";
 
 const toSQL = require("flora-sql-parser").util.astToSQL;
 
@@ -21,19 +21,12 @@ function isSQLTable(entity: MediationEntity | SQLTable): entity is SQLTable {
   return (entity as SQLTable).name !== undefined;
 }
 
-function parseCols(columns: any) {
-  if (!columns || !Object.entries(columns).length) {
-    return "*";
-  }
-  let cols = Object.values(columns);
-  let aliases = Object.keys(columns);
-
-  cols.forEach((v, k) => {
-    cols[k] = v + ` as ${aliases[k]}`;
-  });
-
-  return cols.join(",");
-}
+const parseCols = (columns: any) =>
+  !columns || !columns.length
+    ? "*"
+    : columns
+        .map(({ projection, alias }) => `${projection} AS ${alias}`)
+        .join(",");
 
 function resolveJoin(
   columns: Object,
@@ -159,15 +152,7 @@ function validateMediator(mediator: MediationEntity) {
   }
 }
 
-function mediateEntity(entityName: string): string {
-  if (!KeplerMediator.has(entityName)) {
-    throw new MediationError(`Entity does not exist in mediator`, {
-      mediator: KeplerMediator,
-      tableName: entityName
-    });
-  }
-  const mediator = KeplerMediator.get(entityName);
-
+function mediateEntity(mediator): string {
   // This means this is a 1-1
   if (isSQLTable(mediator)) {
     return handleSimpleMediation(mediator);
@@ -179,24 +164,28 @@ function mediateEntity(entityName: string): string {
 
 export { validateMediator, validateSQLTable };
 
-export default async function(query: string) {
+export default async function(query: string, entities: [Entity]) {
   const parser = new Parser();
   let ast = parser.parse(query);
   const { from } = ast;
 
   let i = 0;
-  const entities = new Map<string, string>();
+  const queries = new Map<string, string>();
 
-  for (const table of from) {
-    entities.set(table.table, mediateEntity(table.table.toLowerCase()));
+  for (const entity of from) {
+    const mediationEntity = entities.find(
+      ({ slug }) => slug === entity.table.toLowerCase()
+    );
+    const mediatedQuery = mediateEntity(mediationEntity.entityMapper);
+    queries.set(entity.table, mediatedQuery);
     // Forcefully adding an alias if they don't have one
     // This is done because subqueries must have an alias in SQL
-    table.as = table.as ? table.as : "table_" + i++;
+    entity.as = entity.as ? entity.as : "table_" + i++;
   }
 
   let sql = toSQL(ast);
 
-  entities.forEach((value: string, key: string) => {
+  queries.forEach((value: string, key: string) => {
     const re = new RegExp(`"${key}"`, "gmi");
     sql = sql.replace(re, value);
   });

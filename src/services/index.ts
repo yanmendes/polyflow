@@ -1,4 +1,10 @@
-import { User, DataSource, Mediator, Workspace } from "../models/polyflow";
+import {
+  User,
+  DataSource,
+  Mediator,
+  Workspace,
+  Entity
+} from "../models/polyflow";
 import { contextualizeSubQueries } from "../databases/query-parsers";
 import { getParserAndInterface } from "../databases";
 import { getConnection } from "typeorm";
@@ -45,6 +51,16 @@ const getMediators = req =>
           user.workspaces.find(({ id }) => parseInt(workspace_id, 10) === id)
         )
       )
+      .then(mediators =>
+        Promise.all(
+          mediators.map(async mediator => ({
+            ...mediator,
+            entities: await Entity.find({
+              where: { mediatorId: mediator.id }
+            })
+          }))
+        )
+      )
   );
 
 export const runQuery = async (query, req) => {
@@ -59,12 +75,12 @@ export const runQuery = async (query, req) => {
       ctx =>
         ({
           ...ctx,
-          ...mediators.find(
-            ({ mediator_slug }) => mediator_slug === ctx.context
+          ...mediators.find(({ entities }) =>
+            entities.find(({ slug }) => slug === ctx.context)
           )
         } || undefined)
     )
-    .filter(ctx => ctx);
+    .filter(ctx => ctx.dataSource_type);
 
   if (contextualizedQueries.length > 1) {
     throw new Error(`Can't support multiple queries yet`);
@@ -75,9 +91,9 @@ export const runQuery = async (query, req) => {
   const results = await Promise.all(
     // Gotta also get the "context" variable later to inject the possible mediated entities and rewrite the parser method
     contextualizedQueries.map(
-      async ({ query, dataSource_type, dataSource_uri }) => {
+      async ({ query, dataSource_type, dataSource_uri, entities }) => {
         const { parser, dbInterface } = getParserAndInterface(dataSource_type);
-        const parsedQuery = await parser(query);
+        const parsedQuery = await parser(query, entities);
 
         req.log.info(parsedQuery);
         const results = await dbInterface.query(dataSource_uri, parsedQuery);
