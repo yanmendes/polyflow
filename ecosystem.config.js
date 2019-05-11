@@ -3,7 +3,7 @@ module.exports = {
     {
       name: 'polyflow.api',
       script: 'node',
-      args: 'dist/src',
+      args: 'dist',
       watch: true,
       env_production: {
         NODE_ENV: 'production'
