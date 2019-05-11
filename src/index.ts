@@ -31,6 +31,7 @@ const startServer = async () => {
   app.use(pino({ logger }));
 
   server.applyMiddleware({
+    path: "/",
     app,
     cors: {
       credentials: true,
