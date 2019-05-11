@@ -6,7 +6,7 @@ import * as session from "express-session";
 import * as pino from "express-pino-logger";
 import { createConnection } from "typeorm";
 
-import { port } from "./config";
+import { port, psqlURL } from "./config";
 import logger from "./logger";
 import schema from "./GraphQL";
 
@@ -16,7 +16,13 @@ const startServer = async () => {
     context: ({ req, res }: any) => ({ req, res })
   });
 
-  await createConnection();
+  await createConnection({
+    entities: ["src/models/polyflow", "dist/models/polyflow/**/*.js"],
+    logging: process.env.NODE_ENV === "production",
+    synchronize: true,
+    url: psqlURL,
+    type: "postgres"
+  });
 
   const app = express();
 
