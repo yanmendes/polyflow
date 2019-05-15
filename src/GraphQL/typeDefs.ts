@@ -15,9 +15,14 @@ export default gql`
     user: User!
   }
 
+  enum DataSourceType {
+    postgres
+  }
+
   type DataSource {
     id: ID!
     uri: String
+    type: DataSourceType
   }
 
   type Query {
@@ -45,7 +50,7 @@ export default gql`
     createWorkspace(name: String!): Workspace!
     addUserToWorkspace(workspaceId: ID!, userId: ID!): Boolean!
     query(query: String!): JSON
-    addDataSource(workspaceId: ID!, type: String, uri: String): Boolean
+    addDataSource(workspaceId: ID!, type: DataSourceType, uri: String): Boolean
     addMediator(
       name: String!
       slug: String!
