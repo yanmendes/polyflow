@@ -29,7 +29,7 @@ export default {
         .of(dataSource)
         .set(workspace);
 
-      return true;
+      return dataSource;
     } catch (e) {
       log
         .child({
