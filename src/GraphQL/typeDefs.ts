@@ -31,6 +31,26 @@ export default gql`
     slug: String
   }
 
+  type SQLColumn {
+    projection: String
+    alias: String
+  }
+
+  type SQLEntityMapper {
+    entity1: JSON!
+    entity2: JSON
+    type: String
+    columns: [SQLColumn]
+    params: [String]
+  }
+
+  type Entity {
+    id: ID!
+    name: String!
+    slug: String!
+    entityMapper: SQLEntityMapper!
+  }
+
   type Query {
     getWorkspaces: [Workspace]
     getDataSource(uri: String): DataSource
@@ -74,6 +94,6 @@ export default gql`
       workspaceId: ID!
       dataSourceId: ID!
       mediatorId: ID!
-    ): Boolean
+    ): Entity
   }
 `;

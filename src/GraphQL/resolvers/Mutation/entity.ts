@@ -24,7 +24,6 @@ export default {
           mediator
         })
       )
-      .then(_ => true)
       .catch(e => {
         log
           .child({
