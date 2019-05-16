@@ -1,7 +1,12 @@
+class SQLColumn {
+  projection: string;
+  alias: string;
+}
+
 class SQLTable {
   name: string;
   alias: string;
-  columns?: Object;
+  columns?: Array<SQLColumn>;
   where?: string;
 }
 
