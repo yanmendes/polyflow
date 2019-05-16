@@ -21,18 +21,18 @@ export default gql`
 
   type DataSource {
     id: ID!
-    uri: String
-    type: DataSourceType
+    uri: String!
+    type: DataSourceType!
   }
 
   type Mediator {
     id: ID!
-    name: String
-    slug: String
+    name: String!
+    slug: String!
   }
 
   type SQLColumn {
-    projection: String
+    projection: String!
     alias: String
   }
 
@@ -57,7 +57,7 @@ export default gql`
   }
 
   input SQLColumnInput {
-    projection: String
+    projection: String!
     alias: String
   }
 
@@ -78,8 +78,8 @@ export default gql`
     query(query: String!): JSON
     addDataSource(
       workspaceId: ID!
-      type: DataSourceType
-      uri: String
+      type: DataSourceType!
+      uri: String!
     ): DataSource
     addMediator(
       name: String!
