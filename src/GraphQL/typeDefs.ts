@@ -25,6 +25,12 @@ export default gql`
     type: DataSourceType
   }
 
+  type Mediator {
+    id: ID!
+    name: String
+    slug: String
+  }
+
   type Query {
     getWorkspaces: [Workspace]
     getDataSource(uri: String): DataSource
@@ -60,7 +66,7 @@ export default gql`
       slug: String!
       workspaceId: ID!
       dataSourceId: ID!
-    ): Boolean
+    ): Mediator
     addEntity(
       name: String!
       slug: String!

@@ -18,13 +18,13 @@ export default {
     const dataSource = await getDataSource(req, workspaceId, dataSourceId);
 
     try {
-      await getRepository(Mediator).save({
+      const mediator = await getRepository(Mediator).save({
         name,
         slug,
         dataSource
       });
 
-      return true;
+      return mediator;
     } catch (e) {
       log
         .child({
