@@ -56,7 +56,7 @@ const getMediators = req =>
           mediators.map(async mediator => ({
             ...mediator,
             entities: await Entity.find({
-              where: { mediatorId: mediator.id }
+              mediator: mediator.mediator_id
             })
           }))
         )
@@ -75,8 +75,8 @@ export const runQuery = async (query, req) => {
       ctx =>
         ({
           ...ctx,
-          ...mediators.find(({ entities }) =>
-            entities.find(({ slug }) => slug === ctx.context)
+          ...mediators.find(
+            ({ mediator_slug }) => mediator_slug === ctx.context
           )
         } || undefined)
     )

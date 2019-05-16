@@ -35,7 +35,7 @@ function resolveJoin(
   joinType: string,
   params: string[]
 ) {
-  if (!columns || !fromTable || !joinTable || !joinType || !params) {
+  if (!fromTable || !joinTable || !joinType || !params) {
     throw new MediationError(`Error resolving join`, {
       columns,
       fromTable,
@@ -68,7 +68,7 @@ function resolveUnion(entity1: SQLTable, entity2: SQLTable) {
 
 function handleSimpleMediation(SQLTable: SQLTable) {
   validateSQLTable(SQLTable);
-  if (!SQLTable || !SQLTable.columns || !SQLTable.name || !SQLTable.alias) {
+  if (!SQLTable || !SQLTable.name || !SQLTable.alias) {
     throw new MediationError(`Invalid entity`, SQLTable);
   }
   return `(SELECT ${parseCols(SQLTable.columns)} FROM ${SQLTable.name} AS ${

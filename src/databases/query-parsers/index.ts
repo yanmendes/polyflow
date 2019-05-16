@@ -1,7 +1,7 @@
 import sqlParser from "./sql";
 
 // Gotta fix for multiple contexts later
-const contextsRegex = /^(\w+)\[(.*)\]$/gim;
+const contextsRegex = /^([a-z-_]+)\[(.*)\]$/gim;
 export const getContexts = (query: string) => contextsRegex.exec(query);
 
 export const contextualizeSubQueries = (queryStmt: string) => {
