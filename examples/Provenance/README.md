@@ -1,0 +1,3 @@
+In order to foster reproducibility in computational experiment, historical information such as all generated data, the used software and the settings of the execution environment must be made available to other researchers. This type of data is called **Provenance**.
+
+This example builds upon interoperability efforts of the provenance community using the [ProvONE](http://jenkins-1.dataone.org/jenkins/view/Documentation%20Projects/job/ProvONE-Documentation-trunk/ws/provenance/ProvONE/v1/provone.html) data model as a canonical conceptual model to integrate diverse provenance databases such as [Kepler](https://code.kepler-project.org/code/kepler/trunk/modules/provenance/docs/provenance.pdf).
