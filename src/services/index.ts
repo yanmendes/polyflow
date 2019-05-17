@@ -1,3 +1,6 @@
+import { getConnection } from "typeorm";
+import * as jwt from "jsonwebtoken";
+
 import {
   User,
   DataSource,
@@ -7,7 +10,7 @@ import {
 } from "../models/polyflow";
 import { contextualizeSubQueries } from "../databases/query-parsers";
 import { getParserAndInterface } from "../databases";
-import { getConnection } from "typeorm";
+import { JWT_SECRET } from "../config";
 
 export const getWorkspace = (req, workspaceId) =>
   getCurrentUser(req)
@@ -22,11 +25,16 @@ export const getWorkspace = (req, workspaceId) =>
     });
 
 export const getCurrentUser = req => {
-  if (!req.session.userId) {
+  const authToken = req.cookies["auth-cookie"];
+  if (!authToken) {
     throw new Error("You must be logged in to access this feature");
   }
+  const { userId } = jwt.verify(authToken, JWT_SECRET);
+  if (!userId) {
+    throw new Error("Invalid token. Try cleaning up your cookies");
+  }
 
-  return User.findOne(req.session.userId, { relations: ["workspaces"] });
+  return User.findOne(userId, { relations: ["workspaces"] });
 };
 
 const getMediators = req =>

@@ -5,10 +5,11 @@ import {
   SQL_RIGHT_JOIN,
   SQL_LEFT_JOIN,
   SQL_UNION
-} from "../../mediators/mediationTypes";
+} from "../../mediationTypes";
 import { MediationError } from "../../CustomErrors";
 import { Entity } from "../../models/polyflow";
 
+const sql = require("tagged-template-noop");
 const toSQL = require("flora-sql-parser").util.astToSQL;
 
 function isMediationEntity(
@@ -21,63 +22,65 @@ function isSQLTable(entity: MediationEntity | SQLTable): entity is SQLTable {
   return (entity as SQLTable).name !== undefined;
 }
 
-const parseCols = (columns: any) =>
+const getAlias = (alias: string) => (alias ? ` as ${alias}` : "");
+
+const parseCols = (columns: SQLColumn[]) =>
   !columns || !columns.length
     ? "*"
     : columns
-        .map(({ projection, alias }) => `${projection} AS ${alias}`)
+        .map(({ projection, alias }) => `${projection} ${getAlias(alias)}`)
         .join(",");
 
-function resolveJoin(
-  columns: Object,
+const getParams = (params: string[]) =>
+  params.length === 3 ? params.join(" ") : `${params[0]} = ${params[1]}`;
+
+const resolveJoin = (
+  columns: SQLColumn[],
   fromTable: SQLTable,
   joinTable: SQLTable,
   joinType: string,
   params: string[]
-) {
-  if (!fromTable || !joinTable || !joinType || !params) {
-    throw new MediationError(`Error resolving join`, {
-      columns,
-      fromTable,
-      joinTable,
-      joinType,
-      params
-    });
-  }
+) =>
+  sql`(
+    SELECT ${parseCols(columns)}
+    FROM ${fromTable.name} ${getAlias(fromTable.alias)}
+    ${joinType} JOIN ${joinTable.name} ${getAlias(joinTable.alias)}
+      ON ${getParams(params)}
+  )`;
 
-  return `(SELECT ${parseCols(columns)} FROM ${fromTable.name} AS ${
-    fromTable.alias
-  }
-  ${joinType} JOIN ${joinTable.name} AS ${joinTable.alias} ON ${params[0]} = ${
-    params[1]
-  })`;
-}
+const resolveUnion = (
+  entity1: SQLTable,
+  entity2: SQLTable,
+  columns?: SQLColumn[]
+): string =>
+  sql`(
+    SELECT ${parseCols(columns)}
+    (
+      SELECT ${parseCols(entity1.columns)}
+      FROM ${entity1.name} ${getAlias(entity1.alias)}
+    )
+    UNION ALL
+    (
+      SELECT ${parseCols(entity2.columns)}
+      FROM ${entity2.name} ${getAlias(entity2.alias)}
+    )
+  )`;
 
-function resolveUnion(entity1: SQLTable, entity2: SQLTable) {
-  if (!entity1 || !entity2 || !entity1.columns || !entity2.columns) {
-    throw new MediationError(`Error resolving union`, { entity1, entity2 });
-  }
-  return `((SELECT ${parseCols(entity1.columns)} FROM ${entity1.name} AS ${
-    entity1.alias
-  })
-          UNION ALL
-           (SELECT ${parseCols(entity2.columns)} FROM ${entity2.name} AS ${
-    entity2.alias
-  }))`;
-}
+const getWhereStatement = (where: string) => (where ? `WHERE ${where}` : "");
 
-function handleSimpleMediation(SQLTable: SQLTable) {
+const handleSimpleMediation = (SQLTable: SQLTable): string => {
   validateSQLTable(SQLTable);
-  if (!SQLTable || !SQLTable.name || !SQLTable.alias) {
-    throw new MediationError(`Invalid entity`, SQLTable);
-  }
-  return `(SELECT ${parseCols(SQLTable.columns)} FROM ${SQLTable.name} AS ${
-    SQLTable.alias
-  } ${SQLTable.where ? `WHERE ${SQLTable.where}` : ""} )`;
-}
+
+  return sql`(
+    SELECT ${parseCols(SQLTable.columns)}
+    FROM ${SQLTable.name} ${getAlias(SQLTable.alias)}
+    ${getWhereStatement(SQLTable.where)}
+  )`;
+};
 
 function handleComplexMediation(mediator: MediationEntity): string {
   validateMediator(mediator);
+
   const { entity1, entity2, type, columns, params } = mediator;
   if (isMediationEntity(entity1) || isMediationEntity(entity2)) {
     const query1 = isMediationEntity(entity1)
@@ -87,29 +90,31 @@ function handleComplexMediation(mediator: MediationEntity): string {
       ? handleComplexMediation(entity2)
       : handleSimpleMediation(entity2);
 
-    if (
-      type === SQL_INNER_JOIN ||
-      type === SQL_LEFT_JOIN ||
-      type === SQL_RIGHT_JOIN
-    ) {
-      return `(SELECT ${parseCols(
-        columns
-      )} FROM (${query1}) AS t1 ${type} JOIN (${query2}) AS t2 ON t1.${
-        params[0]
-      } = t2.${params[1]})`;
+    if ([SQL_INNER_JOIN, SQL_LEFT_JOIN, SQL_RIGHT_JOIN].includes(type)) {
+      return resolveJoin(
+        columns,
+        {
+          name: `(${query1})`,
+          alias: "t1"
+        },
+        {
+          name: `(${query2})`,
+          alias: "t2"
+        },
+        type,
+        params
+      );
     } else if (type === SQL_UNION) {
-      return `(SELECT ${parseCols(
+      return resolveUnion(
+        { name: `(${query1})` },
+        { name: `(${query2})` },
         columns
-      )} FROM (${query1}) AS t1 UNION ALL (${query2}))`;
+      );
     } else {
       throw new MediationError("No valid type was defined", mediator);
     }
   } else if (isSQLTable(entity1) && isSQLTable(entity2)) {
-    if (
-      type === SQL_INNER_JOIN ||
-      type === SQL_LEFT_JOIN ||
-      type === SQL_RIGHT_JOIN
-    ) {
+    if ([SQL_INNER_JOIN, SQL_LEFT_JOIN, SQL_RIGHT_JOIN].includes(type)) {
       return resolveJoin(columns, entity1, entity2, type, params);
     } else if (type === SQL_UNION) {
       return resolveUnion(entity1, entity2);
@@ -122,31 +127,29 @@ function handleComplexMediation(mediator: MediationEntity): string {
 function validateSQLTable(entity: SQLTable) {
   if (!entity.name) {
     throw new MediationError("Table name not set for SQLTable", entity);
-  } else if (!entity.alias) {
-    throw new MediationError("Alias not set for SQLTable", entity);
   }
 }
 
 function validateMediator(mediator: MediationEntity) {
-  if (!mediator.entity1) {
-    throw new MediationError("Entity 2 not set for mediator", mediator);
-  } else if (mediator.entity2 && !mediator.type) {
+  const { entity1, entity2, params, type } = mediator;
+  if (!entity1) {
+    throw new MediationError("Entity 1 not set for mediator", mediator);
+  } else if (entity2 && !type) {
     throw new MediationError("Type not set for mediator", mediator);
   } else if (
-    [SQL_INNER_JOIN, SQL_LEFT_JOIN, SQL_RIGHT_JOIN].includes(mediator.type) &&
-    !mediator.params
+    [SQL_INNER_JOIN, SQL_LEFT_JOIN, SQL_RIGHT_JOIN].includes(type) &&
+    (!params || params.length < 2)
   ) {
     throw new MediationError("Type set as Join but no param set", mediator);
   } else if (
-    mediator.type === "union" &&
-    (!mediator.entity2 ||
-      !mediator.entity1.columns ||
-      !mediator.entity2.columns ||
-      Object.keys(mediator.entity1.columns).length !==
-        Object.keys(mediator.entity1.columns).length)
+    type === "union" &&
+    (!entity2 ||
+      !entity1.columns ||
+      !entity2.columns ||
+      entity1.columns.length !== entity2.columns.length)
   ) {
     throw new MediationError(
-      "Type set as Union but one of the entities is invalid",
+      "Type set as Union but the columns are invalid",
       mediator
     );
   }
@@ -163,6 +166,8 @@ function mediateEntity(mediator): string {
 }
 
 export { validateMediator, validateSQLTable };
+
+const sanitize = (query: string) => query.replace(/\\n/, "");
 
 export default async function(query: string, entities: [Entity]) {
   const parser = new Parser();
@@ -190,5 +195,5 @@ export default async function(query: string, entities: [Entity]) {
     sql = sql.replace(re, value);
   });
 
-  return sql.replace(/\s+as\s+"(\w+)"/gim, " as $1");
+  return sanitize(sql).replace(/\s+as\s+"(\w+)"/gim, " as $1");
 }

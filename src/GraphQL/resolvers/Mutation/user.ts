@@ -1,6 +1,8 @@
 import * as bcrypt from "bcryptjs";
+import * as jwt from "jsonwebtoken";
 
 import { User } from "../../../models/polyflow";
+import { JWT_SECRET } from "../../../config";
 
 export default {
   logout: async (_, __, { req, res }) => {
@@ -19,7 +21,7 @@ export default {
     return true;
   },
 
-  login: async (_, { email, password }, { req }) => {
+  login: async (_, { email, password }, { res }) => {
     const user = await User.findOne({ where: { email } });
     if (!user) {
       return null;
@@ -30,7 +32,19 @@ export default {
       return null;
     }
 
-    req.session.userId = user.id;
+    const token = jwt.sign(
+      {
+        userId: user.id
+      },
+      JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.cookie("auth-cookie", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
+    });
 
     return user;
   }

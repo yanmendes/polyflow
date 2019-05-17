@@ -2,7 +2,7 @@ import "reflect-metadata";
 import "dotenv/config";
 import { ApolloServer } from "apollo-server-express";
 import * as express from "express";
-import * as session from "express-session";
+import * as cookieParser from "cookie-parser";
 import * as pino from "express-pino-logger";
 import { createConnection } from "typeorm";
 
@@ -26,13 +26,7 @@ const startServer = async () => {
 
   const app = express();
 
-  app.use(
-    session({
-      secret: "i5n31io13ip5h1p",
-      resave: false,
-      saveUninitialized: false
-    })
-  );
+  app.use(cookieParser());
 
   app.use(pino({ logger }));
 
