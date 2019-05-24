@@ -8,5 +8,7 @@ export default require("pino")({
 export const categories = {
   DATA_SOURCE: "data_source",
   MEDIATOR: "mediator",
-  ENTITY: "entity"
+  ENTITY: "entity",
+  POLYFLOW_CORE: "polyflow_core",
+  DATABASE_INTERFACE: "database_interface"
 };

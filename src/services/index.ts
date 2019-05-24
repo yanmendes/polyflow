@@ -11,6 +11,8 @@ import {
 import { contextualizeSubQueries } from "../databases/query-parsers";
 import { getParserAndInterface } from "../databases";
 import { JWT_SECRET } from "../config";
+import { measure } from "../performance";
+import logger, { categories } from "../logger";
 
 export const getWorkspace = (req, workspaceId) =>
   getCurrentUser(req)
@@ -72,6 +74,10 @@ const getMediators = req =>
   );
 
 export const runQuery = async (query, req) => {
+  const log = logger.child({
+    category: categories.DATABASE_INTERFACE
+  });
+
   const mediators = await getMediators(req);
 
   if (!mediators.length) {
@@ -103,8 +109,11 @@ export const runQuery = async (query, req) => {
         const { parser, dbInterface } = getParserAndInterface(dataSource_type);
         const parsedQuery = await parser(query, entities);
 
-        req.log.info(parsedQuery);
-        const results = await dbInterface.query(dataSource_uri, parsedQuery);
+        const results = await measure(
+          log.child({ query: parsedQuery }),
+          "Issuing parsed query to PSQL",
+          () => dbInterface.query(dataSource_uri, parsedQuery)
+        );
         return results;
       }
     )

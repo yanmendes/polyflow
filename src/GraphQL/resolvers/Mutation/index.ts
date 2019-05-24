@@ -4,6 +4,12 @@ import dataSourceMutations from "./dataSource";
 import mediatorMutations from "./mediator";
 import entityMutations from "./entity";
 import { runQuery } from "../../../services";
+import { measure } from "../../../performance";
+import logger, { categories } from "../../../logger";
+
+const log = logger.child({
+  category: categories.POLYFLOW_CORE
+});
 
 export default {
   ...userMutations,
@@ -11,5 +17,8 @@ export default {
   ...dataSourceMutations,
   ...mediatorMutations,
   ...entityMutations,
-  query: (_, { query }, { req }) => runQuery(query, req)
+  query: (_, { query }, { req }) =>
+    measure(log, "Transforming and running issued query", () =>
+      runQuery(query, req)
+    )
 };
