@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   Classes: {
     // P-Prov
     PROGRAM: 'provone_program',

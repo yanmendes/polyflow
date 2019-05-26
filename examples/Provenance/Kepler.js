@@ -1,10 +1,6 @@
-import Prov from '../models/Prov'
-import Provone from '../models/Provone'
-import {
-  SQL_INNER_JOIN,
-  SQL_UNION,
-  SQL_LEFT_JOIN
-} from '../mediators/mediationTypes'
+const Prov = require('./Prov')
+const Provone = require('./Provone')
+const { SQL_INNER_JOIN, SQL_LEFT_JOIN, SQL_UNION } = require('../../dist/mediationTypes')
 
 const Port = {
   name: 'port',
@@ -91,7 +87,7 @@ const provEntity = {
     entity1: Parameter,
     entity2: Entity,
     type: SQL_INNER_JOIN,
-    columns: { ...Parameter.columns, ...Entity.columns },
+    columns: [ ...Parameter.columns, ...Entity.columns ],
     params: ['param.id', 'e.id']
   },
   entity2: {
@@ -102,7 +98,7 @@ const provEntity = {
     columns: [
       {
         alias: 'entity_id',
-        projection: 'NULL'
+        projection: 0
       },
       {
         alias: 'type',
@@ -228,11 +224,11 @@ const WorkflowExec = {
     },
     {
       alias: 'provone_wasPartOf',
-      projection: 'wfe.wf_exec_id'
+      projection: 'wfe.wf_id'
     },
     {
       alias: 'prov_wasAssociatedWith',
-      projection: "wfe.'USER'"
+      projection: 'wfe."USER"'
     }
   ]
 }
@@ -338,7 +334,7 @@ const provoneUser = {
   columns: [
     {
       alias: 'label',
-      projection: "we.'USER'"
+      projection: 'wfe."USER"'
     },
     {
       alias: 'program_id',
@@ -347,13 +343,49 @@ const provoneUser = {
   ]
 }
 
-export default new Map([
-  [Provone.Classes.PORT, provonePort],
-  [Prov.Classes.ENTITY, provEntity],
-  [Provone.Classes.PROGRAM, provoneProgram],
-  [Provone.Classes.EXECUTION, provoneExecution],
-  [Prov.Classes.ASSOCIATION, provAssociation],
-  [Prov.Classes.USAGE, provUsage],
-  [Prov.Classes.GENERATION, provGeneration],
-  [Provone.Classes.USER, provoneUser]
-])
+const entityMappers = [
+  {
+    name: Provone.Classes.PORT,
+    slug: Provone.Classes.PORT,
+    entityMapper: provonePort
+  },
+  {
+    name: Prov.Classes.ENTITY,
+    slug: Prov.Classes.ENTITY,
+    entityMapper: provEntity
+  },
+  {
+    name: Provone.Classes.PROGRAM,
+    slug: Provone.Classes.PROGRAM,
+    entityMapper: provoneProgram
+  },
+  {
+    name: Provone.Classes.EXECUTION,
+    slug: Provone.Classes.EXECUTION,
+    entityMapper: provoneExecution
+  },
+  {
+    name: Prov.Classes.ASSOCIATION,
+    slug: Prov.Classes.ASSOCIATION,
+    entityMapper: provAssociation
+  },
+  {
+    name: Prov.Classes.USAGE,
+    slug: Prov.Classes.USAGE,
+    entityMapper: provUsage
+  },
+  {
+    name: Prov.Classes.GENERATION,
+    slug: Prov.Classes.GENERATION,
+    entityMapper: provGeneration
+  },
+  {
+    name: Provone.Classes.USER,
+    slug: Provone.Classes.USER,
+    entityMapper: provoneUser
+  }
+]
+
+console.log(JSON.stringify(entityMappers, null, 2))
+
+module.exports = entityMappers

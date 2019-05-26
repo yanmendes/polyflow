@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   Classes: {
     // R-Prov
     ASSOCIATION: 'prov_association',
