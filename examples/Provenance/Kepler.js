@@ -1,131 +1,135 @@
-const Prov = require('./Prov')
-const Provone = require('./Provone')
-const { SQL_INNER_JOIN, SQL_LEFT_JOIN, SQL_UNION } = require('../../dist/mediationTypes')
+const Prov = require("./Prov");
+const Provone = require("./Provone");
+const {
+  SQL_INNER_JOIN,
+  SQL_LEFT_JOIN,
+  SQL_UNION
+} = require("../../dist/core/databases/query-resolvers/sql/mediationTypes");
 
 const Port = {
-  name: 'port',
-  alias: 'p',
+  name: "port",
+  alias: "p",
   columns: [
     {
-      alias: 'port_id',
-      projection: 'p.id'
+      alias: "port_id",
+      projection: "p.id"
     },
     {
-      alias: 'port_type',
+      alias: "port_type",
       projection:
         "CASE WHEN p.direction = 1 THEN 'out' WHEN p.direction = 0 THEN 'in' END"
     }
   ]
-}
+};
 
 const Entity = {
-  name: 'entity',
-  alias: 'e',
+  name: "entity",
+  alias: "e",
   columns: [
     {
-      alias: 'label',
-      projection: 'e.name'
+      alias: "label",
+      projection: "e.name"
     }
   ]
-}
+};
 
 const provonePort = {
   entity1: Port,
   entity2: Entity,
   type: SQL_INNER_JOIN,
   columns: { ...Port.columns, ...Entity.columns },
-  params: ['p.id', 'e.id']
-}
+  params: ["p.id", "e.id"]
+};
 
 const Parameter = {
-  name: 'parameter',
-  alias: 'param',
+  name: "parameter",
+  alias: "param",
   columns: [
     {
-      alias: 'entity_id',
-      projection: 'param.id'
+      alias: "entity_id",
+      projection: "param.id"
     },
     {
-      alias: 'type',
-      projection: 'param.type'
+      alias: "type",
+      projection: "param.type"
     },
     {
-      alias: 'value',
-      projection: 'param.value'
+      alias: "value",
+      projection: "param.value"
     },
     {
-      alias: 'entity_type',
+      alias: "entity_type",
       projection: "'provone_Data'"
     }
   ]
-}
+};
 
 const AssociatedData = {
-  name: 'associated_data',
-  alias: 'ad',
+  name: "associated_data",
+  alias: "ad",
   columns: [
     {
-      alias: 'label',
-      projection: 'ad.name'
+      alias: "label",
+      projection: "ad.name"
     }
   ]
-}
+};
 
 const Data = {
-  name: 'data',
-  alias: 'd',
+  name: "data",
+  alias: "d",
   columns: [
     {
-      alias: 'value',
-      projection: 'd.md5'
+      alias: "value",
+      projection: "d.md5"
     }
   ]
-}
+};
 
 const provEntity = {
   entity1: {
     entity1: Parameter,
     entity2: Entity,
     type: SQL_INNER_JOIN,
-    columns: [ ...Parameter.columns, ...Entity.columns ],
-    params: ['param.id', 'e.id']
+    columns: [...Parameter.columns, ...Entity.columns],
+    params: ["param.id", "e.id"]
   },
   entity2: {
     entity1: Data,
     entity2: AssociatedData,
     type: SQL_LEFT_JOIN,
-    params: ['d.md5', 'ad.data_id'],
+    params: ["d.md5", "ad.data_id"],
     columns: [
       {
-        alias: 'entity_id',
+        alias: "entity_id",
         projection: 0
       },
       {
-        alias: 'type',
+        alias: "type",
         projection: "'md5'"
       },
       ...Data.columns,
       {
-        alias: 'entity_type',
+        alias: "entity_type",
         projection: "'provone_Data'"
       },
       ...AssociatedData.columns
     ]
   },
   type: SQL_UNION
-}
+};
 
 const Actor = {
-  name: 'actor',
-  alias: 'a',
+  name: "actor",
+  alias: "a",
   columns: [
     {
-      alias: 'program_id',
-      projection: 'a.id'
+      alias: "program_id",
+      projection: "a.id"
     }
   ]
-}
-const Workflow = { name: 'workflow', alias: 'w' }
+};
+const Workflow = { name: "workflow", alias: "w" };
 
 const provoneProgram = {
   entity1: Actor,
@@ -135,103 +139,103 @@ const provoneProgram = {
     type: SQL_LEFT_JOIN,
     columns: [
       {
-        alias: 'joinId',
-        projection: 'e.id'
+        alias: "joinId",
+        projection: "e.id"
       },
       {
-        alias: 'label',
-        projection: 'COALESCE(w.name, e.name)'
+        alias: "label",
+        projection: "COALESCE(w.name, e.name)"
       },
       {
-        alias: 'ipw',
-        projection: 'CASE WHEN w.id IS NOT NULL THEN TRUE ELSE FALSE END'
+        alias: "ipw",
+        projection: "CASE WHEN w.id IS NOT NULL THEN TRUE ELSE FALSE END"
       },
       {
-        alias: 'phssubp',
-        projection: 'CASE WHEN w.id IS NOT NULL THEN NULL ELSE e.wf_id END'
+        alias: "phssubp",
+        projection: "CASE WHEN w.id IS NOT NULL THEN NULL ELSE e.wf_id END"
       }
     ],
-    params: ['w.id', 'e.id']
+    params: ["w.id", "e.id"]
   },
   columns: [
     {
-      alias: 'program_id',
-      projection: 'program_id'
+      alias: "program_id",
+      projection: "program_id"
     },
     {
-      alias: 'label',
-      projection: 'label'
+      alias: "label",
+      projection: "label"
     },
     {
-      alias: 'is_provone_Workflow',
-      projection: 'ipw'
+      alias: "is_provone_Workflow",
+      projection: "ipw"
     },
     {
-      alias: 'provone_hasSubProgram',
-      projection: 'phssubp'
+      alias: "provone_hasSubProgram",
+      projection: "phssubp"
     }
   ],
   type: SQL_INNER_JOIN,
-  params: ['program_id', 'joinId']
-}
+  params: ["program_id", "joinId"]
+};
 
 const ActorFire = {
-  name: 'actor_fire',
-  alias: 'af',
+  name: "actor_fire",
+  alias: "af",
   columns: [
     {
-      alias: 'execution_id',
-      projection: 'af.id'
+      alias: "execution_id",
+      projection: "af.id"
     },
     {
-      alias: 'prov_hadPlan',
-      projection: 'actor_id'
+      alias: "prov_hadPlan",
+      projection: "actor_id"
     },
     {
-      alias: 'prov_startedAtTime',
-      projection: 'af.start_time'
+      alias: "prov_startedAtTime",
+      projection: "af.start_time"
     },
     {
-      alias: 'prov_endedAtTime',
-      projection: 'af.end_time'
+      alias: "prov_endedAtTime",
+      projection: "af.end_time"
     },
     {
-      alias: 'provone_wasPartOf',
-      projection: 'af.wf_exec_id'
+      alias: "provone_wasPartOf",
+      projection: "af.wf_exec_id"
     }
   ]
-}
+};
 
 const WorkflowExec = {
-  name: 'workflow_exec',
-  alias: 'wfe',
+  name: "workflow_exec",
+  alias: "wfe",
   columns: [
     {
-      alias: 'execution_id',
-      projection: 'NULL'
+      alias: "execution_id",
+      projection: "NULL"
     },
     {
-      alias: 'prov_hadPlan',
-      projection: 'wfe.wf_id'
+      alias: "prov_hadPlan",
+      projection: "wfe.wf_id"
     },
     {
-      alias: 'prov_startedAtTime',
-      projection: 'wfe.start_time'
+      alias: "prov_startedAtTime",
+      projection: "wfe.start_time"
     },
     {
-      alias: 'prov_endedAtTime',
-      projection: 'wfe.end_time'
+      alias: "prov_endedAtTime",
+      projection: "wfe.end_time"
     },
     {
-      alias: 'provone_wasPartOf',
-      projection: 'wfe.wf_id'
+      alias: "provone_wasPartOf",
+      projection: "wfe.wf_id"
     },
     {
-      alias: 'prov_wasAssociatedWith',
+      alias: "prov_wasAssociatedWith",
       projection: 'wfe."USER"'
     }
   ]
-}
+};
 
 const provoneExecution = {
   entity1: {
@@ -239,15 +243,15 @@ const provoneExecution = {
     columns: [
       ...ActorFire.columns.filter(({ alias }) =>
         [
-          'execution_id',
-          'prov_startedAtTime',
-          'prov_endedAtTime',
-          'provone_wasPartOf'
+          "execution_id",
+          "prov_startedAtTime",
+          "prov_endedAtTime",
+          "provone_wasPartOf"
         ].includes(alias)
       ),
       {
-        alias: 'prov_wasAssociatedWith',
-        projection: 'NULL'
+        alias: "prov_wasAssociatedWith",
+        projection: "NULL"
       }
     ]
   },
@@ -256,24 +260,24 @@ const provoneExecution = {
     columns: [
       ...WorkflowExec.columns.filter(({ alias }) =>
         [
-          'execution_id',
-          'prov_startedAtTime',
-          'prov_endedAtTime',
-          'provone_wasPartOf',
-          'prov_wasAssociatedWith'
+          "execution_id",
+          "prov_startedAtTime",
+          "prov_endedAtTime",
+          "provone_wasPartOf",
+          "prov_wasAssociatedWith"
         ].includes(alias)
       )
     ]
   },
   type: SQL_UNION
-}
+};
 
 const provAssociation = {
   entity1: {
     ...ActorFire,
     columns: [
       ...ActorFire.columns.filter(({ alias }) =>
-        ['execution_id', 'prov_hadPlan'].includes(alias)
+        ["execution_id", "prov_hadPlan"].includes(alias)
       )
     ]
   },
@@ -281,67 +285,67 @@ const provAssociation = {
     ...WorkflowExec,
     columns: [
       ...WorkflowExec.columns.filter(({ alias }) =>
-        ['execution_id', 'prov_hadPlan'].includes(alias)
+        ["execution_id", "prov_hadPlan"].includes(alias)
       )
     ]
   },
   type: SQL_UNION
-}
+};
 
 const provUsage = {
-  name: 'port_event',
-  alias: 'pe',
+  name: "port_event",
+  alias: "pe",
   columns: [
     {
-      alias: 'execution_id',
-      projection: 'pe.fire_id'
+      alias: "execution_id",
+      projection: "pe.fire_id"
     },
     {
-      alias: 'provone_hadInPort',
-      projection: 'pe.port_id'
+      alias: "provone_hadInPort",
+      projection: "pe.port_id"
     },
     {
-      alias: 'data',
-      projection: 'data'
+      alias: "data",
+      projection: "data"
     }
   ],
   where: `pe.write_event_id = -1`
-}
+};
 
 const provGeneration = {
-  name: 'port_event',
-  alias: 'pe',
+  name: "port_event",
+  alias: "pe",
   columns: [
     {
-      alias: 'execution_id',
-      projection: 'pe.fire_id'
+      alias: "execution_id",
+      projection: "pe.fire_id"
     },
     {
-      alias: 'provone_hadInPort',
-      projection: 'pe.port_id'
+      alias: "provone_hadInPort",
+      projection: "pe.port_id"
     },
     {
-      alias: 'data',
-      projection: 'data'
+      alias: "data",
+      projection: "data"
     }
   ],
   where: `pe.write_event_id != -1`
-}
+};
 
 const provoneUser = {
-  name: 'workflow_exec',
-  alias: 'we',
+  name: "workflow_exec",
+  alias: "we",
   columns: [
     {
-      alias: 'label',
+      alias: "label",
       projection: 'wfe."USER"'
     },
     {
-      alias: 'program_id',
-      projection: 'we.wf_id'
+      alias: "program_id",
+      projection: "we.wf_id"
     }
   ]
-}
+};
 
 const entityMappers = [
   {
@@ -384,8 +388,8 @@ const entityMappers = [
     slug: Provone.Classes.USER,
     entityMapper: provoneUser
   }
-]
+];
 
-console.log(JSON.stringify(entityMappers, null, 2))
+console.log(JSON.stringify(entityMappers, null, 2));
 
-module.exports = entityMappers
+module.exports = entityMappers;

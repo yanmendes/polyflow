@@ -1,86 +1,86 @@
-const Prov = require('./Prov')
-const Provone = require('./Provone')
+const Prov = require("./Prov");
+const Provone = require("./Provone");
 
 const provoneProgram = {
-  name: 'script_run',
+  name: "script_run",
   columns: [
     {
-      alias: 'program_id',
-      projection: 'script_run_id'
+      alias: "program_id",
+      projection: "script_run_id"
     },
     {
-      alias: 'label',
-      projection: 'script_filename'
+      alias: "label",
+      projection: "script_filename"
     }
   ]
-}
+};
 
 const provoneExecution = {
-  name: 'app_exec',
+  name: "app_exec",
   columns: [
     {
-      alias: 'execution_id',
-      projection: 'app_exec_id'
+      alias: "execution_id",
+      projection: "app_exec_id"
     },
     {
-      alias: 'start_time',
-      projection: 'prov_startedAtTime'
+      alias: "start_time",
+      projection: "prov_startedAtTime"
     },
     {
-      alias: 'script_run_id',
-      projection: 'provone_hadPlan'
+      alias: "script_run_id",
+      projection: "provone_hadPlan"
     },
     {
-      projection: 'duration'
+      projection: "duration"
     }
   ]
-}
+};
 
 const provEntity = {
-  name: 'file',
+  name: "file",
   columns: [
     {
-      alias: 'entity_id',
-      projection: 'file_id'
+      alias: "entity_id",
+      projection: "file_id"
     },
     {
-      alias: 'label',
-      projection: 'name'
+      alias: "label",
+      projection: "name"
     },
     {
-      alias: 'entity_type',
+      alias: "entity_type",
       projection: "'provone_Document'"
     }
   ]
-}
+};
 
 const provUsed = {
-  name: 'staged_in',
+  name: "staged_in",
   columns: [
     {
-      alias: 'entity_id',
-      projection: 'file_id'
+      alias: "entity_id",
+      projection: "file_id"
     },
     {
-      alias: 'execution_id',
-      projection: 'app_exec_id'
+      alias: "execution_id",
+      projection: "app_exec_id"
     }
   ]
-}
+};
 
 const provWasGeneratedBy = {
-  name: 'staged_out',
+  name: "staged_out",
   columns: [
     {
-      alias: 'entity_id',
-      projection: 'file_id'
+      alias: "entity_id",
+      projection: "file_id"
     },
     {
-      alias: 'execution_id',
-      projection: 'app_exec_id'
+      alias: "execution_id",
+      projection: "app_exec_id"
     }
   ]
-}
+};
 
 const entityMappers = [
   {
@@ -108,8 +108,8 @@ const entityMappers = [
     slug: Prov.Relationships.WASGENERATEDBY,
     entityMapper: provWasGeneratedBy
   }
-]
+];
 
-console.log(JSON.stringify(entityMappers, null, 2))
+console.log(JSON.stringify(entityMappers, null, 2));
 
-module.exports = entityMappers
+module.exports = entityMappers;
