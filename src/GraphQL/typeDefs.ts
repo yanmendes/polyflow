@@ -62,11 +62,14 @@ export default gql`
   }
 
   input SQLEntityMapperInput {
-    entity1: JSON!
+    entity1: JSON
     entity2: JSON
+    name: String
+    alias: String
     type: String
     columns: [SQLColumnInput]
     params: [String]
+    where: String
   }
 
   type Mutation {
