@@ -13,7 +13,8 @@
     "lint": "standard",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
     "start:prod": "node dist",
-    "test": "ts-jest"
+    "test": "ts-jest",
+    "experiment": "LOGFILE=examples/provenance/out node dist"
   },
   "repository": {
     "type": "git",

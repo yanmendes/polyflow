@@ -1063,10 +1063,10 @@
     "@types/node" "*"
     "@types/pg-types" "*"
 
-"@types/pino@^5.8.4":
-  version "5.8.6"
-  resolved "https://registry.yarnpkg.com/@types/pino/-/pino-5.8.6.tgz#b356ac7bb607d9c489821752b47475bbcfd698b9"
-  integrity sha512-3hKjgaAXi8FALboVw1LC+3wiQN+bLZ/byzVgRI65XZxdVLSgjIl3kMVh2etKEdQ96qUgMd6bhNtzrUwh1e1x9g==
+"@types/pino@^5.8.7":
+  version "5.8.7"
+  resolved "https://registry.yarnpkg.com/@types/pino/-/pino-5.8.7.tgz#92064264a181a7fe1aa5b8d880d2f9195751ee29"
+  integrity sha512-2YLu7AhUjH6Cuf4N9MXrrxCGfJLgcScfNDWImGZz6VGFCA5emVBIu5uHaNQ1dJKtV3ZNOqkkB8XbbZwARRSXHw==
   dependencies:
     "@types/node" "*"
     "@types/sonic-boom" "*"
