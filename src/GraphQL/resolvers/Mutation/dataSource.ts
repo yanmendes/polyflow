@@ -1,7 +1,7 @@
 import { getConnection } from "typeorm";
 import { UserInputError } from "apollo-server-core";
 
-import { getInterface } from "../../../databases";
+import { getInterface } from "../../../core/databases";
 import { getWorkspace } from "../../../services";
 import { DataSource } from "../../../models/polyflow";
 import logger, { categories } from "../../../logger";

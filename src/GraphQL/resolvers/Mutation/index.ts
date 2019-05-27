@@ -3,7 +3,7 @@ import workspaceMutations from "./workspace";
 import dataSourceMutations from "./dataSource";
 import mediatorMutations from "./mediator";
 import entityMutations from "./entity";
-import { runQuery } from "../../../services";
+import { runQuery } from "../../../core";
 import { measure } from "../../../performance";
 import logger, { categories } from "../../../logger";
 

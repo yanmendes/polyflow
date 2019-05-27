@@ -1,4 +1,4 @@
-import sqlParser from "./sql";
+import sqlResolver from "./sql";
 
 // Gotta fix for multiple contexts later
 const contextsRegex = /^([a-z-_]+)\[(.*)\]$/gim;
@@ -17,4 +17,4 @@ export const contextualizeSubQueries = (queryStmt: string) => {
   return contextualizedQueries;
 };
 
-export { sqlParser };
+export { sqlResolver };

@@ -1,5 +1,5 @@
 import { Client } from "pg";
-import logger from "../logger";
+import logger from "../../../logger";
 
 const psqlInterface = {
   assertConnection: url =>

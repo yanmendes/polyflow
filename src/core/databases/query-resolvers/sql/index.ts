@@ -5,9 +5,9 @@ import {
   SQL_RIGHT_JOIN,
   SQL_LEFT_JOIN,
   SQL_UNION
-} from "../../mediationTypes";
-import { MediationError } from "../../CustomErrors";
-import { Entity } from "../../models/polyflow";
+} from "./mediationTypes";
+import { MediationError } from "../../../../CustomErrors";
+import { Entity } from "../../../../models/polyflow";
 
 const sql = require("tagged-template-noop");
 const toSQL = require("flora-sql-parser").util.astToSQL;

@@ -1,5 +1,5 @@
-import psqlInterface from "./psqlInterface";
-import { sqlParser } from "./query-parsers";
+import psqlInterface from "./interfaces/psqlInterface";
+import { sqlResolver } from "./query-resolvers";
 
 export const types = {
   POSTGRES: "postgres"
@@ -11,10 +11,10 @@ export const getInterface = type =>
   type === types.POSTGRES ? psqlInterface : undefined;
 
 const contexts = new Map([
-  [types.POSTGRES, { parser: sqlParser, dbInterface: psqlInterface }]
+  [types.POSTGRES, { resolver: sqlResolver, dbInterface: psqlInterface }]
 ]);
 
-export const getParserAndInterface = (context: string) => {
+export const getResolverAndInterface = (context: string) => {
   if (!contexts.has(context)) {
     throw new Error(`Invalid context`);
   }
