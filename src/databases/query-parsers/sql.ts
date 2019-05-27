@@ -48,13 +48,8 @@ const resolveJoin = (
       ON ${getParams(params)}
   )`;
 
-const resolveUnion = (
-  entity1: SQLTable,
-  entity2: SQLTable,
-  columns?: SQLColumn[]
-): string =>
+const resolveUnion = (entity1: SQLTable, entity2: SQLTable): string =>
   sql`(
-    SELECT ${parseCols(columns)}
     (
       SELECT ${parseCols(entity1.columns)}
       FROM ${entity1.name} ${getAlias(entity1.alias)}
@@ -106,9 +101,8 @@ function handleComplexMediation(mediator: MediationEntity): string {
       );
     } else if (type === SQL_UNION) {
       return resolveUnion(
-        { name: `(${query1})` },
-        { name: `(${query2})` },
-        columns
+        { name: `(${query1})`, alias: "table_0" },
+        { name: `(${query2})`, alias: "table_1" }
       );
     } else {
       throw new MediationError("No valid type was defined", mediator);
