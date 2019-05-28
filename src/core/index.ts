@@ -64,9 +64,7 @@ export const runQuery = async (query, req) => {
     )
     .filter(ctx => ctx.dataSource_type);
 
-  if (contextualizedQueries.length > 1) {
-    throw new Error(`Can't support multiple queries yet`);
-  } else if (contextualizedQueries.length === 0) {
+  if (contextualizedQueries.length === 0) {
     throw new Error(`${query} is not a valid query or mediator does not exist`);
   }
 
