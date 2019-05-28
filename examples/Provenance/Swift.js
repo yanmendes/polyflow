@@ -23,12 +23,12 @@ const provoneExecution = {
       projection: "app_exec_id"
     },
     {
-      alias: "start_time",
-      projection: "prov_startedAtTime"
+      alias: "prov_startedAtTime",
+      projection: "start_time"
     },
     {
-      alias: "script_run_id",
-      projection: "provone_hadPlan"
+      alias: "provone_hadPlan",
+      projection: "script_run_id"
     },
     {
       projection: "duration"
