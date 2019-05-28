@@ -37,7 +37,7 @@ const provonePort = {
   entity1: Port,
   entity2: Entity,
   type: SQL_INNER_JOIN,
-  columns: { ...Port.columns, ...Entity.columns },
+  columns: [...Port.columns, ...Entity.columns],
   params: ["p.id", "e.id"]
 };
 
