@@ -8,6 +8,7 @@ import {
 } from "./mediationTypes";
 import { MediationError } from "../../../../CustomErrors";
 import { Entity } from "../../../../models/polyflow";
+import { UserInputError } from "apollo-server-core";
 
 const sql = require("tagged-template-noop");
 const toSQL = require("flora-sql-parser").util.astToSQL;
@@ -172,9 +173,12 @@ export default async function(query: string, entities: [Entity]) {
   const queries = new Map<string, string>();
 
   for (const entity of from) {
-    const mediationEntity = entities.find(
-      ({ slug }) => slug === entity.table.toLowerCase()
-    );
+    const mediationEntity = entities.find(({ slug }) => slug === entity.table);
+    if (!mediateEntity) {
+      throw new UserInputError(
+        `Entity ${entity.table} not found in existing mediators`
+      );
+    }
     const mediatedQuery = mediateEntity(mediationEntity.entityMapper);
     queries.set(entity.table, mediatedQuery);
     // Forcefully adding an alias if they don't have one
