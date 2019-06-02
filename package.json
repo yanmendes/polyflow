@@ -15,7 +15,7 @@
     "start:prod": "node dist",
     "test": "jest --runInBand",
     "test:watch": "jest --runInBand --watch",
-    "experiment": "LOGFILE=examples/provenance/out ENV=production node dist"
+    "experiment": "LOGFILE=examples/Provenance/out NODE_ENV=production node dist"
   },
   "repository": {
     "type": "git",

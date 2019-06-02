@@ -10,49 +10,73 @@ const stdev = array =>
     array.reduce((prev, curr) => prev + Math.pow(curr - avg(array), 2), 0)
   );
 
-fs.readFile(file, "utf8", function(err, contents) {
-  if (err) {
-    console.log(err);
-    process.exit(99);
+const lineReader = require("readline").createInterface({
+  input: require("fs").createReadStream(file)
+});
+
+let logs = [];
+lineReader.on("line", line => logs.push(JSON.parse(line)));
+
+const logTypes = {
+  DBI_LOG: "database_interface",
+  PC_LOG: "polyflow_core"
+};
+
+lineReader.on("close", _ => {
+  const polyflowCore = [];
+  const databaseInterface = [];
+
+  for (const log of logs) {
+    log.category === logTypes.DBI_LOG && databaseInterface.push(log.duration);
+    log.category === logTypes.PC_LOG && polyflowCore.push(log.duration);
   }
 
-  const { databaseInterface, requestTime } = contents
-    .match(/duration: (\d+)/gm)
-    .reduce(
-      (prev, current, index) => ({
-        databaseInterface:
-          index % 2 === 0
-            ? [...prev.databaseInterface, parseInt(current.match(/\d+/))]
-            : prev.databaseInterface,
-        requestTime:
-          index % 2 !== 0
-            ? [...prev.requestTime, parseInt(current.match(/\d+/))]
-            : prev.requestTime
-      }),
-      {
-        databaseInterface: [],
-        requestTime: []
-      }
-    );
+  const foldThreshold = databaseInterface.length / polyflowCore.length;
 
-  const overhead = requestTime.map((val, i) => val - databaseInterface[i]);
+  const aggregatedDatabaseTimes = databaseInterface.reduce(
+    (prev, curr, i) =>
+      i % foldThreshold === 0
+        ? [...prev, [curr]]
+        : i % foldThreshold === foldThreshold - 1
+        ? [
+            ...prev.slice(0, prev.length - 1),
+            [...prev.pop(), curr].reduce(
+              (prev, curr) => Math.max(prev, curr),
+              0
+            )
+          ]
+        : [...prev, curr],
+    []
+  );
 
+  const overhead = polyflowCore.map(
+    (val, i) => val - aggregatedDatabaseTimes[i]
+  );
   const data = [
-    { metric: "Request time min", value: Math.min(...requestTime) },
-    { metric: "Request time max", value: Math.max(...requestTime) },
-    { metric: "Request time avg", value: avg(requestTime) },
-    { metric: "Request time stdev", value: stdev(requestTime) },
-    { metric: "Database interface min", value: Math.min(...databaseInterface) },
-    { metric: "Database interface max", value: Math.max(...databaseInterface) },
-    { metric: "Database interface avg", value: avg(databaseInterface) },
-    { metric: "Database interface stdev", value: stdev(databaseInterface) },
+    { metric: "Request time min", value: Math.min(...polyflowCore) },
+    { metric: "Request time max", value: Math.max(...polyflowCore) },
+    { metric: "Request time avg", value: avg(polyflowCore) },
+    { metric: "Request time stdev", value: stdev(polyflowCore) },
+    {
+      metric: "Database interface min",
+      value: Math.min(...aggregatedDatabaseTimes)
+    },
+    {
+      metric: "Database interface max",
+      value: Math.max(...aggregatedDatabaseTimes)
+    },
+    { metric: "Database interface avg", value: avg(aggregatedDatabaseTimes) },
+    {
+      metric: "Database interface stdev",
+      value: stdev(aggregatedDatabaseTimes)
+    },
     { metric: "Overhead max", value: Math.max(...overhead) },
     { metric: "Overhead min", value: Math.min(...overhead) },
     { metric: "Overhead avg", value: avg(overhead) },
     { metric: "Overhead stdev", value: stdev(overhead) },
     {
       metric: "Overhead avg percentage over requests",
-      value: avg(databaseInterface) / avg(requestTime) * 100 - 1
+      value: (avg(polyflowCore) / avg(aggregatedDatabaseTimes) - 1) * 100
     }
   ];
 

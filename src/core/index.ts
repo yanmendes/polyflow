@@ -79,7 +79,7 @@ export const runQuery = async (query, req) => {
 
         const results = await measure(
           log.child({ query: parsedQuery }),
-          "Issuing parsed query to PSQL",
+          `Issuing parsed query to ${dataSource_type}`,
           () => dbInterface.query(dataSource_uri, parsedQuery)
         );
         return results;
