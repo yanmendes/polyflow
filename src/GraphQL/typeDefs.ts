@@ -17,6 +17,7 @@ export default gql`
 
   enum DataSourceType {
     postgres
+    mysql
   }
 
   type DataSource {

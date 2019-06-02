@@ -13,7 +13,8 @@
     "lint": "standard",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
     "start:prod": "node dist",
-    "test": "ts-jest",
+    "test": "jest --runInBand",
+    "test:watch": "jest --runInBand --watch",
     "experiment": "LOGFILE=examples/provenance/out ENV=production node dist"
   },
   "repository": {
@@ -42,6 +43,7 @@
     "pg": "^7.4.3",
     "pino": "^5.11.1",
     "pino-pretty": "^2.5.0",
+    "promise-mysql": "^3.3.2",
     "tagged-template-noop": "^2.1.0",
     "typeorm": "^0.2.13"
   },

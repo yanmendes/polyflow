@@ -1,17 +1,17 @@
 import psqlInterface from "./interfaces/psqlInterface";
 import { sqlResolver } from "./query-resolvers";
+import mysqlInterface from "./interfaces/mysqlInterface";
 
 export const types = {
-  POSTGRES: "postgres"
+  POSTGRES: "postgres",
+  MYSQL: "mysql"
 };
 
 export { psqlInterface };
 
-export const getInterface = type =>
-  type === types.POSTGRES ? psqlInterface : undefined;
-
 const contexts = new Map([
-  [types.POSTGRES, { resolver: sqlResolver, dbInterface: psqlInterface }]
+  [types.POSTGRES, { resolver: sqlResolver, dbInterface: psqlInterface }],
+  [types.MYSQL, { resolver: sqlResolver, dbInterface: mysqlInterface }]
 ]);
 
 export const getResolverAndInterface = (context: string) => {
@@ -21,3 +21,5 @@ export const getResolverAndInterface = (context: string) => {
 
   return contexts.get(context);
 };
+
+export const getInterface = type => getResolverAndInterface(type).dbInterface;
