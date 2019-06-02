@@ -182,4 +182,7 @@ typings/
 dist
 
 .vscode
+
+# Experiment files
 out
+out.csv

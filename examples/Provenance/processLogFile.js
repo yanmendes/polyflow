@@ -1,4 +1,5 @@
 const fs = require("fs");
+const createCsvWriter = require("csv-writer").createObjectCsvWriter;
 const file = process.env.FILE || "examples/Provenance/out";
 
 const avg = array =>
@@ -36,24 +37,34 @@ fs.readFile(file, "utf8", function(err, contents) {
 
   const overhead = requestTime.map((val, i) => val - databaseInterface[i]);
 
-  console.log(`
-    Request time min: ${Math.min(...requestTime)}ms
-    Request time max: ${Math.max(...requestTime)}ms
-    Request time avg: ${avg(requestTime)}ms
-    Request time stdev: ${stdev(requestTime)}ms
-    ==============================
-    Database interface min: ${Math.min(...databaseInterface)}ms
-    Database interface max: ${Math.max(...databaseInterface)}ms
-    Database interface avg: ${avg(databaseInterface)}ms
-    Database interface stdev: ${stdev(databaseInterface)}ms
-    ==============================
-    Overhead min: ${Math.min(...overhead)}ms
-    Overhead max: ${Math.max(...overhead)}ms
-    Overhead avg: ${avg(overhead)}ms
-    Overhead stdev: ${stdev(overhead)}ms
-    Overhead avg percentage over requests: ${(avg(overhead) /
-      avg(requestTime)) *
-      100}%`);
+  const data = [
+    { metric: "Request time min", value: Math.min(...requestTime) },
+    { metric: "Request time max", value: Math.max(...requestTime) },
+    { metric: "Request time avg", value: avg(requestTime) },
+    { metric: "Request time stdev", value: stdev(requestTime) },
+    { metric: "Database interface min", value: Math.min(...databaseInterface) },
+    { metric: "Database interface max", value: Math.max(...databaseInterface) },
+    { metric: "Database interface avg", value: avg(databaseInterface) },
+    { metric: "Database interface stdev", value: stdev(databaseInterface) },
+    { metric: "Overhead max", value: Math.max(...overhead) },
+    { metric: "Overhead min", value: Math.min(...overhead) },
+    { metric: "Overhead avg", value: avg(overhead) },
+    { metric: "Overhead stdev", value: stdev(overhead) },
+    {
+      metric: "Overhead avg percentage over requests",
+      value: avg(databaseInterface) / avg(requestTime) * 100 - 1
+    }
+  ];
 
-  fs.unlink(file, () => {});
+  const csvWriter = createCsvWriter({
+    path: "out.csv",
+    header: [{ id: "metric", title: "Metric" }, { id: "value", title: "Value" }]
+  });
+
+  csvWriter
+    .writeRecords(data)
+    .then(() =>
+      console.log("The CSV file was written successfully, deleting log file..")
+    )
+    .then(() => fs.unlink(file, () => {}));
 });
