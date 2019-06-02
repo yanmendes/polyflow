@@ -1,4 +1,4 @@
-import { getConnection } from "typeorm";
+import { getRepository } from "typeorm";
 import { UserInputError } from "apollo-server-core";
 
 import { getInterface } from "../../../core/databases";
@@ -22,13 +22,11 @@ export default {
     }
 
     try {
-      const dataSource = await DataSource.create({ uri, type }).save();
-      await getConnection()
-        .createQueryBuilder()
-        .relation(DataSource, "workspace")
-        .of(dataSource)
-        .set(workspace);
-
+      const dataSource = await getRepository(DataSource).save({
+        uri,
+        type,
+        workspace
+      });
       return dataSource;
     } catch (e) {
       log
