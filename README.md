@@ -204,7 +204,9 @@ FROM
 
 ## Running locally
 
-You need to copy your `.env.sample` to a `.env` file an write your local settings there.
+Firstly, you need to set up your environment by installing [Node.js](https://nodejs.org/en/), [PostgreSQL](https://www.postgresql.org/) and [Yarn](https://yarnpkg.com/). If you're running in a Mac distribution, I highly recommend using [Brew](https://brew.sh/) to install and manage your packages.
+
+Now, you need to copy the `.env.sample` file into a `.env` file an write your local settings there.
 
 ```sh
 $ yarn
