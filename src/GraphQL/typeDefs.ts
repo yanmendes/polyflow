@@ -53,6 +53,9 @@ export default gql`
 
   type Query {
     query(query: String!): JSON
+    dataSources: [DataSource]
+    mediators: [Mediator]
+    entities: [Entity]
   }
 
   input SQLColumnInput {
