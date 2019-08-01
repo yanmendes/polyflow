@@ -9,11 +9,11 @@ const log = logger.child({
 });
 
 export default {
-  addMediator: async (
-    _,
-    { name, slug, dataSourceId }
-  ) => {
+  addMediator: async (_, { name, slug, dataSourceId }) => {
     const dataSource = await DataSource.findOne(dataSourceId);
+    if (!dataSource) {
+      throw new UserInputError("Invalid data source id");
+    }
 
     try {
       const mediator = await getRepository(Mediator).save({

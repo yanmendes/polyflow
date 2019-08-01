@@ -11,13 +11,26 @@ const log = logger.child({
 export default {
   addEntity: async (_, { name, slug, entityMapper, mediatorId }) =>
     Mediator.findOne(mediatorId)
+      .then(
+        mediator =>
+          !mediator ?
+          (_ => {
+            throw new UserInputError("Invalid mediator id");
+          })() : mediator
+      )
       .then(mediator =>
-        getRepository(Entity).save({
-          name,
-          slug,
-          entityMapper,
-          mediator
-        })
+        getRepository(Entity)
+          .save({
+            name,
+            slug,
+            entityMapper,
+            mediator
+          })
+          .catch(_ => {
+            throw new UserInputError(
+              "Entity name/slug already in for this mediator"
+            );
+          })
       )
       .catch(e => {
         log
@@ -25,10 +38,8 @@ export default {
             error: e,
             action: "adding_entity"
           })
-          .error("Entity name/slug already in use for this mediator");
+          .error(e.msg);
 
-        throw new UserInputError(
-          "Entity name/slug already in for this mediator"
-        );
+        throw e;
       })
 };
