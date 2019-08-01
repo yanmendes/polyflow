@@ -1,52 +1,15 @@
-import { getConnection } from "typeorm";
-
 import { contextualizeSubQueries } from "./databases/query-resolvers";
 import { getResolverAndInterface } from "./databases";
 import { measure } from "../performance";
 import logger, { categories } from "../logger";
-import { getCurrentUser } from "../services";
-import { DataSource, Mediator, Workspace, Entity } from "../models/polyflow";
+import { Mediator } from "../models/polyflow";
 
-const getMediators = req =>
-  getCurrentUser(req).then(user =>
-    getConnection()
-      .createQueryBuilder()
-      .addSelect("mediator")
-      .from(Mediator, "mediator")
-      .innerJoinAndSelect(
-        DataSource,
-        "dataSource",
-        `dataSource.id=mediator."dataSourceId"`
-      )
-      .innerJoinAndSelect(
-        Workspace,
-        "workspace",
-        `workspace.id="dataSource"."workspaceId"`
-      )
-      .getRawMany()
-      .then(mediators =>
-        mediators.filter(({ workspace_id }) =>
-          user.workspaces.find(({ id }) => parseInt(workspace_id, 10) === id)
-        )
-      )
-      .then(mediators =>
-        Promise.all(
-          mediators.map(async mediator => ({
-            ...mediator,
-            entities: await Entity.find({
-              mediator: mediator.mediator_id
-            })
-          }))
-        )
-      )
-  );
-
-export const runQuery = async (query, req) => {
+export const runQuery = async query => {
   const log = logger.child({
     category: categories.DATABASE_INTERFACE
   });
 
-  const mediators = await getMediators(req);
+  const mediators = await Mediator.find({ relations: ["dataSource", "entities"] });
 
   if (!mediators.length) {
     throw new Error("No mediators found");
@@ -57,12 +20,10 @@ export const runQuery = async (query, req) => {
       ctx =>
         ({
           ...ctx,
-          ...mediators.find(
-            ({ mediator_slug }) => mediator_slug === ctx.context
-          )
+          ...mediators.find(({ slug }) => slug === ctx.context)
         } || undefined)
     )
-    .filter(ctx => ctx.dataSource_type);
+    .filter(ctx => ctx.dataSource);
 
   if (contextualizedQueries.length === 0) {
     throw new Error(`${query} is not a valid query or mediator does not exist`);
@@ -71,16 +32,14 @@ export const runQuery = async (query, req) => {
   const results = await Promise.all(
     // Gotta also get the "context" variable later to inject the possible mediated entities and rewrite the resolver method
     contextualizedQueries.map(
-      async ({ query, dataSource_type, dataSource_uri, entities }) => {
-        const { resolver, dbInterface } = getResolverAndInterface(
-          dataSource_type
-        );
+      async ({ query, dataSource: { type, uri }, entities }) => {
+        const { resolver, dbInterface } = getResolverAndInterface(type);
         const parsedQuery = await resolver(query, entities);
 
         const results = await measure(
           log.child({ query: parsedQuery }),
-          `Issuing parsed query to ${dataSource_type}`,
-          () => dbInterface.query(dataSource_uri, parsedQuery)
+          `Issuing parsed query to ${type}`,
+          () => dbInterface.query(uri, parsedQuery)
         );
         return results;
       }

@@ -4,18 +4,19 @@ import {
   Column,
   BaseEntity,
   JoinTable,
-  ManyToOne,
   Unique
 } from "typeorm";
 
-import { Workspace, Mediator } from ".";
+import { Mediator } from ".";
 
 enum Type {
-  Postgres = "postgres"
+  Postgres = "postgres",
+  Mysql = "mysql",
+  BigDawg = "bigdawg"
 }
 
 @Entity("data_source")
-@Unique(["uri", "workspace"])
+@Unique(["uri"])
 export class DataSource extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -25,12 +26,6 @@ export class DataSource extends BaseEntity {
 
   @Column("text")
   type: Type;
-
-  @ManyToOne(_ => Workspace, workspace => workspace.dataSources, {
-    cascade: true
-  })
-  @JoinTable()
-  workspace: Workspace;
 
   @JoinTable()
   mediators: [Mediator];

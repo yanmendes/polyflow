@@ -33,7 +33,6 @@
   "dependencies": {
     "apollo-server-express": "^2.4.2",
     "bcryptjs": "^2.4.3",
-    "cookie-parser": "^1.4.4",
     "dotenv": "^6.0.0",
     "express": "^4.16.3",
     "express-pino-logger": "^4.0.0",
@@ -41,7 +40,6 @@
     "flora-sql-parser": "^0.8.0",
     "graphql": "^14.1.1",
     "graphql-type-json": "^0.2.4",
-    "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.11",
     "node-fetch": "^2.6.0",
     "pg": "^7.4.3",

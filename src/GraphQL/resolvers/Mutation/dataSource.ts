@@ -2,7 +2,6 @@ import { getRepository } from "typeorm";
 import { UserInputError } from "apollo-server-core";
 
 import { getInterface } from "../../../core/databases";
-import { getWorkspace } from "../../../services";
 import { DataSource } from "../../../models/polyflow";
 import logger, { categories } from "../../../logger";
 
@@ -11,9 +10,7 @@ const log = logger.child({
 });
 
 export default {
-  addDataSource: async (_, { workspaceId, type, uri }, { req }) => {
-    const workspace = await getWorkspace(req, workspaceId);
-
+  addDataSource: async (_, { type, uri }) => {
     const dbInterface = getInterface(type);
     const validConnection = await dbInterface.assertConnection(uri);
 
@@ -24,8 +21,7 @@ export default {
     try {
       const dataSource = await getRepository(DataSource).save({
         uri,
-        type,
-        workspace
+        type
       });
       return dataSource;
     } catch (e) {
@@ -34,8 +30,8 @@ export default {
           error: e,
           action: "adding_data_source"
         })
-        .error("URI already registered in this workspace");
-      throw new UserInputError("URI already registered in this workspace");
+        .error("URI already exists");
+      throw new UserInputError("URI already exists");
     }
   }
 };

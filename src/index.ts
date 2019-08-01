@@ -2,7 +2,6 @@ import "reflect-metadata";
 import "dotenv/config";
 import { ApolloServer } from "apollo-server-express";
 import * as express from "express";
-import * as cookieParser from "cookie-parser";
 import * as pino from "express-pino-logger";
 import { createConnection } from "typeorm";
 
@@ -26,8 +25,6 @@ const startServer = async () => {
 
   const app = express();
 
-  app.use(cookieParser());
-
   app.use(pino({ logger }));
 
   server.applyMiddleware({
@@ -35,7 +32,7 @@ const startServer = async () => {
     app,
     cors: {
       credentials: true,
-      origin: process.env.FRONTEND_URL || "https://polyflow.yanmendes.dev"
+      origin: "*"
     }
   });
 

@@ -1,8 +1,7 @@
 import { getRepository } from "typeorm";
 import { UserInputError } from "apollo-server-core";
 
-import { getDataSource } from "../../../services";
-import { Mediator } from "../../../models/polyflow";
+import { Mediator, DataSource } from "../../../models/polyflow";
 import logger, { categories } from "../../../logger";
 
 const log = logger.child({
@@ -12,10 +11,9 @@ const log = logger.child({
 export default {
   addMediator: async (
     _,
-    { name, slug, workspaceId, dataSourceId },
-    { req }
+    { name, slug, dataSourceId }
   ) => {
-    const dataSource = await getDataSource(req, workspaceId, dataSourceId);
+    const dataSource = await DataSource.findOne(dataSourceId);
 
     try {
       const mediator = await getRepository(Mediator).save({
