@@ -33,12 +33,15 @@ export default gql`
   }
 
   type SQLEntityMapper {
-    entity1: JSON!
+    entity1: JSON
     entity2: JSON
+    name: String
+    alias: String
     "Valid types for SQL: INNER, LEFT, RIGHT, UNION"
     type: SQLAggregationType
     columns: [SQLColumn]
     params: [String]
+    where: String
   }
 
   type Entity {
@@ -62,7 +65,8 @@ export default gql`
     entity2: JSON
     name: String
     alias: String
-    type: String
+    "Valid types for SQL: INNER, LEFT, RIGHT, UNION"
+    type: SQLAggregationType
     columns: [SQLColumnInput]
     params: [String]
     where: String
