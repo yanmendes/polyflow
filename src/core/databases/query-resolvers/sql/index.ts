@@ -174,7 +174,7 @@ export default async function(query: string, entities: [Entity]) {
 
   for (const entity of from) {
     const mediationEntity = entities.find(({ slug }) => slug === entity.table);
-    if (!mediateEntity) {
+    if (!mediationEntity) {
       throw new UserInputError(
         `Entity ${entity.table} not found in existing mediators`
       );
