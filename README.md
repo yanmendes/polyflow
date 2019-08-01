@@ -1,75 +1,73 @@
-# Polyflow.api :microscope:
+# Polyflow :microscope:
 
 ## Description
 
-`Polyflow.api` is the backend service of a syntatic and semantic data mediator. The main goal of `Polyflow` is to create more accessible data models to users that need to use queries as part of their routine but aren't technology experts, such as researchers, PMs, marketing analysts. Consider the following:
+`Polyflow` is a syntatic and semantic data mediator. The main goal of `Polyflow` is to create more accessible data models to users that need to use queries as part of their routine but aren't technology experts, such as researchers, PMs, marketing analysts. Consider the following:
 
-Imagine that two data analysts, Bob and Alice, help stakeholders draw sales strategies. How do they compare their data, pipelines and results? They may have different logical representations (data stores) or even different conceptual models. For now, we're gonna ignore the first problem, but if you wanna take a glimpse on how to achieve it, take a look at the [Future work section](#future-work). Even though you could argue that a simple ETL script is the way to go (and I'd have to agree with you), `Polyflow` was designed to solve this problem in a more simplistic way while providing a better experience to users that aren't even familiar with the acronym ETL.
+Imagine that two data analysts, Bob and Alice, help stakeholders draw sales strategies. How do they compare their data, pipelines and results? They may have different logical representations (data stores) or even different conceptual models. `Polyflow` was designed to solve this problem in a simplistic way, providing a better experience to users such as Bob and Alice.
 
-Imagine now that Bob and Alice are interested in their **customers’ age, city and the amount they spent**. They are working in separate projects and, because of that, adopt different data models.
+Imagine that Bob and Alice are interested in their **customers’ age, city and the amount they spent**. They are working in separate projects and, because of that, adopt different data models.
 
 ![alt text](https://raw.githubusercontent.com/yanmendes/polyflow.api/master/documentation/bob-alice-model.png)
 
-They are similar (logical) models and semantically identical in this particular context. Because of that, it can be represented in a **canonical fashion**. In other words, a single **Canonical Conceptual Model (CCM)** can be used to represent data described by both models.
+They are similar (logical) models and semantically identical. Because of that, it can be represented in a **canonical fashion**. In other words, a single **Canonical Conceptual Model (CCM)** can be used to represent data described by both models.
 
 ![alt text](https://raw.githubusercontent.com/yanmendes/polyflow.api/master/documentation/ccm.png)
 
-And that's where `Polyflow` comes in. Kind of like [Looker](https://looker.com/), tech experts describe the mapping strategies between the CCM and the **local schemas**. Since this is a V0 and the interface is not yet ready, we'll need to use a [GraphQL](https://graphql.org/) playground to make do. `Polyflow` is available at [polyflow.api.yanmendes.dev](https://polyflow.api.yanmendes.dev).
+And that's where `Polyflow` comes in. Kind of like [Looker](https://looker.com/), tech experts describe the mapping strategies between the CCM and the **local schemas**.
 
-This software derived from my master's thesis and you can check the complete work at the [References section](#references).
+This software is my master's thesis and you can check the complete work at the [References section](#references).
+
+# Requirements
+
+All you need [Docker](https://www.docker.com/) to run `Polyflow`. To install it, just see the guide for your OS:
+
+- [MacOS](https://docs.docker.com/docker-for-mac/install/)
+
+- [Windows](https://docs.docker.com/docker-for-windows/install/)
+
+- [Ubuntu](https://phoenixnap.com/kb/how-to-install-docker-on-ubuntu-18-04)
+
+## Running dockerized version
+
+First, you need to create a docker network to enable communication between containers. To do that, run:
+
+```sh
+  docker network create polyflow
+```
+
+If you have containerized databases that you wish to connect to `Polyflow`, make sure to add them to the network.
+
+To run the application just run the script below. It launches two docker containers: one containing the dockerized application and the other a database that serves as a catalog to `Polyflow`.
+
+```sh
+  docker-compose up polyflow
+```
+
+To make sure your installation worked, open http://localhost:3050. There should be a blue screen with a big play button in the middle. This is a [GraphQL playground](https://www.prisma.io/blog/introducing-graphql-playground-f1e0a018f05d) and where you'll be interacting with Polyflow. GraphQL is a query language for APIs. To check out the endpoints of `Polyflow`, click the `Schema` button on the right side of the screen. The GraphQL playground provides auto-complete to queries and mutations by tapping `ctrl + space`.
 
 ## Getting started
 
-**:warning:READ THIS BEFORE YOU START:warning:**
-
-Before we get started, we need to do a quick work-around to have our environment ready. By default, the GraphQL playground doesn't send credentials with requests. In order to access all of `Polyflow's` functionalities there is an authentication layer and, because of that, you need to include credentials in your requests. To do that, simply click the :gear: icon on the top right of the GQL playground and replace
-
-`"request.credentials": "omit"` by `"request.credentials": "include"`
-
-This project was made with [Apollo GraphQL :rocket:](https://apollographql.com) and, because of that, all endpoints - Queries and Mutations - are described in the **Schema** (a big green button on the right side of the screen) with their respective inputs and responses. Coming back to our example, the first thing Bob and Alice would do is register to the plataform through the `register mutation`.
-
-```graphql
-mutation Register {
-  register(email: "bob@company.com", password: "123456")
-}
-```
-
-After registering, they can use the `login mutation` to get access to all features of `Polyflow`. **NOTE THAT THIS WILL ONLY WORK IF YOU'VE CHANGED THE REQUEST CREDENTIALS SETTINGS**
-
-```graphql
-mutation Login {
-  login(email: "bob@company.com", password: "123456") {
-    id
-  }
-}
-```
-
-The first concept to be introduced are **Workspaces**. Think of it as a collaborative separate `Polyflow` context. All data sources, mediators and entities created can be used by all users that take part in the Workspace. To create workspaces and add users to it you can use the following mutations:
-
-```graphql
-mutation CreateWorkspace {
-  createWorkspace(name: "Bob and Alice demo") {
-    id
-  }
-}
-```
-
-```graphql
-mutation addUserToWorkspace {
-  addUserToWorkspace(workspaceId: 1, userId: 2)
-}
-```
-
-After creating your Workspace, you can add **Data Sources** to it. For now, we only provide support to PostgreSQL, so a data source is a PSQL URL, but you can think of it as an Unique Resource Identifier (URI) to any resource accross the web - databases, files - that will be mediated by `Polyflow`. Let's connect to Bob's database via the `addDataSource mutation`.
+There are three main concepts in Polyflow: `Data Sources`, `Mediators` and `Entities`. In terms of our example, a **data source** is where the resources are located. We provide support to PostgreSQL and [BigDAWG](https://bigdawg.mit.edu), so a data source is a PSQL URL or a BigDAWG endpoint, but you can think of it as an Unique Resource Identifier (URI) to any resource accross the web - databases, files - that will be mediated by `Polyflow`. Let's connect to Bob's database via the `addDataSource mutation`.
 
 ```graphql
 mutation addDataSource {
   addDataSource(
-    workspaceId: 1
-    type: postgres
-    uri: "postgresql://postgres@localhost/bobs_db"
+    dataSource: { type: postgres, uri: "http://postgres@localhost/bobs-db", slug: "bobs-db" }
   ) {
+    slug
+  }
+}
+```
+
+To fetch your `Data Sources`, you should run the `dataSources query`:
+
+```graphql
+query {
+  dataSources {
     id
+    uri
+    type
   }
 }
 ```
@@ -79,13 +77,9 @@ mutation addDataSource {
 Since the target CCM can have multiple **entities** that compose it, the transformations are described by a more granular abstraction. However, in order to provide a scope to transform incoming queries, we'll create a mediator using the `addMediator mutation`. Note that the **mediator's slug** will define the mediator being used to handle a query as we'll see further ahead.
 
 ```graphql
-mutation addMediator {
-  addMediator(
-    workspaceId: 1
-    dataSourceId: 1
-    name: "Bob's mediator"
-    slug: "bobs-mediator"
-  ) {
+# Write your query or mutation here
+mutation {
+  addMediator(mediator: { dataSourceSlug: "bobs-db", name: "Bob's mediator", slug: "bob" }) {
     id
   }
 }
@@ -101,59 +95,26 @@ However, since the data in our local schema may be more granular than in our CCM
   SELECT customer, city, value AS price FROM Sales s, Prices p WHERE s.id = p.saleId
 ```
 
-Because of that, an `entityMapper` has optional fields `entity2, type, params` that allows the creation of complex entities. To create this entity for Bob and Alice's model we would use the `addEntity mutations` described below. Note that these aggregations can be recursevely defined, i.e. you can aggregate more than 2 entities - as done for Alice's model -. You can also check the [examples folder](https://github.com/yanmendes/polyflow.api/blob/master/examples) for more examples.
+Because of that, an `entityMapper` has optional fields `entity2, type, params` that allows the creation of **complex entities**. To create Bob's CCM's only entity, **Sales**, we will use the `addEntity mutation` below. Note that aggregations can be recursevely defined, i.e. you can aggregate more than 2 entities. You can check the [examples folder](https://github.com/yanmendes/polyflow.api/blob/master/examples) for that.
 
 ```graphql
 mutation addBobSaleEntity {
   addEntity(
-    name: "Sales"
-    slug: "sales"
-    workspaceId: 1
-    dataSourceId: 1
-    mediatorId: 1
-    entityMapper: {
-      entity1: { name: "Sales", alias: "s" }
-      entity2: { name: "Prices", alias: "p" }
-      columns: [
-        { projection: "city", alias: "city" }
-        { projection: "customer", alias: "customer" }
-        { projection: "value", alias: "price" }
-      ]
-      type: "INNER"
-      params: ["id", "saleId"]
-    }
-  ) {
-    id
-  }
-}
-
-mutation addAliceSaleEntity {
-  addEntity(
-    name: "Sales"
-    slug: "sales"
-    workspaceId: 1
-    dataSourceId: 1
-    mediatorId: 3
-    entityMapper: {
-      entity1: { name: "Sales", alias: "s" }
-      entity2: {
-        entity1: { name: "Customer", alias: "c" }
-        entity2: { name: "City", alias: "city" }
+    entity: {
+      name: "Sales"
+      slug: "sales"
+      mediatorSlug: "bob"
+      entityMapper: {
+        entity1: { name: "Sales", alias: "s" }
+        entity2: { name: "Prices", alias: "p" }
         columns: [
-          { projection: "c.name", alias: "customer" }
-          { projection: "city.name", alias: "city" }
-          { projection: "c.id", alias: "custId" }
+          { projection: "city", alias: "city" }
+          { projection: "customer", alias: "customer" }
+          { projection: "value", alias: "price" }
         ]
-        type: "INNER"
-        params: ["c.cityId", "city.id"]
+        type: INNER
+        params: ["s.id", "p.saleId"]
       }
-      columns: [
-        { projection: "city", alias: "city" }
-        { projection: "customer", alias: "customer" }
-        { projection: "price", alias: "price" }
-      ]
-      type: "INNER"
-      params: ["s.customerId", "custId"]
     }
   ) {
     id
@@ -161,45 +122,12 @@ mutation addAliceSaleEntity {
 }
 ```
 
-Finally, after providing the proper mappings, both Alice and Bob can query the data using the GCM via the `query mutation`. As mentioned before, the **mediator's** `slug` provides Polyflow the proper context to transform incoming queries. Moreover, the slug provided in the **Entity's creation** provides Polyflow the `entityMapper` that should be used.
+Finally, after providing the proper mappings, Bob can query the data using the CCM via the `query` endpoint. As mentioned before, the **mediator's** `slug` provides `Polyflow` the proper context to transform incoming queries. Moreover, the slug provided in the **Entity's creation** provides Polyflow the `entityMapper` that should be used.
 
 ```graphql
-mutation BobsQuery {
-  query(query: "bobs-mediator[SELECT * FROM sales]")
+query queries {
+  query(query: "SELECT * FROM bob[sales]")
 }
-
-mutation AlicesQuery {
-  query(query: "alices-mediator[SELECT * FROM sales]")
-}
-```
-
-Under the hood, `Polyflow` will transform the queries to the following ones:
-
-```sql
-SELECT *
-FROM
-  (SELECT city AS city,
-          customer AS customer,
-          value AS price
-   FROM Sales AS s
-   INNER JOIN Prices AS p ON id = saleId) AS table_0
-```
-
-```sql
-SELECT *
-FROM
-  (SELECT city AS city,
-          customer AS customer,
-          price AS price
-   FROM (
-           (SELECT *
-            FROM Sales AS s)) AS t1
-   INNER JOIN (
-                 (SELECT c.name AS customer,
-                         city.name AS city,
-                         c.id AS custId
-                  FROM Customer AS c
-                  INNER JOIN City AS city ON c.cityId = city.id)) AS t2 ON t1.s.customerId = t2.custId) AS table_0
 ```
 
 ## Running locally
@@ -210,12 +138,23 @@ Now, you need to copy the `.env.sample` file into a `.env` file an write your lo
 
 ```sh
 $ yarn
-$ yarn global add typescript
 $ yarn run build
 $ yarn run start:prod
 ```
 
+## Cleaning up
+
+To stop the execution of the containers, run:
+
+```
+  docker rm -f polyflow polyflow-catalog
+```
+
 ## Future work
+
+- Add support to `group by` and `order by` in the entity mapper
+
+- Export performance metrics from container
 
 ## References
 

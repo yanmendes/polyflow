@@ -1,13 +1,13 @@
-# Running the BigDawg example
+# Running the BigDAWG example
 
-First, we're gonna download BigDawg. Unfortunatelly, there are some unresolved bugs in the
+First, we're gonna download BigDAWG. Unfortunatelly, there are some unresolved bugs in the
 [official repository](https://github.com/bigdawg-istc/bigdawg). [This fork](https://github.com/yanmendes/bigdawg) provides some work-arounds for these bugs and scripts we'll be using in this tutorial.
 
-# Requirements
+## Requirements
 
 To run the following example, I'm assuming you're using an Unix-based distribution (MacOS or Linux). If you're using a Windows machine, some commands may change.
 
-All you need [Docker](https://www.docker.com/) to run this example. To install it, just see the guide for your OS: 
+All you need [Docker](https://www.docker.com/) to run this example. To install it, just see the guide for your OS:
 
 - [MacOS](https://docs.docker.com/docker-for-mac/install/)
 
@@ -15,7 +15,7 @@ All you need [Docker](https://www.docker.com/) to run this example. To install i
 
 - [Ubuntu](https://phoenixnap.com/kb/how-to-install-docker-on-ubuntu-18-04)
 
-# Installing BigDAWG with provenance data
+## Installing BigDAWG with provenance data
 
 First of all, let's clone the repository:
 
@@ -36,21 +36,30 @@ The script starts three Docker containers named `bigdawg-postgres-swift`, `bigda
 ```
 
 The expected output is:
+
 ```
   contents        truncated       md5
   [B@760bf73d     true            3efa76b06a6ecf6b51f45e43fc9d5d53
 ```
 
-Now, just add a new `Data Source` with the URL `http://localhost:8080/bigdawg/query/` to Polylflow's catalog, as shown in the [getting started guide](../../README.md)
+## Connecting Polyflow to BigDAWG
 
-# Queries ran in the experiment
+First, start Polyflow, as shown in the [Getting started section](../../README.md).
 
-*TODO*
+Then, run the script below to automatically insert BigDAWG as a `data source`, a mediator and provenance entities in Polyflow's catalog. We'll be using both [Kepler](./Kepler) and [Swift](./Swift) entity mappers. If you have BigDAWG or Polyflow installed elsewhere, just create a new [.env from the template](./.env.sample) file and [override the custom settings](./docker-compose.yml).
 
-# Cleaning up
+```sh
+  docker-compose up
+```
+
+## Queries ran in the experiment
+
+_TODO_
+
+## Cleaning up
 
 To stop the execution of the containers, run:
 
-```
-  docker rm -f $(docker ps -aq)
+```sh
+  docker rm -f polyflow polyflow-catalog bigdawg-postgres-catalog bigdawg-postgres-swift bigdawg-postgres-kepler
 ```

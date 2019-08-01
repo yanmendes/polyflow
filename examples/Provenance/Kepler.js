@@ -1,10 +1,5 @@
 const Prov = require('./Prov')
 const Provone = require('./Provone')
-const {
-  SQL_INNER_JOIN,
-  SQL_LEFT_JOIN,
-  SQL_UNION
-} = require('../../dist/core/databases/query-resolvers/sql/mediationTypes')
 
 const Port = {
   name: 'port',
@@ -16,8 +11,7 @@ const Port = {
     },
     {
       alias: 'port_type',
-      projection:
-        "CASE WHEN p.direction = 1 THEN 'out' WHEN p.direction = 0 THEN 'in' END"
+      projection: "CASE WHEN p.direction = 1 THEN 'out' WHEN p.direction = 0 THEN 'in' END"
     }
   ]
 }
@@ -36,7 +30,7 @@ const Entity = {
 const provonePort = {
   entity1: Port,
   entity2: Entity,
-  type: SQL_INNER_JOIN,
+  type: 'INNER',
   columns: [...Port.columns, ...Entity.columns],
   params: ['p.id', 'e.id']
 }
@@ -90,14 +84,14 @@ const provEntity = {
   entity1: {
     entity1: Parameter,
     entity2: Entity,
-    type: SQL_INNER_JOIN,
+    type: 'INNER',
     columns: [...Parameter.columns, ...Entity.columns],
     params: ['param.id', 'e.id']
   },
   entity2: {
     entity1: Data,
     entity2: AssociatedData,
-    type: SQL_LEFT_JOIN,
+    type: 'LEFT',
     params: ['d.md5', 'ad.data_id'],
     columns: [
       {
@@ -116,7 +110,7 @@ const provEntity = {
       ...AssociatedData.columns
     ]
   },
-  type: SQL_UNION
+  type: 'UNION'
 }
 
 const Actor = {
@@ -136,7 +130,7 @@ const provoneProgram = {
   entity2: {
     entity1: Entity,
     entity2: Workflow,
-    type: SQL_LEFT_JOIN,
+    type: 'LEFT',
     columns: [
       {
         alias: 'joinId',
@@ -175,7 +169,7 @@ const provoneProgram = {
       projection: 'phssubp'
     }
   ],
-  type: SQL_INNER_JOIN,
+  type: 'INNER',
   params: ['program_id', 'joinId']
 }
 
@@ -242,12 +236,9 @@ const provoneExecution = {
     ...ActorFire,
     columns: [
       ...ActorFire.columns.filter(({ alias }) =>
-        [
-          'execution_id',
-          'prov_startedAtTime',
-          'prov_endedAtTime',
-          'provone_wasPartOf'
-        ].includes(alias)
+        ['execution_id', 'prov_startedAtTime', 'prov_endedAtTime', 'provone_wasPartOf'].includes(
+          alias
+        )
       ),
       {
         alias: 'prov_wasAssociatedWith',
@@ -269,16 +260,14 @@ const provoneExecution = {
       )
     ]
   },
-  type: SQL_UNION
+  type: 'UNION'
 }
 
 const provAssociation = {
   entity1: {
     ...ActorFire,
     columns: [
-      ...ActorFire.columns.filter(({ alias }) =>
-        ['execution_id', 'prov_hadPlan'].includes(alias)
-      )
+      ...ActorFire.columns.filter(({ alias }) => ['execution_id', 'prov_hadPlan'].includes(alias))
     ]
   },
   entity2: {
@@ -289,7 +278,7 @@ const provAssociation = {
       )
     ]
   },
-  type: SQL_UNION
+  type: 'UNION'
 }
 
 const provUsage = {
@@ -389,9 +378,5 @@ const entityMappers = [
     entityMapper: provoneUser
   }
 ]
-
-console.log(
-  JSON.stringify(entityMappers, null, 2).replace(/"(\w+)":/gim, '$1:')
-)
 
 module.exports = entityMappers

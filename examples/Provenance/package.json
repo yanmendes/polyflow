@@ -1,0 +1,17 @@
+{
+  "name": "provenance",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "setup-provenance-example": "node ."
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "apollo-boost": "^0.4.3",
+    "csv-writer": "^1.5.0",
+    "graphql": "^14.4.2",
+    "node-fetch": "^2.6.0"
+  }
+}

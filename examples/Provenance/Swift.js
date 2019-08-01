@@ -110,8 +110,4 @@ const entityMappers = [
   }
 ]
 
-console.log(
-  JSON.stringify(entityMappers, null, 2).replace(/"(\w+)":/gim, '$1:')
-)
-
 module.exports = entityMappers

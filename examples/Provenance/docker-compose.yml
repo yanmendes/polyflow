@@ -1,0 +1,21 @@
+version: "3"
+services:
+  setup-bigdawg:
+    env_file: .env.sample
+    build: .
+
+  kepler:
+    image: yanmendes/kepler
+    container_name: polyflow-kepler
+    environment:
+      POSTGRES_DB: kepler
+  swift:
+    image: yanmendes/swift
+    container_name: polyflow-swift
+    environment:
+      POSTGRES_DB: swift
+
+networks:
+  default:
+    external:
+      name: polyflow
