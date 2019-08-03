@@ -40,9 +40,7 @@ const bigdawgInterface = {
             error: e.stack || e,
             query
           })
-          .error(
-            "Something went wrong while submiting a query to this interface"
-          )
+          .error("Something went wrong while submiting a query to this interface")
       );
   }
 };
@@ -54,10 +52,7 @@ const parseResponseToJSON = (results: string) => {
 
   return dimensions.map((_, i) => {
     const instance = instances[i];
-    return dimensions.reduce(
-      (aggr, curr, index) => ({ ...aggr, [curr]: instance[index] }),
-      {}
-    );
+    return dimensions.reduce((aggr, curr, index) => ({ ...aggr, [curr]: instance[index] }), {});
   });
 };
 

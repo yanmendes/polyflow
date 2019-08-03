@@ -1,19 +1,19 @@
 import sqlResolver from "./sql";
+import bigdawgResolver from "./bigdawg";
 
-// Gotta fix for multiple contexts later
-const contextsRegex = /([a-z-_]+)\[(.+?)\]/gim;
-export const getContexts = (query: string) => contextsRegex.exec(query);
+const contextsRegex = /([a-z-0-9-_]+)\[([a-z-0-9-_]+)\]/gim;
+const getContexts = (query: string) => contextsRegex.exec(query);
 
-export const contextualizeSubQueries = (queryStmt: string) => {
+export const getMediatedEntities = (queryStmt: string) => {
   let matches;
-  const contextualizedQueries = [];
+  const entities = [];
 
   while ((matches = getContexts(queryStmt))) {
-    const [, context, query] = matches;
-    contextualizedQueries.push({ context, query });
+    const [, mediator, entity] = matches;
+    entities.push({ mediator, entity });
   }
 
-  return contextualizedQueries;
+  return entities;
 };
 
-export { sqlResolver };
+export { sqlResolver, bigdawgResolver };
