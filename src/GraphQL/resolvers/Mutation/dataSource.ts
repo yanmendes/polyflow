@@ -4,34 +4,34 @@ import { UserInputError } from "apollo-server-core";
 import { getInterface } from "../../../core/databases";
 import { DataSource } from "../../../models/polyflow";
 import logger, { categories } from "../../../logger";
+import { handlePossibleUniqueEntryException } from "../../../exceptions";
 
 const log = logger.child({
   category: categories.DATA_SOURCE
 });
 
 export default {
-  addDataSource: async (_, { type, uri }) => {
-    const dbInterface = getInterface(type);
-    const validConnection = await dbInterface.assertConnection(uri);
-
-    if (!validConnection) {
-      throw new UserInputError("Invalid URI for the chosen type");
-    }
+  addDataSource: async (_, { dataSource }) => {
+    const dbInterface = getInterface(dataSource.type);
+    const validConnection = await dbInterface.assertConnection(dataSource.uri);
 
     try {
-      const dataSource = await getRepository(DataSource).save({
-        uri,
-        type
-      });
-      return dataSource;
+      if (!validConnection) {
+        throw new UserInputError("Couldn't connect with the provided URI.");
+      }
+
+      return getRepository(DataSource)
+        .save({ ...dataSource })
+        .catch(handlePossibleUniqueEntryException("URI already registered"));
     } catch (e) {
       log
         .child({
           error: e,
-          action: "adding_data_source"
+          action: "adding_mediator"
         })
-        .error("URI already exists");
-      throw new UserInputError("URI already exists");
+        .error(e);
+
+      throw e;
     }
   }
 };

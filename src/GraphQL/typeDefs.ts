@@ -11,6 +11,7 @@ export default gql`
   type DataSource {
     id: ID!
     uri: String!
+    slug: String
     type: DataSourceType!
   }
 
@@ -76,20 +77,27 @@ export default gql`
   }
 
   type Mutation {
-    addDataSource(
-      type: DataSourceType!
-      uri: String!
-    ): DataSource
-    addMediator(
-      name: String!
-      slug: String!
-      dataSourceId: ID!
-    ): Mediator
-    addEntity(
-      name: String!
-      slug: String!
-      entityMapper: SQLEntityMapperInput!
-      mediatorId: ID!
-    ): Entity
+    addDataSource(dataSource: DataSourceInput!): DataSource
+    addMediator(mediator: MediatorInput!): Mediator
+    addEntity(entity: EntityInput!): Entity
+  }
+
+  input DataSourceInput {
+    type: DataSourceType!
+    uri: String!
+    slug: String!
+  }
+
+  input MediatorInput {
+    name: String!
+    slug: String!
+    dataSourceSlug: String!
+  }
+
+  input EntityInput {
+    name: String!
+    slug: String!
+    entityMapper: SQLEntityMapperInput!
+    mediatorSlug: String!
   }
 `;

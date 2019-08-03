@@ -3,36 +3,33 @@ import { UserInputError } from "apollo-server-core";
 
 import { Mediator, DataSource } from "../../../models/polyflow";
 import logger, { categories } from "../../../logger";
+import { handlePossibleUniqueEntryException } from "../../../exceptions";
 
 const log = logger.child({
   category: categories.MEDIATOR
 });
 
 export default {
-  addMediator: async (_, { name, slug, dataSourceId }) => {
-    const dataSource = await DataSource.findOne(dataSourceId);
-    if (!dataSource) {
-      throw new UserInputError("Invalid data source id");
-    }
+  addMediator: async (_, { mediator: { dataSourceSlug, ...mediator } }) => {
+    const dataSource = await DataSource.findOne({ where: { slug: dataSourceSlug } });
 
     try {
-      const mediator = await getRepository(Mediator).save({
-        name,
-        slug,
-        dataSource
-      });
+      if (!dataSource) {
+        throw new UserInputError(`No data sources found with slug ${dataSourceSlug}`);
+      }
 
-      return mediator;
+      return getRepository(Mediator)
+        .save({ ...mediator, dataSource })
+        .catch(handlePossibleUniqueEntryException("Name/slug already in use for data source."));
     } catch (e) {
       log
         .child({
           error: e,
           action: "adding_mediator"
         })
-        .error("Mediator name/slug already in use for this data source");
-      throw new UserInputError(
-        "Mediator name/slug already in for this data source"
-      );
+        .error(e);
+
+      throw e;
     }
   }
 };
