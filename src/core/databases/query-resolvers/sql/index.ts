@@ -1,21 +1,14 @@
 import { Parser } from "flora-sql-parser";
 
-import {
-  SQL_INNER_JOIN,
-  SQL_RIGHT_JOIN,
-  SQL_LEFT_JOIN,
-  SQL_UNION
-} from "./mediationTypes";
-import { MediationError } from "../../../../CustomErrors";
+import { SQL_INNER_JOIN, SQL_RIGHT_JOIN, SQL_LEFT_JOIN, SQL_UNION } from "./mediationTypes";
+import { MediationError } from "../../../../exceptions";
 import { Entity } from "../../../../models/polyflow";
 import { UserInputError } from "apollo-server-core";
 
 const sql = require("tagged-template-noop");
 const toSQL = require("flora-sql-parser").util.astToSQL;
 
-function isMediationEntity(
-  entity: MediationEntity | SQLTable
-): entity is MediationEntity {
+function isMediationEntity(entity: MediationEntity | SQLTable): entity is MediationEntity {
   return (entity as MediationEntity).entity1 !== undefined;
 }
 
@@ -28,9 +21,7 @@ const getAlias = (alias: string) => (alias ? ` as ${alias}` : "");
 const parseCols = (columns: SQLColumn[]) =>
   !columns || !columns.length
     ? "*"
-    : columns
-        .map(({ projection, alias }) => `${projection} ${getAlias(alias)}`)
-        .join(",");
+    : columns.map(({ projection, alias }) => `${projection} ${getAlias(alias)}`).join(",");
 
 const getParams = (params: string[]) =>
   params.length === 3 ? params.join(" ") : `${params[0]} = ${params[1]}`;
@@ -143,10 +134,7 @@ function validateMediator(mediator: MediationEntity) {
       !entity2.columns ||
       entity1.columns.length !== entity2.columns.length)
   ) {
-    throw new MediationError(
-      "Type set as Union but the columns are invalid",
-      mediator
-    );
+    throw new MediationError("Type set as Union but the columns are invalid", mediator);
   }
 }
 
@@ -175,9 +163,7 @@ export default async function(query: string, entities: [Entity]) {
   for (const entity of from) {
     const mediationEntity = entities.find(({ slug }) => slug === entity.table);
     if (!mediationEntity) {
-      throw new UserInputError(
-        `Entity ${entity.table} not found in existing mediators`
-      );
+      throw new UserInputError(`Entity ${entity.table} not found in existing mediators`);
     }
     const mediatedQuery = mediateEntity(mediationEntity.entityMapper);
     queries.set(entity.table, mediatedQuery);
