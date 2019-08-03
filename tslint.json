@@ -1,5 +1,5 @@
 {
-  "extends": "tslint-config-standard",
+  "extends": "prettier-standard",
   "rules": {
     "semicolon": true,
     "space-before-function-paren": false,
