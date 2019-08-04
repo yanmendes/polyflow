@@ -1,0 +1,5 @@
+version: "3"
+services:
+  setup-bigdawg:
+    env_file: .env.sample
+    build: .
