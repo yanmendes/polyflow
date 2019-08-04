@@ -10,7 +10,14 @@ const log = logger.child({
 export default {
   query: (_, { query }) =>
     measure(log, "Transforming and running issued query", () =>
-      runQuery(query)
+      runQuery(query).catch(e => {
+        log.child({
+          error: e.stack || e,
+          message: `Something went wrong while processing your query: ${e}`
+        });
+
+        throw e;
+      })
     ),
 
   dataSources: () => DataSource.find({}),

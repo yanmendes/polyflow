@@ -12,7 +12,9 @@ import schema from "./GraphQL";
 const startServer = async () => {
   const server = new ApolloServer({
     schema,
-    context: ({ req, res }: any) => ({ req, res })
+    context: ({ req, res }: any) => ({ req, res }),
+    playground: true,
+    introspection: true
   });
 
   await createConnection({
