@@ -8,6 +8,7 @@ import { handlePossibleUniqueEntryException } from "../../../exceptions";
 const log = logger.child({
   category: categories.MEDIATOR
 });
+const msg = "Mediator Name/slug already in use for data source.";
 
 export default {
   addMediator: async (_, { mediator: { dataSourceSlug, ...mediator } }) => {
@@ -20,7 +21,7 @@ export default {
 
       return getRepository(Mediator)
         .save({ ...mediator, dataSource })
-        .catch(handlePossibleUniqueEntryException("Name/slug already in use for data source."));
+        .catch(handlePossibleUniqueEntryException(msg));
     } catch (e) {
       log
         .child({

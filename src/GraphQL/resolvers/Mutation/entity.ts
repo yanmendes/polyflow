@@ -8,6 +8,7 @@ import { handlePossibleUniqueEntryException } from "../../../exceptions";
 const log = logger.child({
   category: categories.ENTITY
 });
+const msg = "Entity name/slug already in use for mediator.";
 
 export default {
   addEntity: async (_, { entity: { mediatorSlug, ...entity } }) =>
@@ -17,7 +18,7 @@ export default {
           ? Promise.reject(new UserInputError(`No mediators found with slug ${mediatorSlug}`))
           : getRepository(Entity)
               .save({ ...entity, mediator })
-              .catch(handlePossibleUniqueEntryException("Name/slug already in use for mediator."))
+              .catch(handlePossibleUniqueEntryException(msg))
       )
       .catch(e => {
         log
