@@ -1,4 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, JoinTable, Unique } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  BaseEntity,
+  JoinTable,
+  Unique,
+  OneToMany
+} from "typeorm";
 
 import { Mediator } from ".";
 
@@ -23,6 +31,7 @@ export class DataSource extends BaseEntity {
   @Column("text")
   type: Type;
 
+  @OneToMany(_ => Mediator, mediator => mediator.dataSource)
   @JoinTable()
   mediators: [Mediator];
 }

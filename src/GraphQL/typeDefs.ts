@@ -3,35 +3,48 @@ import { gql } from "apollo-server-express";
 export default gql`
   scalar JSON
 
-  enum DataSourceType {
-    postgres
-    mysql
-    bigdawg
+  type Query {
+    query(query: String!): JSON
+    dataSources: [DataSource]
+    mediators: [Mediator]
+    entities: [Entity]
   }
+
+  type Mutation {
+    addDataSource(dataSource: DataSourceInput!): DataSource
+    addMediator(mediator: MediatorInput!): Mediator
+    addEntity(entity: EntityInput!): Entity
+  }
+
+  # Types
 
   type DataSource {
     id: ID!
     uri: String!
     slug: String
     type: DataSourceType!
+    mediators: [Mediator]
   }
 
   type Mediator {
     id: ID!
     name: String!
     slug: String!
+    dataSource: DataSource
+    entities: [Entity]
+  }
+
+  type Entity {
+    id: ID!
+    name: String!
+    slug: String!
+    entityMapper: SQLEntityMapper!
+    mediator: Mediator
   }
 
   type SQLColumn {
     projection: String!
     alias: String
-  }
-
-  enum SQLAggregationType {
-    INNER
-    LEFT
-    RIGHT
-    UNION
   }
 
   type SQLEntityMapper {
@@ -46,18 +59,25 @@ export default gql`
     where: String
   }
 
-  type Entity {
-    id: ID!
-    name: String!
+  # Inputs
+
+  input DataSourceInput {
+    type: DataSourceType!
+    uri: String!
     slug: String!
-    entityMapper: SQLEntityMapper!
   }
 
-  type Query {
-    query(query: String!): JSON
-    dataSources: [DataSource]
-    mediators: [Mediator]
-    entities: [Entity]
+  input MediatorInput {
+    name: String!
+    slug: String!
+    dataSourceSlug: String!
+  }
+
+  input EntityInput {
+    name: String!
+    slug: String!
+    entityMapper: SQLEntityMapperInput!
+    mediatorSlug: String!
   }
 
   input SQLColumnInput {
@@ -77,28 +97,18 @@ export default gql`
     where: String
   }
 
-  type Mutation {
-    addDataSource(dataSource: DataSourceInput!): DataSource
-    addMediator(mediator: MediatorInput!): Mediator
-    addEntity(entity: EntityInput!): Entity
+  # Enums
+
+  enum DataSourceType {
+    postgres
+    mysql
+    bigdawg
   }
 
-  input DataSourceInput {
-    type: DataSourceType!
-    uri: String!
-    slug: String!
-  }
-
-  input MediatorInput {
-    name: String!
-    slug: String!
-    dataSourceSlug: String!
-  }
-
-  input EntityInput {
-    name: String!
-    slug: String!
-    entityMapper: SQLEntityMapperInput!
-    mediatorSlug: String!
+  enum SQLAggregationType {
+    INNER
+    LEFT
+    RIGHT
+    UNION
   }
 `;

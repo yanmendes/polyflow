@@ -20,9 +20,9 @@ export default {
       })
     ),
 
-  dataSources: () => DataSource.find({}),
+  dataSources: () => DataSource.find({ relations: ["mediators"] }),
 
-  mediators: () => Mediator.find({}),
+  mediators: () => Mediator.find({ relations: ["dataSource", "entities"] }),
 
-  entities: () => Entity.find({})
+  entities: () => Entity.find({ relations: ["mediator"] })
 };
