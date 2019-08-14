@@ -3,3 +3,8 @@ services:
   setup-bigdawg:
     env_file: .env.sample
     build: .
+
+networks:
+  default:
+    external:
+      name: polyflow

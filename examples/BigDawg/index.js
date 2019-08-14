@@ -6,8 +6,8 @@ const { InMemoryCache } = require('apollo-cache-inmemory')
 const keplerEntities = require('./Kepler')
 const swiftEntities = require('./Swift')
 
-const polyflowUri = process.env.POLYFLOW_URI || `http://localhost:3050/`
-const bigdawgUri = process.env.BIGDAWG_URL || 'http://bigdawg-postgres-catalog:8080/bigdawg/query'
+const polyflowUri = process.env.POLYFLOW_URI || 'http://localhost:3050/'
+const bigdawgUri = process.env.BIGDAWG_URL || 'http://localhost:8080/bigdawg/query'
 
 const dataSource = {
   uri: bigdawgUri,
@@ -78,7 +78,7 @@ const addEntity = gql`
     )
     console.log('Done!')
   } catch (e) {
-    console.log({ ...e.graphQLErrors } || e)
+    console.error(e)
     process.exit(2)
   }
 })()

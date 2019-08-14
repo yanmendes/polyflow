@@ -44,13 +44,53 @@ The expected output is:
 
 ## Connecting Polyflow to BigDAWG
 
-First, start Polyflow, as shown in the [Getting started section](../../README.md).
+Go back to `Polyflow's` root folder (`cd ../../`), issue the following command to launch an instance of `Polyflow`:
 
-Then, run the script below to automatically insert BigDAWG as a `data source`, a mediator and provenance entities in Polyflow's catalog. We'll be using both [Kepler](./Kepler) and [Swift](./Swift) entity mappers. If you have BigDAWG or Polyflow installed elsewhere, just create a new [.env from the template](./.env.sample) file and [override the custom settings](./docker-compose.yml).
+```sh
+  docker-compose up polyflow
+```
+
+Once you have `Polyflow` running, open a new shell tab and move back to this folder (`cd <polyflow>/examples/BigDawg`) and run the script below to automatically insert BigDAWG as a `data source`; create mediators and provenance entities in Polyflow's catalog using [Kepler](./Kepler) and [Swift](./Swift) entity mappers. If you have BigDAWG or Polyflow installed elsewhere, just create a new [.env from the template](./.env.sample) file and [override the custom settings](./docker-compose.yml).
 
 ```sh
   docker-compose up
 ```
+
+If everything went well, you should see a `Done!` message in your shell. To make sure everything is working, connect to `Polyflow` (the default URL is http://localhost:3050/) and run the following query on the playground:
+
+```graphql
+query query {
+  query(query: "bdrel(select * from kepler[provone_port])")
+}
+```
+
+The expected output is:
+
+```json
+{
+  "data": {
+    "query": [
+      {
+        "id": "22",
+        "case": "out",
+        "name": ".Constant.output"
+      },
+      {
+        "id": "23",
+        "case": "in",
+        "name": ".Constant.trigger"
+      },
+      {
+        "id": "30",
+        "case": "in",
+        "name": ".Display.input"
+      }
+    ]
+  }
+}
+```
+
+Now you have a running instance of `Polyflow` connected to BigDAWG and populated with provenance data. The next section describes the queries run in the experiment.
 
 ## Queries ran in the experiment
 

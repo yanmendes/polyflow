@@ -48,13 +48,13 @@ To make sure your installation worked, open http://localhost:3050. There should 
 
 ## Getting started
 
+This section provides an overview of `Polyflow's` core concepts and how to interact with them. This is **NOT** a valid example and errors will be thrown if you try to execute these queries and mutations. For actual examples, check the [examples](./examples) folder.
+
 There are three main concepts in Polyflow: `Data Sources`, `Mediators` and `Entities`. In terms of our example, a **data source** is where the resources are located. We provide support to PostgreSQL and [BigDAWG](https://bigdawg.mit.edu), so a data source is a PSQL URL or a BigDAWG endpoint, but you can think of it as an Unique Resource Identifier (URI) to any resource accross the web - databases, files - that will be mediated by `Polyflow`. Let's connect to Bob's database via the `addDataSource mutation`.
 
 ```graphql
 mutation addDataSource {
-  addDataSource(
-    dataSource: { type: postgres, uri: "http://postgres@localhost/bobs-db", slug: "bobs-db" }
-  ) {
+  addDataSource(dataSource: { type: postgres, uri: "<bob's-db-URI>", slug: "bobs-db" }) {
     slug
   }
 }
