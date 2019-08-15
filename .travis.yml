@@ -1,21 +1,12 @@
-addons:
-  ssh_known_hosts: ubuntu@ec2-184-73-126-109.compute-1.amazonaws.com
-before_deploy:
-  - openssl aes-256-cbc -K $encrypted_642f0b81daf0_key -iv $encrypted_642f0b81daf0_iv -in deploy_rsa.enc -out /tmp/deploy_rsa -d
-  - eval "$(ssh-agent -s)"
-  - chmod 600 /tmp/deploy_rsa
-  - ssh-add /tmp/deploy_rsa
 language: node_js
 node_js:
   - "8"
 install:
   - yarn
-script:
+build-and-test:
+  - yarn run test
   - yarn run build
-  - mkdir -p /tmp/workspace && mv dist node_modules ecosystem.config.js /tmp/workspace
 deploy:
-  - provider: script
-    skip_cleanup: true
-    script: rsync -r --delete-after --quiet /tmp/workspace/* ubuntu@ec2-184-73-126-109.compute-1.amazonaws.com:projs/polyflow.api/
+  - provider: build-and-test
     on:
       branch: master
