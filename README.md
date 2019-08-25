@@ -1,10 +1,10 @@
-# Polyflow :microscope:
+# polyflow :microscope:
 
 ## Description
 
-`Polyflow` is a syntatic and semantic data mediator. The main goal of `Polyflow` is to create more accessible data models to users that need to use queries as part of their routine but aren't technology experts, such as researchers, PMs, marketing analysts. Consider the following:
+`polyflow` is a syntatic and semantic data mediator. The main goal of `polyflow` is to create more accessible data models to users that need to use queries as part of their routine but aren't technology experts, such as researchers, PMs, marketing analysts. Consider the following:
 
-Imagine that two data analysts, Bob and Alice, help stakeholders draw sales strategies. How do they compare their data, pipelines and results? They may have different logical representations (data stores) or even different conceptual models. `Polyflow` was designed to solve this problem in a simplistic way, providing a better experience to users such as Bob and Alice.
+Imagine that two data analysts, Bob and Alice, help stakeholders draw sales strategies. How do they compare their data, pipelines and results? They may have different logical representations (data stores) or even different conceptual models. `polyflow` was designed to solve this problem in a simplistic way, providing a better experience to users such as Bob and Alice.
 
 Imagine that Bob and Alice are interested in their **customers’ age, city and the amount they spent**. They are working in separate projects and, because of that, adopt different data models.
 
@@ -14,13 +14,13 @@ They are similar (logical) models and semantically identical. Because of that, i
 
 ![alt text](https://raw.githubusercontent.com/yanmendes/polyflow.api/master/documentation/ccm.png)
 
-And that's where `Polyflow` comes in. Kind of like [Looker](https://looker.com/), tech experts describe the mapping strategies between the CCM and the **local schemas**.
+And that's where `polyflow` comes in. Kind of like [Looker](https://looker.com/), tech experts describe the mapping strategies between the CCM and the **local schemas**.
 
 This software is my master's thesis and you can check the complete work at the [References section](#references).
 
 # Requirements
 
-All you need [Docker](https://www.docker.com/) to run `Polyflow`. To install it, just see the guide for your OS:
+All you need [Docker](https://www.docker.com/) to run `polyflow`. To install it, just see the guide for your OS:
 
 - [MacOS](https://docs.docker.com/docker-for-mac/install/)
 
@@ -36,21 +36,21 @@ First, you need to create a docker network to enable communication between conta
   docker network create polyflow
 ```
 
-If you have containerized databases that you wish to connect to `Polyflow`, make sure to add them to the network.
+If you have containerized databases that you wish to connect to `polyflow`, make sure to add them to the network.
 
-To run the application just run the script below. It launches two docker containers: one containing the dockerized application and the other a database that serves as a catalog to `Polyflow`.
+To run the application just run the script below. It launches two docker containers: one containing the dockerized application and the other a database that serves as a catalog to `polyflow`.
 
 ```sh
   docker-compose up polyflow
 ```
 
-To make sure your installation worked, open http://localhost:3050. There should be a blue screen with a big play button in the middle. This is a [GraphQL playground](https://www.prisma.io/blog/introducing-graphql-playground-f1e0a018f05d) and where you'll be interacting with Polyflow. GraphQL is a query language for APIs. To check out the endpoints of `Polyflow`, click the `Schema` button on the right side of the screen. The GraphQL playground provides auto-complete to queries and mutations by tapping `ctrl + space`.
+To make sure your installation worked, open http://localhost:3050. There should be a blue screen with a big play button in the middle. This is a [GraphQL playground](https://www.prisma.io/blog/introducing-graphql-playground-f1e0a018f05d) and where you'll be interacting with polyflow. GraphQL is a query language for APIs. To check out the endpoints of `polyflow`, click the `Schema` button on the right side of the screen. The GraphQL playground provides auto-complete to queries and mutations by tapping `ctrl + space`.
 
 ## Getting started
 
-This section provides an overview of `Polyflow's` core concepts and how to interact with them. This is **NOT** a valid example and errors will be thrown if you try to execute these queries and mutations. For actual examples, check the [examples](./examples) folder.
+This section provides an overview of `polyflow's` core concepts and how to interact with them. This is **NOT** a valid example and errors will be thrown if you try to execute these queries and mutations. For actual examples, check the [examples](./examples) folder.
 
-There are three main concepts in Polyflow: `Data Sources`, `Mediators` and `Entities`. In terms of our example, a **data source** is where the resources are located. We provide support to PostgreSQL and [BigDAWG](https://bigdawg.mit.edu), so a data source is a PSQL URL or a BigDAWG endpoint, but you can think of it as an Unique Resource Identifier (URI) to any resource accross the web - databases, files - that will be mediated by `Polyflow`. Let's connect to Bob's database via the `addDataSource mutation`.
+There are three main concepts in polyflow: `Data Sources`, `Mediators` and `Entities`. In terms of our example, a **data source** is where the resources are located. We provide support to PostgreSQL and [BigDAWG](https://bigdawg.mit.edu), so a data source is a PSQL URL or a BigDAWG endpoint, but you can think of it as an Unique Resource Identifier (URI) to any resource accross the web - databases, files - that will be mediated by `polyflow`. Let's connect to Bob's database via the `addDataSource mutation`.
 
 ```graphql
 mutation addDataSource {
@@ -85,7 +85,7 @@ mutation {
 }
 ```
 
-**Entities** are the most crucial piece of the puzzle. The `entityMapper` prop defines the transformation from this entity's local schema to its global representation. Since `Polyflow` aims for a technology-agnostic approach, different data storages can be added by implementing new [interfaces and query resolvers](https://github.com/yanmendes/polyflow.api/tree/master/src/core/databases). With that in mind, note that `entityMappers` structure may vary depending on the data source being used.
+**Entities** are the most crucial piece of the puzzle. The `entityMapper` prop defines the transformation from this entity's local schema to its global representation. Since `polyflow` aims for a technology-agnostic approach, different data storages can be added by implementing new [interfaces and query resolvers](https://github.com/yanmendes/polyflow.api/tree/master/src/core/databases). With that in mind, note that `entityMappers` structure may vary depending on the data source being used.
 
 For now, we have a SQL query resolver and a PostgreSQL interface. The relational's `entityMapper` structure can be [found here](https://github.com/yanmendes/polyflow.api/blob/master/src/types/mediation.ts). It's basic structure is composed by the table's `name`, a designed `alias`, the `columns` that will be projected and a `where` prop to filter the response.
 
@@ -122,7 +122,7 @@ mutation addBobSaleEntity {
 }
 ```
 
-Finally, after providing the proper mappings, Bob can query the data using the CCM via the `query` endpoint. As mentioned before, the **mediator's** `slug` provides `Polyflow` the proper context to transform incoming queries. Moreover, the slug provided in the **Entity's creation** provides Polyflow the `entityMapper` that should be used.
+Finally, after providing the proper mappings, Bob can query the data using the CCM via the `query` endpoint. As mentioned before, the **mediator's** `slug` provides `polyflow` the proper context to transform incoming queries. Moreover, the slug provided in the **Entity's creation** provides polyflow the `entityMapper` that should be used.
 
 ```graphql
 query queries {

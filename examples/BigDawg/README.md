@@ -23,7 +23,7 @@ First of all, let's clone the repository:
   git clone https://github.com/yanmendes/bigdawg
 ```
 
-Just change into the provisions folder and run the script. It usually takes a couple of minutes. You'll now it's finished when the the last line says `Hit enter to stop it...`. Notice that some errors may occur during the process, but just ignore them if you can reproduce all the steps in this tutorial. They are related to SciDB, but this database is not used in this example.
+Change into the provisions folder and run the script. It usually takes a couple of minutes. You'll now it's finished when the the last line says `Hit enter to stop it...`. Notice that some errors may occur during the process, but just ignore them if you can reproduce all the steps in this tutorial. They are related to SciDB, but this database is not used in this example.
 
 ```sh
   cd bigdawg/provisions && bash setup_polyflow.sh
@@ -42,21 +42,21 @@ The expected output is:
   [B@760bf73d     true            3efa76b06a6ecf6b51f45e43fc9d5d53
 ```
 
-## Connecting Polyflow to BigDAWG
+## Connecting polyflow to BigDAWG
 
-Go back to `Polyflow's` root folder (`cd ../../`), issue the following command to launch an instance of `Polyflow`:
+Go back to `polyflow's` root folder (`cd ../../`), issue the following command to launch an instance of `polyflow`:
 
 ```sh
   docker-compose up polyflow
 ```
 
-Once you have `Polyflow` running, open a new shell tab and move back to this folder (`cd <polyflow>/examples/BigDawg`) and run the script below to automatically insert BigDAWG as a `data source`; create mediators and provenance entities in Polyflow's catalog using [Kepler](./Kepler) and [Swift](./Swift) entity mappers. If you have BigDAWG or Polyflow installed elsewhere, just create a new [.env from the template](./.env.sample) file and [override the custom settings](./docker-compose.yml).
+Once you have `polyflow` running, open a new shell tab and move back to this folder (`cd <polyflow>/examples/BigDawg`) and run the script below to automatically insert BigDAWG as a `data source`; create mediators and provenance entities in polyflow's catalog using [Kepler](./Kepler) and [Swift](./Swift) entity mappers. If you have BigDAWG or polyflow installed elsewhere, just create a new [.env from the template](./.env.sample) file and [override the custom settings](./docker-compose.yml).
 
 ```sh
   docker-compose up
 ```
 
-If everything went well, you should see a `Done!` message in your shell. To make sure everything is working, connect to `Polyflow` (the default URL is http://localhost:3050/) and run the following query on the playground:
+If everything went well, you should see a `Done!` message in your shell. To make sure everything is working, connect to `polyflow` (the default URL is http://localhost:3050/) and run the following query on the playground:
 
 ```graphql
 query query {
@@ -90,7 +90,7 @@ The expected output is:
 }
 ```
 
-Now you have a running instance of `Polyflow` connected to BigDAWG and populated with provenance data. The next section describes the queries run in the experiment.
+Now you have a running instance of `polyflow` connected to BigDAWG and populated with provenance data. The next section describes the queries run in the experiment.
 
 ## Queries ran in the experiment
 
