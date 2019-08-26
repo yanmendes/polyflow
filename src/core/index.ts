@@ -58,7 +58,17 @@ export const runQuery = async query => {
     return measure(log.child({ query: parsedQuery }), `Issuing parsed query to ${type}`, () =>
       dbInterface.query(uri, parsedQuery)
     );
-  } catch (e) {
+  } catch (error) {
+    log
+      .child({
+        query,
+        error: error.stack
+      })
+      .error("Couldn`t resolve the query");
+
+    if (error instanceof UserInputError) {
+      throw error;
+    }
     throw new UserInputError(
       `Couldn't resolve the query. It's either an invalid SQL statement or wrong Polyflow syntax.
        Check the docs https://github.com/yanmendes/polyflow`
