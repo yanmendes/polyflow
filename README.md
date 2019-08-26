@@ -4,9 +4,13 @@
 
 `polyflow` is a syntatic and semantic data mediator. The main goal of `polyflow` is to create more accessible data models to users that need to use queries as part of their routine but aren't technology experts, such as researchers, PMs, marketing analysts. Consider the following:
 
-Imagine that two data analysts, Bob and Alice, help stakeholders draw sales strategies. How do they compare their data, pipelines and results? They may have different logical representations (data stores) or even different conceptual models. `polyflow` was designed to solve this problem in a simplistic way, providing a better experience to users such as Bob and Alice.
+Imagine that two reaserchers, Bob and Alice, share the same research field and tackle the problem using computer simulations. Simulations are usually structured as **[workflows](#references)** that have some input, a sequence of programs that transform them and generate some output. But how do they compare their data, pipelines and results since they use different orchestrators for their workflows?
 
-Imagine that Bob and Alice are interested in their **customers’ age, city and the amount they spent**. They are working in separate projects and, because of that, adopt different data models.
+Each orchestrator, or [Workflow Management Systems (WFMSs)](#references), have their own implementation and storing mechanism. These tools offer exports of raw data in a structured way (such as relational and non-relational databases) so that reasearchers can query and analyze their findings.
+
+Coming back to Bob and Alice's scenario, since they use different WFMSs, the exported data may not be compatible for comparison right away. In other words, there might be different logical representations (data stores) or even different conceptual models. `polyflow` was designed to solve this problem in a simple way.
+
+Imagine that Bob and Alice are interested in **how much time** their pipelines take. Let's assume Bob uses [Kepler](https://kepler-project.org/) to orchestrate his workflow while Alice uses [Swift/T](http://swift-lang.org/Swift-T/). The image below shows the entities in each WFMS's data model that capture such information.
 
 ![alt text](https://raw.githubusercontent.com/yanmendes/polyflow.api/master/documentation/bob-alice-model.png)
 
@@ -14,9 +18,9 @@ They are similar (logical) models and semantically identical. Because of that, i
 
 ![alt text](https://raw.githubusercontent.com/yanmendes/polyflow.api/master/documentation/ccm.png)
 
-And that's where `polyflow` comes in. Kind of like [Looker](https://looker.com/), tech experts describe the mapping strategies between the CCM and the **local schemas**.
+And that's where `polyflow` comes in. Database experts/tech savy people describe mapping strategies between the CCM and the **local schemas** using an object-like syntax so that reasearchers can query a single, simplified data model.
 
-This software is my master's thesis and you can check the complete work at the [References section](#references).
+This software is derived from my master's thesis and you can check the [References section](#references) for aditional information.
 
 # Requirements
 
@@ -46,7 +50,11 @@ To run the application just run the script below. It launches two docker contain
 
 To make sure your installation worked, open http://localhost:3050. There should be a blue screen with a big play button in the middle. This is a [GraphQL playground](https://www.prisma.io/blog/introducing-graphql-playground-f1e0a018f05d) and where you'll be interacting with polyflow. GraphQL is a query language for APIs. To check out the endpoints of `polyflow`, click the `Schema` button on the right side of the screen. The GraphQL playground provides auto-complete to queries and mutations by tapping `ctrl + space`.
 
-## Getting started
+## Running examples
+
+The [examples](./examples) folder contains two implemented examples: one using PostgreSQL and MySQL databases and other using [BigDAWG](https://bigdawg.mit.edu): a polystore database system. There are `README` files in directories that explain how to run each example.
+
+## Understanding polyflow
 
 This section provides an overview of `polyflow's` core concepts and how to interact with them. This is **NOT** a valid example and errors will be thrown if you try to execute these queries and mutations. For actual examples, check the [examples](./examples) folder.
 
@@ -158,4 +166,10 @@ To stop the execution of the containers, run:
 
 ## References
 
-Theoretical fundamentals that guided this work - ÖZSU, M. Tamer; VALDURIEZ, Patrick. Principles of distributed database systems. **Springer Science & Business Media**, 2011.
+- Theoretical fundamentals that guided this work - ÖZSU, M. Tamer; VALDURIEZ, Patrick. Principles of distributed database systems. Springer Science & Business Media, 2011.
+
+- Workflow definition - De Oliveira, Daniel CM, Ji Liu, and Esther Pacitti. "Data-Intensive Workflow Management: For Clouds and Data-Intensive and Scalable Computing Environments." Synthesis Lectures on Data Management 14.4 (2019): 1-179.
+
+- Swift/T WFMS - Wozniak, Justin M., et al. "Swift/t: Large-scale application composition via distributed-memory dataflow processing." 2013 13th IEEE/ACM International Symposium on Cluster, Cloud, and Grid Computing. IEEE, 2013.
+
+- Kepler WFMS - Altintas, Ilkay, et al. "Kepler: an extensible system for design and execution of scientific workflows." Proceedings. 16th International Conference on Scientific and Statistical Database Management, 2004.. IEEE, 2004.

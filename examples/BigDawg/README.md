@@ -44,7 +44,7 @@ The expected output is:
 
 ## Connecting polyflow to BigDAWG
 
-Go back to `polyflow's` root folder (`cd ../../`), issue the following command to launch an instance of `polyflow`:
+If you don't have `polyflow` up and running, go back to `polyflow's` root folder (`cd ../../`), issue the following command to launch an instance of `polyflow`. If it's already running, you can skip this step.
 
 ```sh
   docker-compose up polyflow
