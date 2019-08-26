@@ -29,7 +29,7 @@ describe("run query BigDAWG query", () => {
   it("should throw with an invalid mediator", async () => {
     spyOn(Mediator, "find").and.returnValue(Promise.resolve([fooMediator]));
     return expect(runQuery("bdrel(select * from foo[bar], bar[zaz])")).rejects.toThrow(
-      /_bar__zaz_ not found in existing mediators/
+      /__bar___zaz__ not found in existing mediators/
     );
   });
 
