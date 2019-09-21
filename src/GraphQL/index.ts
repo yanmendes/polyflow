@@ -1,8 +1,11 @@
 import typeDefs from "./typeDefs";
 import resolvers from "./resolvers";
-import { makeExecutableSchema } from "graphql-tools";
+import { ApolloServer } from "apollo-server-express";
 
-export default makeExecutableSchema({
+export default new ApolloServer({
   typeDefs,
-  resolvers
+  resolvers,
+  context: ({ req, res }: any) => ({ req, res }),
+  playground: true,
+  introspection: true
 });
