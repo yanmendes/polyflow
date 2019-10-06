@@ -2255,11 +2255,6 @@ cssstyle@^1.0.0:
   dependencies:
     cssom "0.3.x"
 
-csv-writer@^1.3.0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/csv-writer/-/csv-writer-1.3.0.tgz#259336fe4d7e5f6e299a056c8acbb92c6ef21ad2"
-  integrity sha512-7Eg/Z3sWvuG0P+A/Hksvyucro26F/oCvbCUe4DrGnuf3kt3mjmwq3jERdfSycrxKMcgiqkrhSBjbRmFcr95TeA==
-
 dashdash@^1.12.0:
   version "1.14.1"
   resolved "https://registry.yarnpkg.com/dashdash/-/dashdash-1.14.1.tgz#853cfa0f7cbe2fed5de20326b8dd581035f6e2f0"
@@ -2797,21 +2792,6 @@ flatstr@^1.0.9:
   version "1.0.12"
   resolved "https://registry.yarnpkg.com/flatstr/-/flatstr-1.0.12.tgz#c2ba6a08173edbb6c9640e3055b95e287ceb5931"
   integrity sha512-4zPxDyhCyiN2wIAtSLI6gc82/EjqZc1onI4Mz/l0pWrAlsSfYH/2ZIcU+e3oA2wDwbzIWNKwa23F8rh6+DRWkw==
-
-flora-errors@^0.9.0:
-  version "0.9.1"
-  resolved "https://registry.yarnpkg.com/flora-errors/-/flora-errors-0.9.1.tgz#26be536f80993462c31add3a10f75ba1cb69e836"
-  integrity sha512-rjZGrqlBFox0g0FQbRyYSntkPW1HZhSqBKEndJ9Rc/R1kWURX/9m0vz5ue6Cj0xC/tnGMK5KpbP07m79uyooww==
-  dependencies:
-    has "^1.0.1"
-
-flora-sql-parser@^0.8.0:
-  version "0.8.1"
-  resolved "https://registry.yarnpkg.com/flora-sql-parser/-/flora-sql-parser-0.8.1.tgz#71b7dcac657fae08bface148c615fb645aa119e1"
-  integrity sha512-hCfkPo/YPCqf8tX4uQBn36vklHOqczDv13w4i/Kq/yYekGHT6jmi0IND1i3S5Wuti6tEp9MpKAiq4KXXnF9lWA==
-  dependencies:
-    flora-errors "^0.9.0"
-    has "^1.0.3"
 
 for-in@^1.0.2:
   version "1.0.2"

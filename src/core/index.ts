@@ -46,7 +46,7 @@ export const runQuery = async query => {
     (prev, { slug: mediatorSlug, entities }) => [
       ...prev,
       ...entities.map(({ slug, ...rest }) => ({
-        slug: `__${mediatorSlug}___${slug}__`,
+        slug: `${mediatorSlug}\\[${slug}\\]`,
         ...rest
       }))
     ],

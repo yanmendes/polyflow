@@ -1,12 +1,9 @@
-import { Parser } from "flora-sql-parser";
-
 import { SQL_INNER_JOIN, SQL_RIGHT_JOIN, SQL_LEFT_JOIN, SQL_UNION } from "./mediationTypes";
 import { MediationError } from "../../../../exceptions";
 import { Entity } from "../../../../models/polyflow";
 import { UserInputError } from "apollo-server-core";
 
 const sql = require("tagged-template-noop");
-const toSQL = require("flora-sql-parser").util.astToSQL;
 
 function isMediationEntity(entity: MediationEntity | SQLTable): entity is MediationEntity {
   return (entity as MediationEntity).entity1 !== undefined;
@@ -153,31 +150,18 @@ export { validateMediator, validateSQLTable };
 const sanitize = (query: string) => query.replace(/\\n/, "");
 
 export default async function(query: string, entities: [Entity]) {
-  const parser = new Parser();
-  let ast = parser.parse(query);
-  const { from } = ast;
-
-  let i = 0;
-  const queries = new Map<string, string>();
-
-  for (const entity of from) {
-    const mediationEntity = entities.find(({ slug }) => slug === entity.table);
-    if (!mediationEntity) {
-      throw new UserInputError(`Entity ${entity.table} not found in existing mediators`);
-    }
-    const mediatedQuery = mediateEntity(mediationEntity.entityMapper);
-    queries.set(entity.table, mediatedQuery);
-    // Forcefully adding an alias if they don't have one
-    // This is done because subqueries must have an alias in SQL
-    entity.as = entity.as ? entity.as : "table_" + i++;
-  }
-
-  let sql = toSQL(ast);
-
-  queries.forEach((value: string, key: string) => {
-    const re = new RegExp(`"${key}"`, "gmi");
-    sql = sql.replace(re, value);
+  entities.forEach((entity, index) => {
+    query = query.replace(new RegExp(`${entity.slug}(\\sas\\s[\\w _ \\d]+)?`), (_, alias) =>
+      alias
+        ? `${mediateEntity(entity.entityMapper)}${alias}`
+        : `${mediateEntity(entity.entityMapper)} as table_${index}`
+    );
   });
 
-  return sanitize(sql).replace(/\s+as\s+"(\w+)"/gim, " as $1");
+  let match;
+  if ((match = query.match(/\[.*\]/))) {
+    throw new UserInputError(`${match[0]} is not a valid mediator/entity.`);
+  }
+
+  return sanitize(query).replace(/\s+as\s+"(\w+)"/gim, " as $1");
 }
