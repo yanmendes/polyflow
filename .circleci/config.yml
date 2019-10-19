@@ -1,0 +1,39 @@
+version: 2.1
+orbs:
+  aws-ecr: circleci/aws-ecr@6.5.0
+  aws-ecs: circleci/aws-ecs@0.0.19
+  codecov: codecov/codecov@1.0.5
+jobs:
+  test:
+    docker:
+      - image: node:12.11.0-alpine
+    steps:
+      - checkout
+      - run: yarn
+      - run: yarn test:cover
+      - codecov/upload:
+          file: "./coverage/lcov.info"
+
+workflows:
+  test-build-deploy:
+    jobs:
+      - test
+      - aws-ecr/build-and-push-image:
+          account-url: AWS_ACCOUNT_URL
+          repo: "${CIRCLE_PROJECT_REPONAME}"
+          region: AWS_REGION
+          tag: "${CIRCLE_SHA1}"
+          context: aws
+          requires: [test]
+          filters:
+            branches:
+              only: [master]
+      - aws-ecs/deploy-service-update:
+          family: "${CIRCLE_PROJECT_REPONAME}-service"
+          cluster-name: "personal"
+          container-image-name-updates: "container=${CIRCLE_PROJECT_REPONAME}-service,tag=${CIRCLE_SHA1}"
+          context: aws
+          requires: [aws-ecr/build-and-push-image]
+          filters:
+            branches:
+              only: [master]

@@ -13,6 +13,7 @@
     "start:dev": "nodemon dist",
     "test": "jest --runInBand",
     "test:watch": "jest --runInBand --watch",
+    "test:cover": "jest --runInBand --collectCoverage --coverageDirectory ./coverage",
     "process-logs": "FILE=examples/Provenance/logs node examples/Provenance/processLogFile.js",
     "kepler-entity-model": "node examples/Provenance/Kepler.js",
     "swift-entity-model": "node examples/Provenance/Swift.js"

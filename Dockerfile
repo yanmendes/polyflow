@@ -2,10 +2,13 @@ FROM node:12.11.0-alpine
 
 WORKDIR /usr/src/app
 
-COPY . .
+COPY package.json ./
+COPY yarn.lock ./
 
-RUN yarn
-RUN yarn run build
+RUN npm install --production
 
-EXPOSE 3050
-CMD [ "yarn", "run", "start:prod" ]
+COPY node_modules .
+COPY dist .
+
+EXPOSE 3000
+CMD [ "yarn", "start:prod" ]
