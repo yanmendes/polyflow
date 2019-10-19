@@ -1,6 +1,5 @@
 import { SQL_INNER_JOIN, SQL_RIGHT_JOIN, SQL_LEFT_JOIN, SQL_UNION } from "./mediationTypes";
 import { MediationError } from "../../../../exceptions";
-import { Entity } from "../../../../models/polyflow";
 import { UserInputError } from "apollo-server-core";
 
 const sql = require("tagged-template-noop");
@@ -149,12 +148,14 @@ export { validateMediator, validateSQLTable };
 
 const sanitize = (query: string) => query.replace(/\\n/, "");
 
-export default async function(query: string, entities: [Entity]) {
+export default async function(query: string, entities) {
   entities.forEach((entity, index) => {
-    query = query.replace(new RegExp(`${entity.slug}(\\sas\\s[\\w _ \\d]+)?`), (_, alias) =>
-      alias
-        ? `${mediateEntity(entity.entityMapper)}${alias}`
-        : `${mediateEntity(entity.entityMapper)} as table_${index}`
+    query = query.replace(
+      new RegExp(`${entity.mediatorSlug}\\[${entity.slug}\\](\\s(as|AS)\\s[\\w_\\d]+)?`),
+      (_, alias) =>
+        alias
+          ? `${mediateEntity(entity.entityMapper)}${alias}`
+          : `${mediateEntity(entity.entityMapper)} as table_${index}`
     );
   });
 

@@ -1,4 +1,6 @@
-import { getMediatedEntities } from "./databases/query-resolvers";
+import { In } from "typeorm";
+
+import { getUsedMediators } from "./databases/query-resolvers";
 import { getResolverAndInterface } from "./databases";
 import { measure } from "../performance";
 import logger, { categories } from "../logger";
@@ -10,31 +12,20 @@ export const runQuery = async query => {
     category: categories.DATABASE_INTERFACE
   });
 
+  const usedMediators = getUsedMediators(query);
+
   const mediators = await Mediator.find({
-    relations: ["dataSource", "entities"]
+    relations: ["dataSource", "entities"],
+    where: { slug: In(usedMediators) }
   });
 
-  if (!mediators.length) {
-    throw new Error("No mediators found");
+  if (mediators.length === 0) {
+    throw new Error(`No valid mediators found in issued query`);
   }
 
-  const mediatedEntities = getMediatedEntities(query)
-    .map(
-      query =>
-        ({
-          ...query,
-          ...mediators.find(({ slug }) => slug === query.mediator)
-        } || undefined)
-    )
-    .filter(ctx => ctx.dataSource);
-
-  if (mediatedEntities.length === 0) {
-    throw new Error(`${query} is not a valid query or mediator does not exist`);
-  }
-
-  const { uri, type } = mediatedEntities[0].dataSource;
+  const { uri, type } = mediators[0].dataSource;
   const hasDifferentDataSources = () =>
-    !!mediatedEntities.filter(({ dataSource }) => dataSource.uri !== uri).length;
+    !!mediators.filter(({ dataSource }) => dataSource.uri !== uri).length;
 
   if (hasDifferentDataSources()) {
     throw new Error(`Invalid query, it uses mediators with different data sources`);
@@ -42,16 +33,14 @@ export const runQuery = async query => {
 
   const { resolver, dbInterface } = getResolverAndInterface(type);
 
-  const entities = mediatedEntities.reduce(
-    (prev, { slug: mediatorSlug, entities }) => [
-      ...prev,
-      ...entities.map(({ slug, ...rest }) => ({
-        slug: `${mediatorSlug}\\[${slug}\\]`,
-        ...rest
+  const entities = mediators
+    .map(({ slug: mediatorSlug, entities }) =>
+      entities.map(e => ({
+        ...e,
+        mediatorSlug
       }))
-    ],
-    []
-  );
+    )
+    .flat();
 
   try {
     const parsedQuery = (await resolver(query, entities)).replace(/\s+/g, " ");

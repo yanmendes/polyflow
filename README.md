@@ -189,6 +189,10 @@ $ yarn run start:prod
 
 ```
 
+## Known Issues
+
+- Explicit alias is mandatory for tables, i.e. `select * from table t` won't work. It has to be rewritten as `select * from table as t`
+
 ## Future work
 
 - Add support to `group by` and `order by` in the entity mapper

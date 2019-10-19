@@ -22,14 +22,14 @@ describe("run query BigDAWG query", () => {
     spyOn(Mediator, "find").and.returnValue(Promise.resolve([fooMediator]));
 
     return expect(runQuery("bdrel(select * from bar[zaz])")).rejects.toThrowError(
-      /is not a valid query or mediator does not exist/
+      /\[zaz\] is not a valid mediator\/entity/
     );
   });
 
   it("should throw with an invalid mediator", async () => {
     spyOn(Mediator, "find").and.returnValue(Promise.resolve([fooMediator]));
     return expect(runQuery("bdrel(select * from foo[bar], bar[zaz])")).rejects.toThrow(
-      /__bar___zaz__ not found in existing mediators/
+      /\[zaz\] is not a valid mediator\/entity/
     );
   });
 
@@ -38,7 +38,7 @@ describe("run query BigDAWG query", () => {
     await runQuery("bdrel(select * from foo[bar])");
     return expect(bigdawgInterface.query).toHaveBeenCalledWith(
       fooMediator.dataSource.uri,
-      "bdrel(SELECT * FROM ( SELECT * FROM local_schema_table as lst ) as table_0)"
+      "bdrel(select * from ( SELECT * FROM local_schema_table as lst ) as table_0)"
     );
   });
 
@@ -47,7 +47,7 @@ describe("run query BigDAWG query", () => {
     await runQuery("bdrel(select * from foo[bar], zaz[bar])");
     expect(bigdawgInterface.query).toHaveBeenCalledWith(
       fooMediator.dataSource.uri,
-      "bdrel(SELECT * FROM ( SELECT * FROM local_schema_table as lst ) as table_0, ( SELECT * FROM local_schema_table as lst ) as table_1)"
+      "bdrel(select * from ( SELECT * FROM local_schema_table as lst ) as table_0, ( SELECT * FROM local_schema_table as lst ) as table_1)"
     );
   });
 });

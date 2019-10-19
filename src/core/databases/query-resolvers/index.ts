@@ -4,16 +4,16 @@ import bigdawgResolver from "./bigdawg";
 const contextsRegex = /([a-z-0-9-_]+)\[([a-z-0-9-_]+)\]/gim;
 const getContexts = (query: string) => contextsRegex.exec(query);
 
-export const getMediatedEntities = (queryStmt: string) => {
+export const getUsedMediators = (queryStmt: string) => {
   let matches;
-  const entities = [];
+  const res = [];
 
   while ((matches = getContexts(queryStmt))) {
-    const [, mediator, entity] = matches;
-    entities.push({ mediator, entity });
+    const [, mediator] = matches;
+    res.push(mediator);
   }
 
-  return entities;
+  return res;
 };
 
 export { sqlResolver, bigdawgResolver };
