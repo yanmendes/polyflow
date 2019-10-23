@@ -3,3 +3,4 @@ examples
 .env*
 .circleci
 resources
+node_modules
