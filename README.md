@@ -1,5 +1,8 @@
 # polyflow :microscope:
 
+[![CircleCI](https://circleci.com/gh/yanmendes/polyflow/tree/master.svg?style=svg)](https://circleci.com/gh/yanmendes/polyflow/tree/master)
+[![codecov](https://codecov.io/gh/yanmendes/polyflow/branch/master/graph/badge.svg)](https://codecov.io/gh/yanmendes/polyflow)
+
 ## Description
 
 `polyflow` is a semantic data mediator. The main goal of `polyflow` is to create more accessible data models to users that need to use queries as part of their routine but aren't technology experts, such as researchers, PMs and marketing analysts. Consider the following:
