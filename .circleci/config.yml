@@ -29,9 +29,9 @@ workflows:
             branches:
               only: [master]
       - aws-ecs/deploy-service-update:
-          family: "${CIRCLE_PROJECT_REPONAME}-service"
+          family: "${CIRCLE_PROJECT_REPONAME}"
           cluster-name: "personal"
-          container-image-name-updates: "container=${CIRCLE_PROJECT_REPONAME}-service,tag=${CIRCLE_SHA1}"
+          container-image-name-updates: "container=${CIRCLE_PROJECT_REPONAME},tag=${CIRCLE_SHA1}"
           context: aws
           requires: [aws-ecr/build-and-push-image]
           filters:
