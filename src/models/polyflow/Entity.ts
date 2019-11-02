@@ -6,29 +6,29 @@ import {
   JoinTable,
   ManyToOne,
   Unique
-} from "typeorm";
+} from 'typeorm'
 
-import { Mediator } from ".";
+import { Mediator } from '.'
 
-@TypeORMEntity("entity")
-@Unique(["name", "mediator"])
-@Unique(["slug", "mediator"])
+@TypeORMEntity('entity')
+@Unique(['name', 'mediator'])
+@Unique(['slug', 'mediator'])
 export class Entity extends BaseEntity {
   @PrimaryGeneratedColumn()
-  id: number;
+  id: number
 
-  @Column("text")
-  name: String;
+  @Column('text')
+  name: String
 
-  @Column("text")
-  slug: String;
+  @Column('text')
+  slug: String
 
-  @Column("json")
-  entityMapper: JSON;
+  @Column('json')
+  entityMapper: JSON
 
   @ManyToOne(_ => Mediator, mediator => mediator.entities, {
     cascade: true
   })
   @JoinTable()
-  mediator: Mediator;
+  mediator: Mediator
 }

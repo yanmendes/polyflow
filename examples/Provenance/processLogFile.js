@@ -4,7 +4,9 @@ const file = process.env.FILE || 'examples/Provenance/logs'
 const avg = array => array.reduce((prev, curr) => prev + curr, 0) / array.length
 
 const stdev = array =>
-  Math.sqrt(array.reduce((prev, curr) => prev + Math.pow(curr - avg(array), 2), 0))
+  Math.sqrt(
+    array.reduce((prev, curr) => prev + Math.pow(curr - avg(array), 2), 0)
+  )
 
 const lineReader = require('readline').createInterface({
   input: require('fs').createReadStream(file)
@@ -34,15 +36,20 @@ lineReader.on('close', _ => {
       i % foldThreshold === 0
         ? [...prev, [curr]]
         : i % foldThreshold === foldThreshold - 1
-          ? [
+        ? [
             ...prev.slice(0, prev.length - 1),
-            [...prev.pop(), curr].reduce((prev, curr) => Math.max(prev, curr), 0)
+            [...prev.pop(), curr].reduce(
+              (prev, curr) => Math.max(prev, curr),
+              0
+            )
           ]
-          : [...prev, curr],
+        : [...prev, curr],
     []
   )
 
-  const overhead = polyflowCore.map((val, i) => val - aggregatedDatabaseTimes[i])
+  const overhead = polyflowCore.map(
+    (val, i) => val - aggregatedDatabaseTimes[i]
+  )
   const data = [
     { metric: 'Request time min', value: Math.min(...polyflowCore) },
     { metric: 'Request time max', value: Math.max(...polyflowCore) },
@@ -78,5 +85,7 @@ lineReader.on('close', _ => {
 
   csvWriter
     .writeRecords(data)
-    .then(() => console.log('The CSV file was written successfully, deleting log file..'))
+    .then(() =>
+      console.log('The CSV file was written successfully, deleting log file..')
+    )
 })

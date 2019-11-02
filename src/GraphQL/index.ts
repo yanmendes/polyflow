@@ -1,6 +1,6 @@
-import typeDefs from "./typeDefs";
-import resolvers from "./resolvers";
-import { ApolloServer } from "apollo-server-express";
+import typeDefs from './typeDefs'
+import resolvers from './resolvers'
+import { ApolloServer } from 'apollo-server-express'
 
 export default new ApolloServer({
   typeDefs,
@@ -8,4 +8,4 @@ export default new ApolloServer({
   context: ({ req, res }: any) => ({ req, res }),
   playground: true,
   introspection: true
-});
+})

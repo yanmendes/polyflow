@@ -87,7 +87,9 @@ To connect `polyflow` to Bob's database, we should use the `addDataSource mutati
 
 ```graphql
 mutation addDataSource {
-  addDataSource(dataSource: { type: postgres, uri: "<bob's-db-URI>", slug: "bobs-db" }) {
+  addDataSource(
+    dataSource: { type: postgres, uri: "<bob's-db-URI>", slug: "bobs-db" }
+  ) {
     slug
   }
 }
@@ -111,7 +113,9 @@ Since the target CCM can have multiple **entities** that compose it, the transfo
 
 ```graphql
 mutation {
-  addMediator(mediator: { dataSourceSlug: "bobs-db", name: "Bob's mediator", slug: "bob" }) {
+  addMediator(
+    mediator: { dataSourceSlug: "bobs-db", name: "Bob's mediator", slug: "bob" }
+  ) {
     id
   }
 }
@@ -141,7 +145,11 @@ mutation addBobSaleEntity {
       entityMapper: {
         entity1: { name: "Sales" }
         entity2: { name: "Prices" }
-        columns: [{ projection: "city" }, { projection: "customer" }, { projection: "value" }]
+        columns: [
+          { projection: "city" }
+          { projection: "customer" }
+          { projection: "value" }
+        ]
         type: INNER
         params: ["s.id", "p.saleId"]
       }

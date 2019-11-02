@@ -12,28 +12,50 @@ jobs:
       - run: yarn
       - run: yarn test:cover
       - codecov/upload:
-          file: "./coverage/lcov.info"
+          file: './coverage/lcov.info'
+
+  new-version:
+    docker:
+      - image: circleci/node:10
+    steps:
+      - checkout
+      - run: yarn
+      - run: yarn new-version
 
 workflows:
   test-build-deploy:
     jobs:
-      - test
-      - aws-ecr/build-and-push-image:
-          account-url: AWS_ACCOUNT_URL
-          repo: "${CIRCLE_PROJECT_REPONAME}"
-          region: AWS_REGION
-          tag: "${CIRCLE_SHA1}"
-          context: aws
+      - test:
+          filters:
+            tags:
+              ignore: /^v\d+\.\d+\.\d+$/
+            branches:
+              ignore: /dependeabot\/*/
+      - new-version:
+          context: github
           requires: [test]
           filters:
             branches:
               only: [master]
+      - aws-ecr/build-and-push-image:
+          account-url: AWS_ACCOUNT_URL
+          repo: '${CIRCLE_PROJECT_REPONAME}'
+          region: AWS_REGION
+          tag: '${CIRCLE_TAG}'
+          context: aws
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v\d+\.\d+\.\d+$/
       - aws-ecs/deploy-service-update:
-          family: "${CIRCLE_PROJECT_REPONAME}"
-          cluster-name: "personal"
-          container-image-name-updates: "container=${CIRCLE_PROJECT_REPONAME},tag=${CIRCLE_SHA1}"
+          family: '${CIRCLE_PROJECT_REPONAME}'
+          cluster-name: polyflow
+          container-image-name-updates: 'container=${CIRCLE_PROJECT_REPONAME},tag=${CIRCLE_TAG}'
           context: aws
           requires: [aws-ecr/build-and-push-image]
           filters:
             branches:
-              only: [master]
+              ignore: /.*/
+            tags:
+              only: /^v\d+\.\d+\.\d+$/

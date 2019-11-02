@@ -11,7 +11,8 @@ const Port = {
     },
     {
       alias: 'port_type',
-      projection: "CASE WHEN p.direction = 1 THEN 'out' WHEN p.direction = 0 THEN 'in' END"
+      projection:
+        "CASE WHEN p.direction = 1 THEN 'out' WHEN p.direction = 0 THEN 'in' END"
     }
   ]
 }
@@ -236,9 +237,12 @@ const provoneExecution = {
     ...ActorFire,
     columns: [
       ...ActorFire.columns.filter(({ alias }) =>
-        ['execution_id', 'prov_startedAtTime', 'prov_endedAtTime', 'provone_wasPartOf'].includes(
-          alias
-        )
+        [
+          'execution_id',
+          'prov_startedAtTime',
+          'prov_endedAtTime',
+          'provone_wasPartOf'
+        ].includes(alias)
       ),
       {
         alias: 'prov_wasAssociatedWith',
@@ -267,7 +271,9 @@ const provAssociation = {
   entity1: {
     ...ActorFire,
     columns: [
-      ...ActorFire.columns.filter(({ alias }) => ['execution_id', 'prov_hadPlan'].includes(alias))
+      ...ActorFire.columns.filter(({ alias }) =>
+        ['execution_id', 'prov_hadPlan'].includes(alias)
+      )
     ]
   },
   entity2: {

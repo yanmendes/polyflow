@@ -7,8 +7,10 @@ const keplerEntities = require('./Kepler')
 const swiftEntities = require('./Swift')
 
 const polyflowUri = process.env.POLYFLOW_URI || `http://localhost:3050/`
-const keplerUri = process.env.KEPLER_URL || 'postgres://postgres@polyflow-kepler/kepler'
-const swiftUri = process.env.SWIFT_URL || 'postgres://postgres@polyflow-swift/swift'
+const keplerUri =
+  process.env.KEPLER_URL || 'postgres://postgres@polyflow-kepler/kepler'
+const swiftUri =
+  process.env.SWIFT_URL || 'postgres://postgres@polyflow-swift/swift'
 
 const dataSources = [
   {
@@ -76,10 +78,15 @@ const addEntity = gql`
         variables
       })
 
-    const createEntity = mediatorSlug => e => mutate(addEntity, { entity: { ...e, mediatorSlug } })
+    const createEntity = mediatorSlug => e =>
+      mutate(addEntity, { entity: { ...e, mediatorSlug } })
 
-    await Promise.all(dataSources.map(dataSource => mutate(addDataSource, { dataSource })))
-    await Promise.all(mediators.map(mediator => mutate(addMediator, { mediator })))
+    await Promise.all(
+      dataSources.map(dataSource => mutate(addDataSource, { dataSource }))
+    )
+    await Promise.all(
+      mediators.map(mediator => mutate(addMediator, { mediator }))
+    )
     await Promise.all(keplerEntities.map(createEntity('kepler')))
     await Promise.all(swiftEntities.map(createEntity('swift')))
     console.log('Done updating the catalog!')

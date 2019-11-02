@@ -3,10 +3,10 @@ export const measure = (log, msg, fn) =>
     fn().then(res => {
       log
         .child({
-          action: "measure-performance",
+          action: 'measure-performance',
           duration: Date.now() - start
         })
-        .info(msg);
-      return res;
+        .info(msg)
+      return res
     })
-  );
+  )

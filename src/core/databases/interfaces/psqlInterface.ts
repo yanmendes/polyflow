@@ -1,5 +1,5 @@
-import { Client } from "pg";
-import logger from "../../../logger";
+import { Client } from 'pg'
+import logger from '../../../logger'
 
 const psqlInterface = {
   assertConnection: url =>
@@ -11,16 +11,16 @@ const psqlInterface = {
 
   query: async (url: string, query: string) => {
     if (!query) {
-      throw new Error("No query issued to this interface");
+      throw new Error('No query issued to this interface')
     }
 
-    const client = new Client({ connectionString: url });
+    const client = new Client({ connectionString: url })
     return client
       .connect()
       .then(() => client.query(query))
       .then(res => client.end().then(() => res.rows))
-      .catch(e => logger.error(e) || e);
+      .catch(e => logger.error(e) || e)
   }
-};
+}
 
-export default psqlInterface;
+export default psqlInterface

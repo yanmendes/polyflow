@@ -1,35 +1,35 @@
-import "reflect-metadata";
-import "dotenv/config";
-import * as express from "express";
-import * as pino from "express-pino-logger";
-import { createConnection } from "typeorm";
+import 'reflect-metadata'
+import 'dotenv/config'
+import * as express from 'express'
+import * as pino from 'express-pino-logger'
+import { createConnection } from 'typeorm'
 
-import { port, psqlURL } from "./config";
-import logger from "./logger";
-import server from "./GraphQL";
+import { port, psqlURL } from './config'
+import logger from './logger'
+import server from './GraphQL'
 
 const startServer = async () => {
   await createConnection({
-    entities: ["dist/models/polyflow/**/*.js"],
+    entities: ['dist/models/polyflow/**/*.js'],
     synchronize: true,
     url: psqlURL,
-    type: "postgres"
-  });
+    type: 'postgres'
+  })
 
-  const app = express();
+  const app = express()
 
-  app.use(pino({ logger }));
+  app.use(pino({ logger }))
 
   server.applyMiddleware({
-    path: "/",
+    path: '/',
     app,
     cors: {
       credentials: true,
-      origin: "*"
+      origin: '*'
     }
-  });
+  })
 
-  app.listen({ port }, () => console.log(`Server ready. Lestining on ${port}`));
-};
+  app.listen({ port }, () => console.log(`Server ready. Lestining on ${port}`))
+}
 
-startServer().catch(e => logger.error(e));
+startServer().catch(e => logger.error(e))

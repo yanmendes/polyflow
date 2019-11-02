@@ -7,7 +7,8 @@ const keplerEntities = require('./Kepler')
 const swiftEntities = require('./Swift')
 
 const polyflowUri = process.env.POLYFLOW_URI || 'http://localhost:3050/'
-const bigdawgUri = process.env.BIGDAWG_URL || 'http://localhost:8080/bigdawg/query'
+const bigdawgUri =
+  process.env.BIGDAWG_URL || 'http://localhost:8080/bigdawg/query'
 
 const dataSource = {
   uri: bigdawgUri,
@@ -69,12 +70,18 @@ const addEntity = gql`
       })
 
     await mutate(addDataSource, { dataSource })
-    await Promise.all(mediators.map(mediator => mutate(addMediator, { mediator })))
     await Promise.all(
-      keplerEntities.map(e => mutate(addEntity, { entity: { ...e, mediatorSlug: 'kepler' } }))
+      mediators.map(mediator => mutate(addMediator, { mediator }))
     )
     await Promise.all(
-      swiftEntities.map(e => mutate(addEntity, { entity: { ...e, mediatorSlug: 'swift' } }))
+      keplerEntities.map(e =>
+        mutate(addEntity, { entity: { ...e, mediatorSlug: 'kepler' } })
+      )
+    )
+    await Promise.all(
+      swiftEntities.map(e =>
+        mutate(addEntity, { entity: { ...e, mediatorSlug: 'swift' } })
+      )
     )
     console.log('Done!')
   } catch (e) {

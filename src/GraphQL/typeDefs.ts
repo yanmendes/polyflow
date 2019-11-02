@@ -1,4 +1,4 @@
-import { gql } from "apollo-server-express";
+import { gql } from 'apollo-server-express'
 
 export default gql`
   scalar JSON
@@ -111,4 +111,4 @@ export default gql`
     RIGHT
     UNION
   }
-`;
+`

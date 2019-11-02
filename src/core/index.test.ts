@@ -1,87 +1,94 @@
-import { runQuery } from ".";
-import { Mediator } from "../models/polyflow";
-import bigdawgInterface from "./databases/interfaces/bigdawgInterface";
-jest.mock("../models/polyflow");
-jest.mock("./databases/interfaces/bigdawgInterface");
+import { runQuery } from '.'
+import { Mediator } from '../models/polyflow'
+import bigdawgInterface from './databases/interfaces/bigdawgInterface'
+jest.mock('../models/polyflow')
+jest.mock('./databases/interfaces/bigdawgInterface')
 
-describe("run query BigDAWG query", () => {
-  beforeEach(() => spyOn(bigdawgInterface, "query").and.returnValue(Promise.resolve("ok!")));
-  afterEach(() => jest.clearAllMocks());
+describe('run query BigDAWG query', () => {
+  beforeEach(() =>
+    spyOn(bigdawgInterface, 'query').and.returnValue(Promise.resolve('ok!'))
+  )
+  afterEach(() => jest.clearAllMocks())
 
-  it("should throw with mediators from different data sources", () => {
-    spyOn(Mediator, "find").and.returnValue(
-      Promise.resolve([fooMediator, { slug: "bar", dataSource: { uri: "not-the-same-uri" } }])
-    );
+  it('should throw with mediators from different data sources', () => {
+    spyOn(Mediator, 'find').and.returnValue(
+      Promise.resolve([
+        fooMediator,
+        { slug: 'bar', dataSource: { uri: 'not-the-same-uri' } }
+      ])
+    )
 
-    return expect(runQuery("bdrel(select * from foo[bar] bar[zaz])")).rejects.toThrowError(
-      /uses mediators with different data sources/
-    );
-  });
+    return expect(
+      runQuery('bdrel(select * from foo[bar] bar[zaz])')
+    ).rejects.toThrowError(/uses mediators with different data sources/)
+  })
 
-  it("should throw with no valid mediators", () => {
-    spyOn(Mediator, "find").and.returnValue(Promise.resolve([fooMediator]));
+  it('should throw with no valid mediators', () => {
+    spyOn(Mediator, 'find').and.returnValue(Promise.resolve([fooMediator]))
 
-    return expect(runQuery("bdrel(select * from bar[zaz])")).rejects.toThrowError(
-      /\[zaz\] is not a valid mediator\/entity/
-    );
-  });
+    return expect(
+      runQuery('bdrel(select * from bar[zaz])')
+    ).rejects.toThrowError(/\[zaz\] is not a valid mediator\/entity/)
+  })
 
-  it("should throw with an invalid mediator", async () => {
-    spyOn(Mediator, "find").and.returnValue(Promise.resolve([fooMediator]));
-    return expect(runQuery("bdrel(select * from foo[bar], bar[zaz])")).rejects.toThrow(
-      /\[zaz\] is not a valid mediator\/entity/
-    );
-  });
+  it('should throw with an invalid mediator', async () => {
+    spyOn(Mediator, 'find').and.returnValue(Promise.resolve([fooMediator]))
+    return expect(
+      runQuery('bdrel(select * from foo[bar], bar[zaz])')
+    ).rejects.toThrow(/\[zaz\] is not a valid mediator\/entity/)
+  })
 
-  it("should parse with just one valid mediator", async () => {
-    spyOn(Mediator, "find").and.returnValue(Promise.resolve([fooMediator]));
-    await runQuery("bdrel(select * from foo[bar])");
+  it('should parse with just one valid mediator', async () => {
+    spyOn(Mediator, 'find').and.returnValue(Promise.resolve([fooMediator]))
+    await runQuery('bdrel(select * from foo[bar])')
     return expect(bigdawgInterface.query).toHaveBeenCalledWith(
       fooMediator.dataSource.uri,
-      "bdrel(select * from ( SELECT * FROM local_schema_table as lst ) as table_0)"
-    );
-  });
+      'bdrel(select * from ( SELECT * FROM local_schema_table as lst ) as table_0)'
+    )
+  })
 
-  it("should parse with multiple valid mediators", async () => {
-    spyOn(Mediator, "find").and.returnValue(Promise.resolve([fooMediator, zazMediator]));
-    await runQuery("bdrel(select * from foo[bar], zaz[bar])");
+  it('should parse with multiple valid mediators', async () => {
+    spyOn(Mediator, 'find').and.returnValue(
+      Promise.resolve([fooMediator, zazMediator])
+    )
+    await runQuery('bdrel(select * from foo[bar], zaz[bar])')
     expect(bigdawgInterface.query).toHaveBeenCalledWith(
       fooMediator.dataSource.uri,
-      "bdrel(select * from ( SELECT * FROM local_schema_table as lst ) as table_0, ( SELECT * FROM local_schema_table as lst ) as table_1)"
-    );
-  });
-});
+      'bdrel(select * from ( SELECT * FROM local_schema_table as lst ) as table_0, ( SELECT * FROM local_schema_table as lst ) as table_1)'
+    )
+  })
+})
 
 const fooMediator = {
-  slug: "foo",
+  slug: 'foo',
   dataSource: {
-    type: "bigdawg",
-    uri: "http://localhost:8080/query"
+    type: 'bigdawg',
+    uri: 'http://localhost:8080/query'
   },
   entities: [
     {
-      slug: "bar",
+      slug: 'bar',
       entityMapper: {
-        name: "local_schema_table",
-        alias: "lst"
+        name: 'local_schema_table',
+        alias: 'lst'
       }
     }
   ]
-};
+}
 
 const zazMediator = {
-  slug: "zaz",
+  slug: 'zaz',
   dataSource: {
-    type: "bigdawg",
-    uri: "http://localhost:8080/query"
+    type: 'bigdawg',
+    uri: 'http://localhost:8080/query'
   },
   entities: [
     {
-      slug: "bar",
+      slug: 'bar',
       entityMapper: {
-        name: "local_schema_table",
-        alias: "lst"
+        name: 'local_schema_table',
+        alias: 'lst'
       }
     }
   ]
-};
+}

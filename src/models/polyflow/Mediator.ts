@@ -7,30 +7,30 @@ import {
   Unique,
   ManyToOne,
   OneToMany
-} from "typeorm";
+} from 'typeorm'
 
-import { DataSource, Entity } from ".";
+import { DataSource, Entity } from '.'
 
-@TypeORMEntity("mediator")
-@Unique(["name", "dataSource"])
-@Unique(["slug", "dataSource"])
+@TypeORMEntity('mediator')
+@Unique(['name', 'dataSource'])
+@Unique(['slug', 'dataSource'])
 export class Mediator extends BaseEntity {
   @PrimaryGeneratedColumn()
-  id: number;
+  id: number
 
-  @Column("varchar")
-  name: string;
+  @Column('varchar')
+  name: string
 
-  @Column("varchar")
-  slug: string;
+  @Column('varchar')
+  slug: string
 
   @OneToMany(_ => Entity, entity => entity.mediator)
   @JoinTable()
-  entities: [Entity];
+  entities: [Entity]
 
   @ManyToOne(_ => DataSource, dataSource => dataSource.mediators, {
     cascade: true
   })
   @JoinTable()
-  dataSource: DataSource;
+  dataSource: DataSource
 }

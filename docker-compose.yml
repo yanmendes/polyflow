@@ -1,4 +1,4 @@
-version: "3"
+version: '3'
 services:
   polyflow:
     container_name: polyflow
@@ -7,7 +7,7 @@ services:
     depends_on:
       - postgres
     ports:
-      - "3050:3050"
+      - '3050:3050'
 
   experiment:
     container_name: polyflow-experiment
@@ -16,7 +16,7 @@ services:
     depends_on:
       - postgres
     ports:
-      - "3050:3050"
+      - '3050:3050'
 
   postgres:
     container_name: polyflow-catalog
@@ -25,7 +25,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: polyflow
     ports:
-      - "5432:5432"
+      - '5432:5432'
 
 networks:
   default:
