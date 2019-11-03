@@ -23,7 +23,7 @@ jobs:
       - run: yarn new-version
 
 workflows:
-  test-build-deploy:
+  test-tag:
     jobs:
       - test:
           filters:
@@ -37,6 +37,8 @@ workflows:
           filters:
             branches:
               only: [master]
+  build-deploy:
+    jobs:
       - aws-ecr/build-and-push-image:
           account-url: AWS_ACCOUNT_URL
           repo: '${CIRCLE_PROJECT_REPONAME}'
