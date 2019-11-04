@@ -14,6 +14,7 @@ export default gql`
     addDataSource(dataSource: DataSourceInput!): DataSource
     addMediator(mediator: MediatorInput!): Mediator
     addEntity(entity: EntityInput!): Entity
+    register(user: UserInput!): String
   }
 
   # Types
@@ -60,6 +61,11 @@ export default gql`
   }
 
   # Inputs
+
+  input UserInput {
+    email: String!
+    password: String!
+  }
 
   input DataSourceInput {
     type: DataSourceType!
