@@ -14,6 +14,7 @@ export default require('pino')(
 )
 
 export const categories = {
+  USER: 'user',
   DATA_SOURCE: 'data_source',
   MEDIATOR: 'mediator',
   ENTITY: 'entity',
