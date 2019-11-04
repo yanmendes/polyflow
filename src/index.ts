@@ -12,8 +12,8 @@ const startServer = async () => {
   await createConnection({
     entities: [
       process.env.NODE_ENV === 'production'
-        ? 'dist/models/polyflow/**/*.js'
-        : 'src/models/polyflow/**/*.ts'
+        ? 'dist/models/**/*.js'
+        : 'src/models/**/*.ts'
     ],
     synchronize: true,
     url: psqlURL,

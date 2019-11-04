@@ -4,7 +4,7 @@ import { getUsedMediators } from './databases/query-resolvers'
 import { getResolverAndInterface } from './databases'
 import { measure } from '../performance'
 import logger, { categories } from '../logger'
-import { Mediator } from '../models/polyflow'
+import { Mediator } from '../models'
 import { UserInputError } from 'apollo-server-core'
 
 export const runQuery = async query => {

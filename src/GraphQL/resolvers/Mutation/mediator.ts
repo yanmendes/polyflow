@@ -1,7 +1,7 @@
 import { getRepository } from 'typeorm'
 import { UserInputError } from 'apollo-server-core'
 
-import { Mediator, DataSource } from '../../../models/polyflow'
+import { Mediator, DataSource } from '../../../models'
 import logger, { categories } from '../../../logger'
 import { handlePossibleUniqueEntryException } from '../../../exceptions'
 

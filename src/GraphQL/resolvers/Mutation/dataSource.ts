@@ -2,7 +2,7 @@ import { getRepository } from 'typeorm'
 import { UserInputError } from 'apollo-server-core'
 
 import { getInterface } from '../../../core/databases'
-import { DataSource } from '../../../models/polyflow'
+import { DataSource } from '../../../models'
 import logger, { categories } from '../../../logger'
 import { handlePossibleUniqueEntryException } from '../../../exceptions'
 

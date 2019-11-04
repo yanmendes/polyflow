@@ -1,7 +1,7 @@
 import { runQuery } from '.'
-import { Mediator } from '../models/polyflow'
+import { Mediator } from '../models'
 import bigdawgInterface from './databases/interfaces/bigdawgInterface'
-jest.mock('../models/polyflow')
+jest.mock('../models')
 jest.mock('./databases/interfaces/bigdawgInterface')
 
 describe('run query BigDAWG query', () => {
