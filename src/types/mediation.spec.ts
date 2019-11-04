@@ -1,16 +1,16 @@
-class SQLColumn {
+export class SQLColumn {
   projection: string
   alias?: string
 }
 
-class SQLTable {
+export class SQLTable {
   name: string
   alias?: string
   columns?: Array<SQLColumn>
   where?: string
 }
 
-class MediationEntity {
+export class MediationEntity {
   entity1: MediationEntity | SQLTable
   entity2?: MediationEntity | SQLTable
   type?: string
