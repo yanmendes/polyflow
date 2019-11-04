@@ -1,4 +1,4 @@
-import { Entity } from '../../../../models/polyflow'
+import { Entity } from '../../../../models'
 import sqlResolver from '../sql'
 
 const getScopeAndQuery = (query: string) => /(\w+)\((.+?)\)/gim.exec(query)

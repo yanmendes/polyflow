@@ -1,7 +1,7 @@
 import { runQuery } from '../../core'
 import { measure } from '../../performance'
 import logger, { categories } from '../../logger'
-import { DataSource, Entity, Mediator } from '../../models/polyflow'
+import { DataSource, Entity, Mediator } from '../../models'
 
 const log = logger.child({
   category: categories.POLYFLOW_CORE
