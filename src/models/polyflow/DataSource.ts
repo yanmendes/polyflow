@@ -5,10 +5,11 @@ import {
   BaseEntity,
   JoinTable,
   Unique,
-  OneToMany
+  OneToMany,
+  ManyToOne
 } from 'typeorm'
 
-import { Mediator } from '.'
+import { Mediator, User } from '.'
 
 enum Type {
   Postgres = 'postgres',
@@ -34,4 +35,8 @@ export class DataSource extends BaseEntity {
   @OneToMany(_ => Mediator, mediator => mediator.dataSource)
   @JoinTable()
   mediators: [Mediator]
+
+  @ManyToOne(_ => User, u => u.dataSources, { cascade: true })
+  @JoinTable()
+  owner: User
 }
