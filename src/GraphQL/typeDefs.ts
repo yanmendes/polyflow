@@ -8,6 +8,7 @@ export default gql`
     dataSources: [DataSource]
     mediators: [Mediator]
     entities: [Entity]
+    me: User
   }
 
   type Mutation {
@@ -15,9 +16,14 @@ export default gql`
     addMediator(mediator: MediatorInput!): Mediator
     addEntity(entity: EntityInput!): Entity
     register(user: UserInput!): String
+    login(user: UserInput!): String
   }
 
   # Types
+
+  type User {
+    email: String!
+  }
 
   type DataSource {
     id: ID!

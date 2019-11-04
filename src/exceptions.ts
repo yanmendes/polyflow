@@ -18,4 +18,13 @@ const handlePossibleUniqueEntryException = msg => e =>
     throw new UserInputError(msg)
   })(e)
 
-export { MediationError, handlePossibleUniqueEntryException }
+const handlePossibleInvalidEmailOrPassword = msg => e =>
+  ifErrorContains(/(Invalid password)|(Invalid Email)/, _ => {
+    throw new UserInputError(msg)
+  })(e)
+
+export {
+  MediationError,
+  handlePossibleUniqueEntryException,
+  handlePossibleInvalidEmailOrPassword
+}

@@ -3,6 +3,7 @@ import 'dotenv/config'
 import * as express from 'express'
 import * as pino from 'express-pino-logger'
 import { createConnection } from 'typeorm'
+import * as cookieParser from 'cookie-parser'
 
 import { port, psqlURL } from './config'
 import logger from './logger'
@@ -22,6 +23,7 @@ const startServer = async () => {
 
   const app = express()
 
+  app.use(cookieParser())
   app.use(pino({ logger }))
 
   server.applyMiddleware({

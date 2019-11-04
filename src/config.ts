@@ -4,4 +4,5 @@ export const psqlURL: string =
   awsSecrets.TYPEORM_URL ||
   process.env.TYPEORM_URL ||
   'postgres://postgres:postgres@localhost/polyflow'
-export const JWT_SECRET: string = process.env.JWT_SECRET || 'gwrag3qgragrgqe'
+export const JWT_SECRET: string =
+  awsSecrets.JWT_SECRET || process.env.JWT_SECRET || 'gwrag3qgragrgqe'
