@@ -6,6 +6,11 @@ import {
 } from './mediationTypes'
 import { MediationError } from '../../../../exceptions'
 import { UserInputError } from 'apollo-server-core'
+import {
+  MediationEntity,
+  SQLTable,
+  SQLColumn
+} from '../../../../types/mediation.spec'
 
 const sql = require('tagged-template-noop')
 

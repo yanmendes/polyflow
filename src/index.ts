@@ -10,7 +10,11 @@ import server from './GraphQL'
 
 const startServer = async () => {
   await createConnection({
-    entities: ['dist/models/polyflow/**/*.js'],
+    entities: [
+      process.env.NODE_ENV === 'production'
+        ? 'dist/models/polyflow/**/*.js'
+        : 'src/models/polyflow/**/*.ts'
+    ],
     synchronize: true,
     url: psqlURL,
     type: 'postgres'
