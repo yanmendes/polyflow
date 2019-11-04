@@ -1,16 +1,28 @@
-import { hash } from 'bcrypt'
-import { getRepository } from 'typeorm'
-
-import { User } from '../../../models/polyflow'
+import { user } from '../../../repo'
 import { handlePossibleUniqueEntryException } from '../../../exceptions'
+import logger, { categories } from '../../../logger'
 
-const msg = 'Email already registered.'
-const saltRounds = 10
+const exceptions = {
+  register: 'Email already registered.'
+}
+
+const log = logger.child({
+  category: categories.USER
+})
 
 export default {
   register: (_, { user: { email, password } }) =>
-    hash(password, saltRounds)
-      .then(password => getRepository(User).save({ email, password }))
+    user
+      .insert({ email, password })
       .then(() => 'ok')
-      .catch(handlePossibleUniqueEntryException(msg))
+      .catch(e => {
+        log
+          .child({
+            error: e,
+            action: 'register'
+          })
+          .error(e.msg)
+        throw e
+      })
+      .catch(handlePossibleUniqueEntryException(exceptions.register))
 }
