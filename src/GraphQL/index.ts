@@ -8,6 +8,10 @@ export default new ApolloServer({
   typeDefs,
   resolvers,
   context: ({ req, res }: Context) => ({ req, res }),
-  playground: true,
+  playground: {
+    settings: {
+      'request.credentials': 'include'
+    }
+  },
   introspection: true
 })
