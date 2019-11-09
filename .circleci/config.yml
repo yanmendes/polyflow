@@ -46,7 +46,7 @@ workflows:
   build-deploy:
     jobs:
       - docker/publish:
-          image: ${CIRCLE_PROJECT_REPONAME}
+          image: yanmendes/${CIRCLE_PROJECT_REPONAME}
           context: docker
           tag: ${CIRCLE_TAG}
           filters:
