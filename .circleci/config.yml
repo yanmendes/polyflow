@@ -13,13 +13,19 @@ jobs:
       - run: yarn test:cover
       - codecov/upload:
           file: './coverage/lcov.info'
+      - run: mv node_modules /tmp/
+      - persist_to_workspace:
+          root: /tmp/
+          paths: [node_modules]
 
   new-version:
     docker:
       - image: circleci/node:10
     steps:
+      - attach_workspace:
+          at: /tmp/
       - checkout
-      - run: yarn
+      - run: mv /tmp/node_modules .
       - run: yarn new-version
 
 workflows:
