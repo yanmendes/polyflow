@@ -1,7 +1,7 @@
 version: 2.1
 orbs:
-  aws-ecr: circleci/aws-ecr@6.5.0
   aws-ecs: circleci/aws-ecs@0.0.19
+  docker: circleci/docker@0.5.17
   codecov: codecov/codecov@1.0.5
 jobs:
   test:
@@ -39,12 +39,10 @@ workflows:
               only: [master]
   build-deploy:
     jobs:
-      - aws-ecr/build-and-push-image:
-          account-url: AWS_ACCOUNT_URL
-          repo: '${CIRCLE_PROJECT_REPONAME}'
-          region: AWS_REGION
-          tag: '${CIRCLE_TAG}'
-          context: aws
+      - docker/publish:
+          image: ${CIRCLE_PROJECT_REPONAME}
+          context: docker
+          tag: ${CIRCLE_TAG}
           filters:
             branches:
               ignore: /.*/
@@ -55,7 +53,7 @@ workflows:
           cluster-name: polyflow
           container-image-name-updates: 'container=${CIRCLE_PROJECT_REPONAME},tag=${CIRCLE_TAG}'
           context: aws
-          requires: [aws-ecr/build-and-push-image]
+          requires: [docker/publish]
           filters:
             branches:
               ignore: /.*/
