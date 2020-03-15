@@ -4,6 +4,7 @@ import { UserInputError } from 'apollo-server-core'
 import { Entity, Mediator } from '../../../models'
 import logger, { categories } from '../../../logger'
 import { handlePossibleUniqueEntryException } from '../../../exceptions'
+import { runQuery } from '../../../core'
 
 const log = logger.child({
   category: categories.ENTITY
@@ -21,6 +22,16 @@ export default {
           : getRepository(Entity)
               .save({ ...entity, mediator })
               .catch(handlePossibleUniqueEntryException(msg))
+              .then(() =>
+                runQuery(`SELECT * FROM ${mediatorSlug}[${entity.slug}]`).catch(
+                  e =>
+                    getRepository(Entity)
+                      .delete({ slug: entity.slug })
+                      .then(() =>
+                        Promise.reject(`Invalid entity! Thrown error: ${e}`)
+                      )
+                )
+              )
       )
       .catch(e => {
         log
