@@ -52,15 +52,15 @@ const mysqlInterface = {
       .then(client =>
         client.query(query).then(res => client.end().then(_ => res))
       )
-      .catch(
-        e =>
-          log
-            .child({
-              action: 'Querying MySQL instance',
-              error: e.stack
-            })
-            .error('Could not query MySQL') || e
-      )
+      .catch(e => {
+        log
+          .child({
+            action: 'query_mysql',
+            error: e.stack
+          })
+          .error(`Error while querying MySQL: ${e}`)
+        throw e
+      })
   }
 }
 

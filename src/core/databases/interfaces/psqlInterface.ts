@@ -1,5 +1,9 @@
 import { Client } from 'pg'
-import logger from '../../../logger'
+import logger, { categories } from '../../../logger'
+
+const log = logger.child({
+  category: categories.DATABASE_INTERFACE
+})
 
 const psqlInterface = {
   assertConnection: url =>
@@ -19,7 +23,15 @@ const psqlInterface = {
       .connect()
       .then(() => client.query(query))
       .then(res => client.end().then(() => res.rows))
-      .catch(e => logger.error(e) || e)
+      .catch(e => {
+        log
+          .child({
+            action: 'query_psql',
+            error: e.stack
+          })
+          .error(`Error while querying PSQL: ${e}`)
+        throw e
+      })
   }
 }
 
