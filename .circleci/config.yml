@@ -9,6 +9,7 @@ jobs:
     steps:
       - checkout
       - run: yarn
+      - run: yarn lint:ci
       - run: yarn test:cover
       - codecov/upload:
           file: './coverage/lcov.info'

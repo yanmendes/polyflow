@@ -16,6 +16,9 @@
     "swift-entity-model": "node examples/Provenance/Swift.js",
     "new-version": "semantic-release --allow-same-version",
     "format": "prettier-standard $(git diff --name-only --cached) --fix",
+    "lint": "tslint --fix src/**/*.ts",
+    "lint:ci": "tslint src/**/*.ts",
+    "lint:pc": "tslint --fix src/**/*.ts",
     "add-changed-files": "git add $(git diff --name-only --cached --diff-filter=d)"
   },
   "repository": {
@@ -79,6 +82,7 @@
   },
   "pre-commit": [
     "format",
+    "lint:pc",
     "add-changed-files"
   ],
   "release": {

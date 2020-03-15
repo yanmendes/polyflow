@@ -1,9 +1,9 @@
 {
   "extends": "prettier-standard",
   "rules": {
-    "semicolon": true,
+    "semicolon": [true, "never"],
     "space-before-function-paren": false,
-    "quotemark": true,
+    "quotemark": [true, "single"],
     "no-conditional-assignment": false
   }
 }
