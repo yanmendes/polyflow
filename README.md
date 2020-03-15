@@ -15,11 +15,11 @@ In other words, exported data by different WfMSs may not be compatible for compa
 
 Imagine that Bob and Alice want to compare **how much time** each step of their pipelines take. Let's assume Bob uses [Kepler](https://kepler-project.org/) to orchestrate his workflow while Alice uses [Swift/T](http://swift-lang.org/Swift-T/). The image below shows the entities in each WFMS's data model that capture such information.
 
-![alt text](./assets/bob-alice-model.png)
-
 They are similar (logical) models and semantically identical. Because of that, it can be represented in a **canonical fashion**. In other words, a single **Canonical Conceptual Model (CCM)** can be used to represent data described by both models.
 
-![alt text](./assets/ccm.png)
+|                 Bob and Alice's model                 |             CCM              |
+| :---------------------------------------------------: | :--------------------------: |
+| <img height="40%" src="./assets/bob-alice-model.png"> | <img src="./assets/ccm.png"> |
 
 And that's where `polyflow` comes in. Database experts/tech savy people describe mapping strategies between the CCM and the **local schemas** using an object-like syntax so that reasearchers can query a single, simplified data model.
 
