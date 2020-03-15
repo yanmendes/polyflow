@@ -1,6 +1,5 @@
 version: 2.1
 orbs:
-  aws-ecs: circleci/aws-ecs@0.0.19
   docker: circleci/docker@0.5.17
   codecov: codecov/codecov@1.0.5
 jobs:
@@ -13,19 +12,20 @@ jobs:
       - run: yarn test:cover
       - codecov/upload:
           file: './coverage/lcov.info'
-      - run: mv node_modules /tmp/
       - persist_to_workspace:
-          root: /tmp/
+          root: .
           paths: [node_modules]
 
   new-version:
     docker:
       - image: circleci/node:10
     steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "57:e8:25:e7:9c:34:ea:2f:5e:ba:e1:5d:fe:f1:08:7d"
       - attach_workspace:
-          at: /tmp/
+          at: .
       - checkout
-      - run: mv /tmp/node_modules .
       - run: yarn new-version
 
 workflows:
@@ -49,17 +49,6 @@ workflows:
           image: yanmendes/${CIRCLE_PROJECT_REPONAME}
           context: docker
           tag: ${CIRCLE_TAG}
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /^v\d+\.\d+\.\d+$/
-      - aws-ecs/deploy-service-update:
-          family: '${CIRCLE_PROJECT_REPONAME}'
-          cluster-name: polyflow
-          container-image-name-updates: 'container=${CIRCLE_PROJECT_REPONAME},tag=${CIRCLE_TAG}'
-          context: aws
-          requires: [docker/publish]
           filters:
             branches:
               ignore: /.*/
