@@ -2,5 +2,5 @@ documentation
 examples
 .env*
 .circleci
-resources
+assets
 node_modules
