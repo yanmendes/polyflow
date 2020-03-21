@@ -5,17 +5,15 @@
 
 ## Description
 
-`polyflow` is a semantic data mediator. The main goal of `polyflow` is to create more accessible data models to users that need to use queries as part of their routine but aren't technology experts, such as researchers, PMs and marketing analysts. Consider the following:
+`polyflow` is a semantic data mediator. Its main goal is to create more accessible data models and democratize data access. Its target users are professionals that use queries as part of their routine but aren't technology experts, such as researchers, product managers and marketing analysts. Consider the following:
 
-Imagine that two reaserchers, Bob and Alice, share the same research field and tackle the problem using computer simulations. Simulations are usually structured as **[workflows (Wfs)](#references)** that have some **inputs**, a **sequence of programs** that transform them and generate some **output**. Researchers usually use a tool to orchestrate, automate and control their Wfs. Such tools are called [Workflow Management Systems (WFMSs)](#references)
+Imagine that two researchers, Bob and Alice, share the same research field of study and use computer simulations to assess their work. Simulations are usually structured as **[workflows (Wfs)](#references)** that have **inputs**, a **sequence of programs** that transform them and generate **outputs**. Researchers usually use tools to orchestrate, automate and control their Wfs. They are called [Workflow Management Systems (WFMSs)](#references)
 
-Each WfMS have their **own storing mechanism** and **conceptual representation** of WFs since they may have been built for an specific domain (e.g. [terra.bio](https://terra.bio/)). These tools often offer exports of raw data in a structured way (such as logs and Relational Databases (RDbs)) so reasearchers can query and analyze their findings. But how do Bob and Alice compare their inputs, pipelines and results since they use different orchestrators for their WFs?
+Each WfMS have their **own storing mechanism** and **data model**. They often offer exports structured data (such as logs and Relational Databases (RDbs)) so researchers can query and analyze their findings. However, data exported by different WfMSs may not be compatible for comparison right away since there might be different logical representations (logs vs RDbs) or even different conceptual models (data models). `polyflow` was designed to solve this problem in a very user-friendly way.
 
-In other words, exported data by different WfMSs may not be compatible for comparison right away since there might be different logical representations (logs vs RDbs) or even different conceptual models. `polyflow` was designed to solve this problem in a very user-friendly way.
+Considering that Bob uses [Kepler](https://kepler-project.org/) while Alice uses [Swift/T](http://swift-lang.org/Swift-T/) for orchestrating their respective workflows.
 
-Imagine that Bob and Alice want to compare **how much time** each step of their pipelines take. Let's assume Bob uses [Kepler](https://kepler-project.org/) to orchestrate his workflow while Alice uses [Swift/T](http://swift-lang.org/Swift-T/). The image below shows the entities in each WFMS's data model that capture such information.
-
-They are similar (logical) models and semantically identical. Because of that, it can be represented in a **canonical fashion**. In other words, a single **Canonical Conceptual Model (CCM)** can be used to represent data described by both models.
+Kepler's and Swift/T's models are similar logical models and semantically identical. Because of that, they can be represented in a **canonical fashion**. In other words, a single **Canonical Conceptual Model (CCM)** can be used to represent data described by both models.
 
 |                 Bob and Alice's model                 |             CCM              |
 | :---------------------------------------------------: | :--------------------------: |
