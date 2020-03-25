@@ -45,7 +45,7 @@ The expected output is:
 
 If you don't have `polyflow` up and running, you should follow [this guide](https://github.com/yanmendes/polyflow#running-dockerized-version) first.
 
-Once you have `polyflow` running, open a new shell tab in your `Terminal` (`cmd⌘ + t` or `ctrl + t`), move to this folder (`cd <polyflow-dir-location>/examples/BigDawg`) and run the script below to automatically:
+Once you have `polyflow` running, open a new shell tab in your `Terminal` (`cmd⌘ + t` or `ctrl + t`), move to this folder (`cd <polyflow-dir-location>/examples/BigDAWG`) and run the script below to automatically:
 
 - Insert BigDAWG as a `data source`;
 - Create mediators;
@@ -54,7 +54,10 @@ Once you have `polyflow` running, open a new shell tab in your `Terminal` (`cmd�
 If you have BigDAWG OR `polyflow` installed elsewhere, create a new [.env from the template](./.env.sample) file and [override the env_file setting in your `docker-compose`](./docker-compose.yml#L4).
 
 ```sh
-  docker-compose up
+docker-compose up
+
+# if you're running it on a Ubuntu
+sudo docker-compose up
 ```
 
 If everything went well, you should see a `Done!` message in your shell. To make sure everything is working, connect to `polyflow` (the default URL is [http://localhost:3050/](http://localhost:3050/)) and run the following query on the playground:
@@ -153,5 +156,8 @@ query Q9 {
 To stop the execution of the containers, run:
 
 ```sh
-  docker rm -f polyflow polyflow-catalog bigdawg-postgres-catalog bigdawg-postgres-swift bigdawg-postgres-kepler
+docker rm -f polyflow polyflow-catalog bigdawg-postgres-catalog bigdawg-postgres-swift bigdawg-postgres-kepler
+
+# if you're running it on a Ubuntu
+sudo docker rm -f polyflow polyflow-catalog bigdawg-postgres-catalog bigdawg-postgres-swift bigdawg-postgres-kepler
 ```

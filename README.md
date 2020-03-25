@@ -35,30 +35,29 @@ All you need [Docker](https://www.docker.com/) to run `polyflow`. To install it,
 
 ## Running dockerized version
 
-### **⚠️This guide is valid only to Unix-based distributions. If you have Windows, some commands may be different**
+### **⚠️ This guide is valid only to Unix-based distributions. If you have Windows, some commands will be different.**
+
+### **⚠️ If you're running in a Ubuntu distribution, all `docker` commands should be preceded by `sudo`.**
 
 First of all, open the `Terminal` program in your computer. Then, clone or [download](https://github.com/yanmendes/polyflow/archive/master.zip) the repository.
 
 ```sh
-
 git clone https://github.com/yanmendes/polyflow
-
 ```
 
 If you opted for the download, unzip the file and change into your downloads directory in the `Terminal`. Otherwise, just change into `polyflow's` folder:
 
 ```sh
-
 cd polyflow
-
 ```
 
 Then, you need to create a docker network to enable communication between containers. To do that, run:
 
 ```sh
-
 docker network create polyflow
 
+# if you're running it on a Ubuntu
+sudo docker network create polyflow
 ```
 
 If you have containerized databases that you wish to connect to `polyflow`, make sure to add them to the network.
@@ -66,9 +65,10 @@ If you have containerized databases that you wish to connect to `polyflow`, make
 To run the application just run the command below. It launches two docker containers: one containing the application and other a database that serves as `polyflow's` catalog.
 
 ```sh
-
 docker-compose up polyflow
 
+# if you're running it on a Ubuntu
+sudo docker-compose up polyflow
 ```
 
 To make sure your installation worked, open [http://localhost:3050](http://localhost:3050). There should be a blue screen with a big play button in the middle. This is a `GraphQL playground` and where you'll be interacting with polyflow. If you don't know anything about GraphQL, I suggest you [this read](https://www.prisma.io/blog/introducing-graphql-playground-f1e0a018f05d) for a quick overview. To check out the endpoints of `polyflow`, click the `Schema` button on the right side of the screen. The GraphQL playground provides auto-complete to queries and mutations by tapping `ctrl + space`.
@@ -176,10 +176,11 @@ The [examples](./examples) folder contains two implemented examples: one using [
 
 To stop the execution of the containers, run:
 
-```
-
+```sh
 docker rm -f polyflow polyflow-catalog
 
+# if you're running it on a Ubuntu
+sudo docker rm -f polyflow polyflow-catalog
 ```
 
 ## Running locally
@@ -189,13 +190,11 @@ Firstly, you need to set up your environment by installing [Node.js](https://nod
 Now, you need to copy the `.env.sample` file into a `.env` file an write your local settings there.
 
 ```sh
+yarn
 
-$ yarn
+yarn run build
 
-$ yarn run build
-
-$ yarn run start:prod
-
+yarn run start:prod
 ```
 
 ## Known Issues
