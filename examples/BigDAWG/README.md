@@ -163,3 +163,7 @@ docker rm -f polyflow polyflow-catalog bigdawg-postgres-catalog bigdawg-postgres
 # if you're running it on a Ubuntu
 sudo docker rm -f polyflow polyflow-catalog bigdawg-postgres-catalog bigdawg-postgres-swift bigdawg-postgres-kepler
 ```
+
+## Adding your own data
+
+To add your own data, refer to the [core concepts section](https://github.com/yanmendes/polyflow#core-concepts)
