@@ -71,13 +71,17 @@ docker-compose up polyflow
 sudo docker-compose up polyflow
 ```
 
-To make sure your installation worked, open [http://localhost:3050](http://localhost:3050). There should be a blue screen with a big play button in the middle. This is a `GraphQL playground` and where you'll be interacting with polyflow. If you don't know anything about GraphQL, I suggest you [this read](https://www.prisma.io/blog/introducing-graphql-playground-f1e0a018f05d) for a quick overview. To check out the endpoints of `polyflow`, click the `Schema` button on the right side of the screen. The GraphQL playground provides auto-complete to queries and mutations by tapping `ctrl + space`.
+To make sure your installation worked, open [http://localhost:3050](http://localhost:3050). There should be a blue screen with a big play button in the middle. This is a `GraphQL playground` and where you'll be interacting with polyflow.
 
-## Understanding polyflow
+### **If you don't know anything about GraphQL, I suggest [this read](https://www.prisma.io/blog/introducing-graphql-playground-f1e0a018f05d) for a quick overview.**
+
+To check out the endpoints of `polyflow`, click the `Schema` button on the right side of the screen. The GraphQL playground provides auto-complete to queries and mutations by tapping `ctrl + space`.
+
+## Core concepts
 
 This section provides an overview of `polyflow's` core concepts and how to interact with the software.
 
-### :warning: **This is NOT a valid example and errors will be thrown if you try to execute these queries and mutations. For working examples, check the [examples](#examples) section.**
+### ⚠️ **This is NOT a valid example and errors will be thrown if you try to execute these queries and mutations. For working examples, check the [examples](#examples) section.**
 
 There are three main concepts in polyflow: `Data Sources`, `Mediators` and `Entities`. In terms of our example, a **data source** is where the resources are located. We currently provide support to PostgreSQL, MySQL and [BigDAWG](https://bigdawg.mit.edu), so a data source is a PSQL/MySQL URL or a BigDAWG endpoint, but you can think of it as an Unique Resource Identifier (URI) to any resource accross the web (e.g. databases, files) that will be mediated by `polyflow`.
 
@@ -126,12 +130,11 @@ For now, `polyflow` only supports a query resolver for SQL and can interface wit
 However, since the data in our local schema may be more granular than in our CCM, we may need to `aggregate` entities to get the desired outcome. For instance, in Bob's model, the `price` of a sale is not recorded in the `Sales` entity. If we were to write a plain SQL statement to retrieve the data in our CCM's format, it would result in something along the lines of
 
 ```sql
-
 SELECT customer, city, value  AS price FROM Sales s, Prices p WHERE s.id = p.saleId
 
 ```
 
-Because of that, an `entityMapper` has optional fields `entity2, type, params` that allows the creation of **complex entities**. To create Bob's CCM's only entity, **Sales**, we will use the `addEntity mutation` below. Note that aggregations can be recursevely defined, i.e. you can aggregate more than 2 entities. You can check the [examples folder](https://github.com/yanmendes/polyflow.api/blob/master/examples) for that.
+Because of that, an `entityMapper` has optional fields `entity2, type, params` that allows the creation of **complex entities**. To create Bob's CCM's only entity, **Sales**, we will use the `addEntity mutation` below. Note that aggregations can be recursively defined, i.e. you can aggregate more than 2 entities. You can check the [examples folder](https://github.com/yanmendes/polyflow.api/blob/master/examples) for that.
 
 ```graphql
 mutation addBobSaleEntity {

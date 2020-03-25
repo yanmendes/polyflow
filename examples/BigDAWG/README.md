@@ -22,10 +22,12 @@ First of all, open the `Terminal` program in your computer. Then, clone or [down
   git clone https://github.com/yanmendes/bigdawg
 ```
 
-If you opted for the download, unzip the file and change into your downloads directory in the `Terminal`. Otherwise or after if you've already followed the previous steps, run the script below. It usually takes a couple of minutes. You'll notice it's finished when the the last line says `Hit enter to stop it...`. Some errors may occur during the process, but just ignore them if you can reproduce all the steps in this tutorial.
+If you opted for the download, unzip the file and change into your downloads directory in the `Terminal`. Run the script below.
+
+### ⚠️ It usually takes a couple of minutes. You'll notice it's finished when the the last line says `Hit enter to stop it...`.
 
 ```sh
-  cd bigdawg/provisions && bash setup_polyflow.sh
+  cd bigdawg/provisions && ./setup_polyflow.sh
 ```
 
 The script starts three Docker containers named `bigdawg-postgres-swift`, `bigdawg-postgres-kepler` and `bigdawg-postgres-catalog`. The first two are relational databases with [provenance data](../Provenance) and the last one is BigDAWG's modified catalog containing `Kepler's` and `Swift's` schema details. To see if your installation was successful, run the following query:
