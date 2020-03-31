@@ -56,10 +56,10 @@ Once you have `polyflow` running, open a new shell tab in your `Terminal` (`cmd�
 If you have BigDAWG OR `polyflow` installed elsewhere, create a new [.env from the template](./.env.sample) file and [override the env_file setting in your `docker-compose`](./docker-compose.yml#L4).
 
 ```sh
-docker-compose up
+docker-compose up setup-bigdawg
 
 # if you're running it on a Ubuntu
-sudo docker-compose up
+sudo docker-compose up setup-bigdawg
 ```
 
 If everything went well, you should see a `Done!` message in your shell. To make sure everything is working, connect to `polyflow` (the default URL is [http://localhost:3050/](http://localhost:3050/)) and run the following query on the playground:
@@ -96,7 +96,42 @@ The expected output is:
 }
 ```
 
-Now you have a running instance of `polyflow` connected to BigDAWG and populated with provenance data. The next section describes the queries run in the experiment.
+Now you have a running instance of `polyflow` connected to BigDAWG and populated with provenance data. The next section describes the setup to assess the results for queries run in the experiment.
+
+## Installing a SQL IDE
+
+To assess the results of queries, you can use a SQL IDE of your preference and query the raw data directly. If you don't have one, we suggest using SQLPad, since it's browser-based and simple to install since it's already bundled in docker-compose.
+
+### **⚠️ If you already have a SQL IDE, you can skip to [this section](#connecting-raw-databases)**
+
+All you need to install SQLPad is run the script below. **Remember to use the `-d` flag, so you don't lock-in your terminal with unnecessary logs**
+
+```sh
+docker-compose up -d sqlpad
+
+# if you're running it on a Ubuntu
+sudo docker-compose up -d sqlpad
+```
+
+Once it's done, open [http://localhost:5000](http://localhost:5000) on your browser and click [`Sign up`](http://localhost:5000/signup). You can enter any email and password you like. Finally, [`Sign in`](http://localhost:5000/signin) with your credentials. You should see a big white screen with an action bar at the top.
+
+## Connecting raw databases
+
+To add a database in SQLPad, you should click `...New connection` on the navigation bar on the top of the page. Once you do, name your connection (I suggest using `Kepler`, but you can write anything); Then choose `Postgres` driver. Finally, fill in the following fields:
+
+- `Host/Server/IP Address`: `bigdawg-postgres-kepler`
+- `Port (optional)`: `5401`
+- `Database`: `kepler`
+- `Database username`: `postgres`
+
+Now, scroll down and click on `Test`. It should show a green check mark. `Save` your changes. Repeat the process for `Swift`. `...New connection`, name it, choose the `Postgres` driver and write the connection details:
+
+- `Host/Server/IP Address`: `bigdawg-postgres-swift`
+- `Port (optional)`: `5402`
+- `Database`: `swift`
+- `Database username`: `postgres`
+
+### **⚠️ If you are using a SQL editor in your own computer, note that the `Host` will change, since it's not in the docker network. You should use `localhost` instead.**
 
 ## Queries ran in the experiment
 

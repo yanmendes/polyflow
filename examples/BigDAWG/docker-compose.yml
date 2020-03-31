@@ -5,6 +5,13 @@ services:
     build: .
     networks:
       - polyflow
+  sqlpad:
+    container_name: sqlpad
+    image: sqlpad/sqlpad:4.1.0
+    ports:
+      - 5000:3000
+    networks:
+      - polyflow
 
 networks:
   polyflow:
