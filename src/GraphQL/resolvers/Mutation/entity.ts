@@ -13,7 +13,10 @@ const msg = 'Entity name/slug already in use for mediator.'
 
 export default {
   addEntity: async (_, { entity: { mediatorSlug, ...entity } }) =>
-    Mediator.findOne({ where: { slug: mediatorSlug } })
+    Mediator.findOne({
+      where: { slug: mediatorSlug },
+      relations: ['dataSource']
+    })
       .then(mediator =>
         !mediator
           ? Promise.reject(
@@ -22,15 +25,20 @@ export default {
           : getRepository(Entity)
               .save({ ...entity, mediator })
               .catch(handlePossibleUniqueEntryException(msg))
-              .then(() =>
-                runQuery(`SELECT * FROM ${mediatorSlug}[${entity.slug}]`).catch(
-                  e =>
+              .then(ent =>
+                runQuery(
+                  mediator.dataSource.type === 'bigdawg'
+                    ? `bdrel(SELECT * FROM ${mediatorSlug}[${entity.slug}])`
+                    : `SELECT * FROM ${mediatorSlug}[${entity.slug}]`
+                )
+                  .then(() => ent)
+                  .catch(e =>
                     getRepository(Entity)
                       .delete({ slug: entity.slug })
                       .then(() =>
                         Promise.reject(`Invalid entity! Thrown error: ${e}`)
                       )
-                )
+                  )
               )
       )
       .catch(e => {
