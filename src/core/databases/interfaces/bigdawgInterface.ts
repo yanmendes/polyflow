@@ -33,7 +33,7 @@ const bigdawgInterface = {
     })
       .then(res => res.text())
       .then(parseResponseToJSON)
-      .catch(e =>
+      .catch(e => {
         log
           .child({
             action: 'resolving query',
@@ -43,7 +43,8 @@ const bigdawgInterface = {
           .error(
             'Something went wrong while submiting a query to this interface'
           )
-      )
+        throw e
+      })
   }
 }
 
