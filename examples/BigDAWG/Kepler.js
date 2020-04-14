@@ -333,7 +333,7 @@ const provoneUser = {
   columns: [
     {
       alias: 'label',
-      projection: 'wfe."USER"'
+      projection: 'we."USER"'
     },
     {
       alias: 'program_id',
