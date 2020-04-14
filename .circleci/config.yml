@@ -13,21 +13,6 @@ jobs:
       - run: yarn test:cover
       - codecov/upload:
           file: './coverage/lcov.info'
-      - persist_to_workspace:
-          root: .
-          paths: [node_modules]
-
-  new-version:
-    docker:
-      - image: circleci/node:10
-    steps:
-      - add_ssh_keys:
-          fingerprints:
-            - '57:e8:25:e7:9c:34:ea:2f:5e:ba:e1:5d:fe:f1:08:7d'
-      - checkout
-      - attach_workspace:
-          at: .
-      - run: npm run new-version
 
 workflows:
   test-tag:
@@ -38,12 +23,6 @@ workflows:
               ignore: /^v\d+\.\d+\.\d+$/
             branches:
               ignore: /dependeabot\/*/
-      - new-version:
-          context: github
-          requires: [test]
-          filters:
-            branches:
-              only: [master]
   build-deploy:
     jobs:
       - docker/publish:
