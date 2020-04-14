@@ -14,7 +14,7 @@
     "process-logs": "FILE=examples/Provenance/logs node examples/Provenance/processLogFile.js",
     "kepler-entity-model": "node examples/Provenance/Kepler.js",
     "swift-entity-model": "node examples/Provenance/Swift.js",
-    "new-version": "standard-version; git push --follow-tags origin master",
+    "new-version": "standard-version; git push --follow-tags origin master; git checkout HEAD -- CHANGELOG.md",
     "format": "prettier-standard $(git diff --name-only --cached) --fix",
     "lint": "tslint --fix src/**/*.ts",
     "lint:ci": "tslint src/**/*.ts",
