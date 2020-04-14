@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.7.1](https://github.com/yanmendes/polyflow/compare/v1.7.0...v1.7.1) (2020-04-14)
+
+### Bug Fixes
+
+- clear changes to CHANGELOG after pushing tag ([3071bdb](https://github.com/yanmendes/polyflow/commit/3071bdb09aab79fbbb11fe7de7e23d473016411e))
+
 ## [1.7.0](https://github.com/yanmendes/polyflow/compare/v1.5.0...v1.7.0) (2020-04-14)
 
 ### Features
