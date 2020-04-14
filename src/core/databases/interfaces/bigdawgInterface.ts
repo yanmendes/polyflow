@@ -54,13 +54,14 @@ const parseResponseToJSON = (results: string) => {
   const dimensions = firstRow.split('\t')
   const instances = rest.map(instance => instance.split('\t'))
 
-  return dimensions.map((_, i) => {
-    const instance = instances[i]
-    return dimensions.reduce(
-      (aggr, curr, index) => ({ ...aggr, [curr]: instance[index] }),
-      {}
-    )
-  })
+  return instances.map(instance =>
+    instance
+      .filter(i => i.length)
+      .reduce(
+        (aggr, curr, index) => ({ ...aggr, [dimensions[index]]: curr }),
+        {}
+      )
+  )
 }
 
 export default bigdawgInterface
