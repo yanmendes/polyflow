@@ -27,7 +27,7 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      - run: yarn new-version
+      - run: npm run new-version
 
 workflows:
   test-tag:
@@ -43,7 +43,7 @@ workflows:
           requires: [test]
           filters:
             branches:
-              only: [master]
+              only: [try-fix-ci]
   build-deploy:
     jobs:
       - docker/publish:
