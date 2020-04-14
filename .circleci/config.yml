@@ -27,7 +27,7 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      - run: yarn new-version
+      - run: npm run new-version
 
 workflows:
   test-tag:
