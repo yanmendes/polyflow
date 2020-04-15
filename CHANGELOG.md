@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.8.0](https://github.com/yanmendes/polyflow/compare/v1.7.2...v1.8.0) (2020-04-15)
+
+### Features
+
+- bubble up errors from bigdawg's interface ([80171eb](https://github.com/yanmendes/polyflow/commit/80171eb6e87e2830887f6459cec4bc1d0d7e4dc6))
+
+### Bug Fixes
+
+- apply alias to bigdawg results ([def3971](https://github.com/yanmendes/polyflow/commit/def3971ef330224fafdf5b53d7cd5f22cd2b5e90))
+- user's entity mapper ([5029ccf](https://github.com/yanmendes/polyflow/commit/5029ccf44b693b782fa443bcef933c449d20cd02))
+
 ### [1.7.2](https://github.com/yanmendes/polyflow/compare/v1.7.1...v1.7.2) (2020-04-14)
 
 ### Bug Fixes
