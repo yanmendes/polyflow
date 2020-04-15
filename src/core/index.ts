@@ -53,8 +53,11 @@ export const runQuery = async query => {
       ).test(query)
     )
     const addColumns = cols =>
-      (cols || [{}]).forEach(c =>
-        reverseColumnSearch.set(removeTableIdentifier(c.projection), c.alias)
+      (cols || []).forEach(c =>
+        reverseColumnSearch.set(
+          removeTableIdentifier(c.projection),
+          c.alias || c.projection
+        )
       )
     const recursiveColumnsFinder = e => {
       addColumns(e.columns)
