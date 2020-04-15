@@ -44,12 +44,49 @@ export const runQuery = async query => {
     )
     .flat()
 
+  const applyAliasToBigDawgResults = r => {
+    const reverseColumnSearch = new Map()
+    const removeTableIdentifier = (s: any) => s && s.replace(/(\w|\d)+\./i, '')
+    const usedEntities = (entities as any).filter(e =>
+      new RegExp(
+        `${e.mediatorSlug}\\[${e.slug}\\](\\s(as|AS)\\s[\\w_\\d]+)?`
+      ).test(query)
+    )
+    const addColumns = cols =>
+      (cols || [{}]).forEach(c =>
+        reverseColumnSearch.set(removeTableIdentifier(c.projection), c.alias)
+      )
+    const recursiveColumnsFinder = e => {
+      addColumns(e.columns)
+      if (e.entity1) recursiveColumnsFinder(e.entity1)
+      if (e.entity2) recursiveColumnsFinder(e.entity2)
+    }
+    usedEntities.forEach(({ entityMapper }) =>
+      recursiveColumnsFinder(entityMapper)
+    )
+
+    return r.map(r =>
+      Object.keys(r).reduce(
+        (aggr, curr) => ({
+          ...aggr,
+          [reverseColumnSearch.get(curr)]: r[curr]
+        }),
+        {}
+      )
+    )
+  }
+
   try {
     const parsedQuery = (await resolver(query, entities)).replace(/\s+/g, ' ')
     return measure(
       log.child({ query: parsedQuery }),
       `Issuing parsed query to ${type}`,
-      () => dbInterface.query(uri, parsedQuery)
+      () =>
+        dbInterface
+          .query(uri, parsedQuery)
+          .then(results =>
+            type !== 'bigdawg' ? results : applyAliasToBigDawgResults(results)
+          )
     )
   } catch (error) {
     log
