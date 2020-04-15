@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.1](https://github.com/yanmendes/polyflow/compare/v1.8.0...v1.8.1) (2020-04-15)
+
+### Bug Fixes
+
+- allow columns that do not have aliases ([0d224b6](https://github.com/yanmendes/polyflow/commit/0d224b6d2ef8772b6325b3061f3eb9b99f4119df))
+
 ## [1.8.0](https://github.com/yanmendes/polyflow/compare/v1.7.2...v1.8.0) (2020-04-15)
 
 ### Features
