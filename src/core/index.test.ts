@@ -6,7 +6,7 @@ jest.mock('./databases/interfaces/bigdawgInterface')
 
 describe('run query BigDAWG query', () => {
   beforeEach(() =>
-    spyOn(bigdawgInterface, 'query').and.returnValue(Promise.resolve('ok!'))
+    spyOn(bigdawgInterface, 'query').and.returnValue(Promise.resolve([]))
   )
   afterEach(() => jest.clearAllMocks())
 
