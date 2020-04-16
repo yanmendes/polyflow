@@ -87,8 +87,10 @@ export const runQuery = async query => {
       () =>
         dbInterface
           .query(uri, parsedQuery)
-          .then(results =>
-            type !== 'bigdawg' ? results : applyAliasToBigDawgResults(results)
+          .then(r =>
+            type === 'bigdawg' && Array.isArray(r)
+              ? applyAliasToBigDawgResults(r)
+              : r
           )
     )
   } catch (error) {
