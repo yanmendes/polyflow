@@ -224,10 +224,6 @@ const WorkflowExec = {
     {
       alias: 'provone_wasPartOf',
       projection: 'wfe.wf_id'
-    },
-    {
-      alias: 'prov_wasAssociatedWith',
-      projection: 'wfe."USER"'
     }
   ]
 }
@@ -332,10 +328,6 @@ const provoneUser = {
   alias: 'we',
   columns: [
     {
-      alias: 'label',
-      projection: 'we."USER"'
-    },
-    {
       alias: 'program_id',
       projection: 'we.wf_id'
     }
@@ -363,11 +355,11 @@ const entityMappers = [
     slug: Provone.Classes.EXECUTION,
     entityMapper: provoneExecution
   },
-  {
-    name: Prov.Classes.ASSOCIATION,
-    slug: Prov.Classes.ASSOCIATION,
-    entityMapper: provAssociation
-  },
+  // {
+  //   name: Prov.Classes.ASSOCIATION,
+  //   slug: Prov.Classes.ASSOCIATION,
+  //   entityMapper: provAssociation
+  // },
   {
     name: Prov.Classes.USAGE,
     slug: Prov.Classes.USAGE,
