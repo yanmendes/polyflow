@@ -90,26 +90,51 @@ const provEntity = {
     params: ['param.id', 'e.id']
   },
   entity2: {
-    entity1: Data,
-    entity2: AssociatedData,
-    type: 'LEFT',
-    params: ['d.md5', 'ad.data_id'],
-    columns: [
-      {
-        alias: 'entity_id',
-        projection: 0
-      },
-      {
-        alias: 'type',
-        projection: "'md5'"
-      },
-      ...Data.columns,
-      {
-        alias: 'entity_type',
-        projection: "'provone_Data'"
-      },
-      ...AssociatedData.columns
-    ]
+    entity1: {
+      ...Data,
+      columns: [
+        {
+          alias: 'entity_id',
+          projection: 0
+        },
+        {
+          alias: 'type',
+          projection: "'md5'"
+        },
+        ...Data.columns,
+        {
+          alias: 'entity_type',
+          projection: "'provone_Data'"
+        },
+        {
+          alias: 'label',
+          projection: "'foo'"
+        }
+      ]
+    },
+    entity2: {
+      entity1: Data,
+      entity2: AssociatedData,
+      type: 'INNER',
+      params: ['d.md5', 'ad.data_id'],
+      columns: [
+        {
+          alias: 'entity_id',
+          projection: 0
+        },
+        {
+          alias: 'type',
+          projection: "'md5'"
+        },
+        ...Data.columns,
+        {
+          alias: 'entity_type',
+          projection: "'provone_Data'"
+        },
+        ...AssociatedData.columns
+      ]
+    },
+    type: 'UNION'
   },
   type: 'UNION'
 }
