@@ -135,16 +135,23 @@ Now, scroll down and click on `Test`. It should show a green check mark. `Save` 
 
 ## Queries ran in the experiment
 
-Queries defined in Section 2 of [this paper](https://link.springer.com/chapter/10.1007/978-3-319-40593-3_5):
+In this experiment, we'll use a subset of queries defined in Section 2 of [this paper](https://link.springer.com/chapter/10.1007/978-3-319-40593-3_5), since the authors tackle the same problem.
 
-- **Q1**: Retrieve all programs with their input and output ports for Swift's provenance graph:
+- **Q1**: Retrieve all programs with their input and output ports for Kepler's provenance graph:
 
 ```graphql
 query Q1 {
   query(
-    query: "bdrel(select * from kepler[provone_program] as pr join kepler[provone_port] as p on p.port_id = pr.program_id)"
+    query: "bdrel(select * from swift[provone_program] as pr join swift[provone_port] as p on p.port_id = pr.program_id)"
   )
 }
+```
+
+bdrel(select \* from ( SELECT program_id as program_id,label as label,ipw as is_provone_Workflow,phssubp as provone_hasSubProgram FROM (( SELECT a.id as program_id FROM actor as a )) as t1
+join ( SELECT p.id as port_id,CASE WHEN p.direction = 1 THEN 'out' WHEN p.direction = 0 THEN 'in' END as port_type,e.name as label FROM port as p INNER JOIN entity as e ON p.id = e.id ) as p on p.port_id = pr.program_id)
+
+```sql
+  select * from
 ```
 
 - **Q2**: Retrieve all activity executions with their generated data for Swift's provenance graph:
