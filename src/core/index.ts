@@ -46,7 +46,16 @@ export const runQuery = async query => {
 
   const applyAliasToBigDawgResults = r => {
     const reverseColumnSearch = new Map()
-    const removeTableIdentifier = (s: any) => s && s.replace(/(\w|\d)+\./i, '')
+    const cleanUp = (s: string) => {
+      const isRegularCase = /^([\w|\d\.]+)$/gi.test(s)
+      const isCaseWhen = /case when ([\w|\d\.]+).*/i
+      const tableAliasRegex = /(\w|\d)+\./i
+
+      // Clean up table alias
+      if (isRegularCase) return s.replace(tableAliasRegex, '')
+      // Case when
+      else if (isCaseWhen) return 'case'
+    }
     const usedEntities = (entities as any).filter(e =>
       new RegExp(
         `${e.mediatorSlug}\\[${e.slug}\\](\\s(as|AS)\\s[\\w_\\d]+)?`
@@ -54,10 +63,7 @@ export const runQuery = async query => {
     )
     const addColumns = cols =>
       (cols || []).forEach(c =>
-        reverseColumnSearch.set(
-          removeTableIdentifier(c.projection),
-          c.alias || c.projection
-        )
+        reverseColumnSearch.set(cleanUp(c.projection), c.alias || c.projection)
       )
     const recursiveColumnsFinder = e => {
       addColumns(e.columns)
