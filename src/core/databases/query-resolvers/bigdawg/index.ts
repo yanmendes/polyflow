@@ -1,7 +1,7 @@
 import { Entity } from '../../../../models'
 import sqlResolver from '../sql'
 
-const getScopeAndQuery = (query: string) => /(\w+)\((.+?)\)/gim.exec(query)
+const getScopeAndQuery = (query: string) => /(\w+)\((.+?)\)$/gim.exec(query)
 const isValidScope = (scope: string) => scope === 'bdrel'
 
 export default async (query: string, entities: [Entity]) => {
