@@ -52,7 +52,8 @@ export const runQuery = async query => {
       const tableAliasRegex = /(\w|\d)+\./i
 
       // Clean up table alias
-      if (isRegularCase) return s.replace(tableAliasRegex, '')
+      if (!s.replace) return s
+      else if (isRegularCase) return s.replace(tableAliasRegex, '')
       // Case when
       else if (isCaseWhen) return 'case'
     }
