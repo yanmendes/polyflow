@@ -10,7 +10,9 @@
   "license": "ISC",
   "dependencies": {
     "apollo-boost": "^0.4.3",
+    "csv-writer": "^1.6.0",
     "graphql": "^14.4.2",
-    "node-fetch": "^2.6.0"
+    "node-fetch": "^2.6.0",
+    "tagged-template-noop": "^2.1.1"
   }
 }
