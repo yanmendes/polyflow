@@ -67,9 +67,9 @@ export const runQuery = async query => {
         reverseColumnSearch.set(cleanUp(c.projection), c.alias || c.projection)
       )
     const recursiveColumnsFinder = e => {
-      addColumns(e.columns)
       if (e.entity1) recursiveColumnsFinder(e.entity1)
       if (e.entity2) recursiveColumnsFinder(e.entity2)
+      addColumns(e.columns)
     }
     usedEntities.forEach(({ entityMapper }) =>
       recursiveColumnsFinder(entityMapper)
