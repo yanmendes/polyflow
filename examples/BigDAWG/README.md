@@ -56,7 +56,7 @@ Once you have `polyflow` running, open a new shell tab in your `Terminal` (`cmd�
 If you have BigDAWG OR `polyflow` installed elsewhere, create a new [.env from the template](./.env.sample) file and [override the env_file setting in your `docker-compose`](./docker-compose.yml#L4).
 
 ```sh
-docker-compose up setup-bigdawg
+cd examples/BigDAWG && docker-compose up setup-bigdawg;
 
 # if you're running it on a Ubuntu
 sudo docker-compose up setup-bigdawg
@@ -70,26 +70,66 @@ query query {
 }
 ```
 
-The expected output is:
+The output on the right hand-side should read:
 
 ```json
 {
   "data": {
     "query": [
       {
-        "id": "22",
-        "case": "out",
-        "name": ".Constant.output"
+        "port_id": "22",
+        "port_type": "out",
+        "label": ".Constant.output"
       },
       {
-        "id": "23",
-        "case": "in",
-        "name": ".Constant.trigger"
+        "port_id": "23",
+        "port_type": "in",
+        "label": ".Constant.trigger"
       },
       {
-        "id": "30",
-        "case": "in",
-        "name": ".Display.input"
+        "port_id": "30",
+        "port_type": "in",
+        "label": ".Display.input"
+      },
+      {
+        "port_id": "37",
+        "port_type": "out",
+        "label": ".Constant2.output"
+      },
+      {
+        "port_id": "38",
+        "port_type": "in",
+        "label": ".Constant2.trigger"
+      },
+      {
+        "port_id": "45",
+        "port_type": "out",
+        "label": ".Constant3.output"
+      },
+      {
+        "port_id": "46",
+        "port_type": "in",
+        "label": ".Constant3.trigger"
+      },
+      {
+        "port_id": "53",
+        "port_type": "out",
+        "label": ".Constant4.output"
+      },
+      {
+        "port_id": "54",
+        "port_type": "in",
+        "label": ".Constant4.trigger"
+      },
+      {
+        "port_id": "61",
+        "port_type": "out",
+        "label": ".Constant5.output"
+      },
+      {
+        "port_id": "62",
+        "port_type": "in",
+        "label": ".Constant5.trigger"
       }
     ]
   }
@@ -115,7 +155,7 @@ sudo docker-compose up -d sqlpad
 
 Once it's done, open [http://localhost:5000](http://localhost:5000) on your browser and click [`Sign up`](http://localhost:5000/signup). You can enter any email and password you like. Finally, [`Sign in`](http://localhost:5000/signin) with your credentials. You should see a big white screen with an action bar at the top.
 
-## Connecting raw databases
+## Connecting to origin databases
 
 To add a database in SQLPad, you should click `...New connection` on the navigation bar on the top of the page. Once you do, name your connection (I suggest using `Kepler`, but you can write anything); Then choose `Postgres` driver. Finally, fill in the following fields:
 
@@ -135,15 +175,20 @@ Now, scroll down and click on `Test`. It should show a green check mark. `Save` 
 
 ## Queries ran in the experiment
 
-Queries defined in Section 2 of [this paper](https://link.springer.com/chapter/10.1007/978-3-319-40593-3_5):
+There are 6 classes of provenance query types using two provenance datasets:
 
-- **Q1**: Retrieve all programs with their input and output ports for Swift's provenance graph:
+<div style='text-align: center;'>
+  <img src='./query-classes.png' />
+  <p>Extracted from <a href='https://link.springer.com/chapter/10.1007/978-3-319-40593-3_5'>this paper</a></p>
+</div>
+
+In this experiment we'll showcase one query belonging to each class. The query index (e.g., Q**1**) corresponds to the class (e.g., C**1**)
+
+- **Q1**: Retrieve all ports in Kepler's Provenance Graph
 
 ```graphql
 query Q1 {
-  query(
-    query: "bdrel(select * from kepler[provone_program] as pr join kepler[provone_port] as p on p.port_id = pr.program_id)"
-  )
+  query(query: "bdrel(select * from kepler[provone_port])")
 }
 ```
 
@@ -157,36 +202,309 @@ query Q2 {
 }
 ```
 
-- **Q3**: Retrieve the time consumed by each activity execution for Kepler's provenance graph
+- **Q3**: Retrieve data used in an workflow enactment and their corresponding port for Kepler's workflow.
 
 ```graphql
-# This query is broken. Fault: BigDAWG
 query Q3 {
   query(
-    query: "bdrel(select prov_endedAtTime - prov_endedAtTime AS duration from kepler[provone_execution])"
+    query: "bdrel(select * from kepler[prov_usage] as u inner join kepler[provone_port] as p on u.kepler_provone_hadInPort = p.kepler_port_id)"
   )
 }
 ```
 
-- **Q4**: Retrieve the complete activity execution trace that influenced the generation of the data d′
+- **Q4**: Connect all Kepler's ports to Swift's Programs
 
 ```graphql
 query Q4 {
   query(
-    query: "bdrel(select * from swift[prov_wasGeneratedBy] as wgb join swift[provone_execution] as e on e.execution_id = wgb.execution_id join swift[prov_entity] as ent on ent.entity_id = wgb.entity_id)"
+    query: "bdrel(select * from kepler[provone_port] left join (select * from swift[provone_program]) as programs on 1=1)"
   )
 }
 ```
 
-- **Q9**: Retrieve the complete activity execution trace that influenced the generation of the data d′
+- **Q5**: Fetch all programs' execution duration
 
 ```graphql
-query Q9 {
+query Q5 {
   query(
-    query: "bdrel(select * from swift[prov_wasGeneratedBy] as wgb join swift[provone_execution] as e on e.execution_id = wgb.execution_id join swift[prov_entity] as ent on ent.entity_id = wgb.entity_id)"
+    query: "bdrel(select * from (select duration from swift[provone_execution]) as t1 left join (select EXTRACT(SECOND FROM prov_endedAtTime - prov_startedAtTime) from kepler[provone_execution]) as t2 on 1=1)"
   )
 }
 ```
+
+- **Q6**: Fetch all programs and executions from both workflows
+
+```graphql
+query Q6 {
+  query(
+    query: "bdrel(select * from kepler[provone_execution] as e inner join kepler[provone_program] as p on p.kepler_program_id = e.kepler_provone_hadPlan left join swift[provone_program] as sp on 1=1 left join swift[provone_execution] as se on se.provone_hadPlan = sp.program_id)"
+  )
+}
+```
+
+## Validating results in original datasets
+
+- **Q1**:
+
+```sql
+SELECT
+  p.id as port_id,
+  CASE WHEN p.direction = 1 THEN 'out' WHEN p.direction = 0 THEN 'in' END as port_type,
+  e.name as label
+FROM port as p INNER JOIN entity as e ON p.id = e.id
+```
+
+- **Q2**:
+
+```sql
+SELECT
+  app_exec_id as execution_id,
+  start_time as prov_startedAtTime,
+  script_run_id as provone_hadPlan,
+  duration
+FROM app_exec as e
+INNER JOIN (
+  SELECT file_id as entity_id,app_exec_id as execution_id FROM staged_out
+) as wgb on e.app_exec_id = wgb.execution_id
+```
+
+- **Q3**:
+
+```sql
+SELECT
+  pe.fire_id as execution_id,
+  pe.port_id as provone_hadInPort,
+  data as data
+FROM
+  port_event as pe
+INNER JOIN (
+    SELECT
+      p.id as port_id,CASE
+        WHEN p.direction = 1 THEN 'out'
+        WHEN p.direction = 0 THEN 'in'
+      END as port_type,
+      e.name as label
+    FROM
+      port as p
+      INNER JOIN entity as e ON p.id = e.id
+) as p on pe.provone_hadInPort = p.port_id
+WHERE
+  pe.write_event_id = -1
+```
+
+- **Q4**:
+
+  - On Kepler's DB:
+
+  ```sql
+  SELECT
+    p.id as port_id,CASE
+      WHEN p.direction = 1 THEN 'out'
+      WHEN p.direction = 0 THEN 'in'
+    END as port_type,
+    e.name as label
+  FROM
+    port as p
+    INNER JOIN entity as e ON p.id = e.id
+  ```
+
+  - On Swift's DB:
+
+  ```sql
+  SELECT
+    script_run_id as program_id,
+    script_filename as label
+  FROM
+    script_run
+  ```
+
+  - On BigDAWG's endpoint:
+
+  ```bash
+  curl --request POST \
+  --url http://localhost:8080/bigdawg/query \
+  --header 'content-type: application/json' \
+  --data 'bdrel(
+  t
+  *
+  m
+  (
+  T
+  E
+  '
+  '
+  ,
+  l
+  M
+  p
+  d
+  1
+  (
+  t
+  *
+  m
+  (
+  T
+  ,
+  l
+  M
+  n
+  3
+  1
+  )'
+  ```
+
+- **Q5**:
+
+  - On Kepler's DB:
+
+  ```sql
+    SELECT
+      EXTRACT(SECOND FROM end_time - start_time) as duration
+    FROM
+      actor_fire as af
+  ```
+
+  - On Swift's DB:
+
+  ```sql
+  SELECT
+    duration
+  FROM
+    app_exec
+  ```
+
+  - On BigDAWG's endpoint:
+
+  ```bash
+  curl --request POST \
+  --url http://localhost:8080/bigdawg/query \
+  --data 'bdrel(
+  select
+    *
+  from
+    (
+      select
+        duration
+      from
+        (
+          SELECT
+            app_exec_id as execution_id,
+            start_time as prov_startedAtTime,
+            script_run_id as provone_hadPlan,
+            duration
+          FROM
+            app_exec
+        ) as table_7
+    ) as t1
+    left join (
+      select
+        EXTRACT(SECOND FROM prov_endedAtTime - prov_startedAtTime) duration
+      from
+        (
+          SELECT
+            af.id as execution_id,
+            af.start_time as prov_startedAtTime,
+            af.end_time as prov_endedAtTime,
+            af.wf_exec_id as provone_wasPartOf
+          FROM
+            actor_fire as af
+        ) as table_0
+    ) as t2 on 1 = 1
+  )'
+  ```
+
+- **Q6**:
+  - On Kepler's DB:
+  ```sql
+    SELECT
+      *
+    FROM
+      (
+        SELECT
+          af.id as kepler_execution_id,
+          actor_id as kepler_provone_hadPlan,
+          af.start_time as kepler_prov_startedAtTime,
+          af.end_time as kepler_prov_endedAtTime,
+          af.wf_exec_id as kepler_provone_wasPartOf
+        FROM
+          actor_fire as af
+      ) as e
+      INNER JOIN (
+        SELECT
+          a.id as kepler_program_id,
+          e.name as kepler_label
+        FROM
+          actor as a
+          INNER JOIN entity as e ON a.id = e.id
+      ) as p on p.kepler_program_id = e.kepler_provone_hadPlan
+  ```
+  - On Swift's DB:
+  ```sql
+  SELECT
+    *
+  FROM
+    (
+      SELECT
+        script_run_id as program_id,
+        script_filename as label
+      FROM
+        script_run
+    ) as sp
+    inner join (
+      SELECT
+        app_exec_id as execution_id,
+        start_time as prov_startedAtTime,
+        script_run_id as provone_hadPlan,
+        duration
+      FROM
+        app_exec
+    ) as se on se.provone_hadPlan = sp.program_id
+  ```
+  - On BigDAWG's endpoint:
+  ```bash
+  curl --request POST \
+  --url http://localhost:8080/bigdawg/query \
+  --data 'bdrel(
+  select
+    *
+  from
+    (
+      SELECT
+        af.id as kepler_execution_id,
+        actor_id as kepler_provone_hadPlan,
+        af.start_time as kepler_prov_startedAtTime,
+        af.end_time as kepler_prov_endedAtTime,
+        af.wf_exec_id as kepler_provone_wasPartOf
+      FROM
+        actor_fire as af
+    ) as e
+    inner join (
+      SELECT
+        a.id as kepler_program_id,
+        e.name as kepler_label
+      FROM
+        actor as a
+        INNER JOIN entity as e ON a.id = e.id
+    ) as p on p.kepler_program_id = e.kepler_provone_hadPlan
+    left join (
+      SELECT
+        script_run_id as program_id,
+        script_filename as label
+      FROM
+        script_run
+    ) as sp on 1 = 1
+    left join (
+      SELECT
+        app_exec_id as execution_id,
+        start_time as prov_startedAtTime,
+        script_run_id as provone_hadPlan,
+        duration
+      FROM
+        app_exec
+    ) as se on se.provone_hadPlan = sp.program_id
+  )'
+  ```
 
 ## Cleaning up
 
