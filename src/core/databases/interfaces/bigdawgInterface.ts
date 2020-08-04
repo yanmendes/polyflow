@@ -50,7 +50,8 @@ const bigdawgInterface = {
 
 const parseResponseToJSON = (results: string) => {
   if (!results) return {}
-  if (results.split('\n').length === 1) throw new Error(results)
+  else if (results.startsWith('ERROR:') || results.split('\n').length === 1)
+    throw new Error(results)
   const [firstRow, ...rest] = results.split('\n')
   const dimensions = firstRow.split('\t')
   const instances = rest.map(instance => instance.split('\t'))
