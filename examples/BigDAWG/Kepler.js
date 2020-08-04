@@ -6,11 +6,11 @@ const Port = {
   alias: 'p',
   columns: [
     {
-      alias: 'port_id',
+      alias: 'kepler_port_id',
       projection: 'p.id'
     },
     {
-      alias: 'port_type',
+      alias: 'kepler_port_type',
       projection:
         "CASE WHEN p.direction = 1 THEN 'out' WHEN p.direction = 0 THEN 'in' END"
     }
@@ -22,7 +22,7 @@ const Entity = {
   alias: 'e',
   columns: [
     {
-      alias: 'label',
+      alias: 'kepler_label',
       projection: 'e.name'
     }
   ]
@@ -41,19 +41,19 @@ const Parameter = {
   alias: 'param',
   columns: [
     {
-      alias: 'entity_id',
+      alias: 'kepler_entity_id',
       projection: 'param.id'
     },
     {
-      alias: 'type',
+      alias: 'kepler_type',
       projection: 'param.type'
     },
     {
-      alias: 'value',
+      alias: 'kepler_value',
       projection: 'param.value'
     },
     {
-      alias: 'entity_type',
+      alias: 'kepler_entity_type',
       projection: "'provone_Data'"
     }
   ]
@@ -64,7 +64,7 @@ const AssociatedData = {
   alias: 'ad',
   columns: [
     {
-      alias: 'label',
+      alias: 'kepler_label',
       projection: 'ad.name'
     }
   ]
@@ -75,7 +75,7 @@ const Data = {
   alias: 'd',
   columns: [
     {
-      alias: 'value',
+      alias: 'kepler_value',
       projection: 'd.md5'
     }
   ]
@@ -96,16 +96,16 @@ const provEntity = {
     params: ['d.md5', 'ad.data_id'],
     columns: [
       {
-        alias: 'entity_id',
+        alias: 'kepler_entity_id',
         projection: 0
       },
       {
-        alias: 'type',
+        alias: 'kepler_type',
         projection: "'md5'"
       },
       ...Data.columns,
       {
-        alias: 'entity_type',
+        alias: 'kepler_entity_type',
         projection: "'provone_Data'"
       },
       ...AssociatedData.columns
@@ -119,59 +119,27 @@ const Actor = {
   alias: 'a',
   columns: [
     {
-      alias: 'program_id',
+      alias: 'kepler_program_id',
       projection: 'a.id'
     }
   ]
 }
-const Workflow = { name: 'workflow', alias: 'w' }
 
 const provoneProgram = {
   entity1: Actor,
-  entity2: {
-    entity1: Entity,
-    entity2: Workflow,
-    type: 'LEFT',
-    columns: [
-      {
-        alias: 'joinId',
-        projection: 'e.id'
-      },
-      {
-        alias: 'label',
-        projection: 'COALESCE(w.name, e.name)'
-      },
-      {
-        alias: 'ipw',
-        projection: 'CASE WHEN w.id IS NOT NULL THEN TRUE ELSE FALSE END'
-      },
-      {
-        alias: 'phssubp',
-        projection: 'CASE WHEN w.id IS NOT NULL THEN NULL ELSE e.wf_id END'
-      }
-    ],
-    params: ['w.id', 'e.id']
-  },
+  entity2: Entity,
   columns: [
     {
-      alias: 'program_id',
-      projection: 'program_id'
+      alias: 'kepler_program_id',
+      projection: 'a.id'
     },
     {
-      alias: 'label',
-      projection: 'label'
-    },
-    {
-      alias: 'is_provone_Workflow',
-      projection: 'ipw'
-    },
-    {
-      alias: 'provone_hasSubProgram',
-      projection: 'phssubp'
+      alias: 'kepler_label',
+      projection: 'e.name'
     }
   ],
   type: 'INNER',
-  params: ['program_id', 'joinId']
+  params: ['a.id', 'e.id']
 }
 
 const ActorFire = {
@@ -179,108 +147,39 @@ const ActorFire = {
   alias: 'af',
   columns: [
     {
-      alias: 'execution_id',
+      alias: 'kepler_execution_id',
       projection: 'af.id'
     },
     {
-      alias: 'prov_hadPlan',
+      alias: 'kepler_provone_hadPlan',
       projection: 'actor_id'
     },
     {
-      alias: 'prov_startedAtTime',
+      alias: 'kepler_prov_startedAtTime',
       projection: 'af.start_time'
     },
     {
-      alias: 'prov_endedAtTime',
+      alias: 'kepler_prov_endedAtTime',
       projection: 'af.end_time'
     },
     {
-      alias: 'provone_wasPartOf',
+      alias: 'kepler_provone_wasPartOf',
       projection: 'af.wf_exec_id'
     }
   ]
 }
 
-const WorkflowExec = {
-  name: 'workflow_exec',
-  alias: 'wfe',
-  columns: [
-    {
-      alias: 'execution_id',
-      projection: 'NULL'
-    },
-    {
-      alias: 'prov_hadPlan',
-      projection: 'wfe.wf_id'
-    },
-    {
-      alias: 'prov_startedAtTime',
-      projection: 'wfe.start_time'
-    },
-    {
-      alias: 'prov_endedAtTime',
-      projection: 'wfe.end_time'
-    },
-    {
-      alias: 'provone_wasPartOf',
-      projection: 'wfe.wf_id'
-    }
-  ]
-}
-
 const provoneExecution = {
-  entity1: {
-    ...ActorFire,
-    columns: [
-      ...ActorFire.columns.filter(({ alias }) =>
-        [
-          'execution_id',
-          'prov_startedAtTime',
-          'prov_endedAtTime',
-          'provone_wasPartOf'
-        ].includes(alias)
-      ),
-      {
-        alias: 'prov_wasAssociatedWith',
-        projection: 'NULL'
-      }
-    ]
-  },
-  entity2: {
-    ...WorkflowExec,
-    columns: [
-      ...WorkflowExec.columns.filter(({ alias }) =>
-        [
-          'execution_id',
-          'prov_startedAtTime',
-          'prov_endedAtTime',
-          'provone_wasPartOf',
-          'prov_wasAssociatedWith'
-        ].includes(alias)
-      )
-    ]
-  },
-  type: 'UNION'
-}
-
-const provAssociation = {
-  entity1: {
-    ...ActorFire,
-    columns: [
-      ...ActorFire.columns.filter(({ alias }) =>
-        ['execution_id', 'prov_hadPlan'].includes(alias)
-      )
-    ]
-  },
-  entity2: {
-    ...WorkflowExec,
-    columns: [
-      ...WorkflowExec.columns.filter(({ alias }) =>
-        ['execution_id', 'prov_hadPlan'].includes(alias)
-      )
-    ]
-  },
-  type: 'UNION'
+  ...ActorFire,
+  columns: ActorFire.columns.filter(({ alias }) =>
+    [
+      'kepler_execution_id',
+      'kepler_prov_startedAtTime',
+      'kepler_prov_endedAtTime',
+      'kepler_provone_wasPartOf',
+      'kepler_provone_hadPlan'
+    ].includes(alias)
+  )
 }
 
 const provUsage = {
@@ -288,15 +187,15 @@ const provUsage = {
   alias: 'pe',
   columns: [
     {
-      alias: 'execution_id',
+      alias: 'kepler_execution_id',
       projection: 'pe.fire_id'
     },
     {
-      alias: 'provone_hadInPort',
+      alias: 'kepler_provone_hadInPort',
       projection: 'pe.port_id'
     },
     {
-      alias: 'data',
+      alias: 'kepler_data',
       projection: 'data'
     }
   ],
@@ -308,15 +207,15 @@ const provGeneration = {
   alias: 'pe',
   columns: [
     {
-      alias: 'execution_id',
+      alias: 'kepler_execution_id',
       projection: 'pe.fire_id'
     },
     {
-      alias: 'provone_hadInPort',
+      alias: 'kepler_provone_hadInPort',
       projection: 'pe.port_id'
     },
     {
-      alias: 'data',
+      alias: 'kepler_data',
       projection: 'data'
     }
   ],
@@ -328,7 +227,7 @@ const provoneUser = {
   alias: 'we',
   columns: [
     {
-      alias: 'program_id',
+      alias: 'kepler_program_id',
       projection: 'we.wf_id'
     }
   ]
