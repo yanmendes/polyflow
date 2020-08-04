@@ -5,11 +5,11 @@ const provoneProgram = {
   name: 'script_run',
   columns: [
     {
-      alias: 'program_id',
+      alias: 'swift_program_id',
       projection: 'script_run_id'
     },
     {
-      alias: 'label',
+      alias: 'swift_label',
       projection: 'script_filename'
     }
   ]
@@ -19,15 +19,15 @@ const provoneExecution = {
   name: 'app_exec',
   columns: [
     {
-      alias: 'execution_id',
+      alias: 'swift_execution_id',
       projection: 'app_exec_id'
     },
     {
-      alias: 'prov_startedAtTime',
+      alias: 'swift_prov_startedAtTime',
       projection: 'start_time'
     },
     {
-      alias: 'provone_hadPlan',
+      alias: 'swift_provone_hadPlan',
       projection: 'script_run_id'
     },
     {
@@ -40,15 +40,15 @@ const provEntity = {
   name: 'file',
   columns: [
     {
-      alias: 'entity_id',
+      alias: 'swift_entity_id',
       projection: 'file_id'
     },
     {
-      alias: 'label',
+      alias: 'swift_label',
       projection: 'name'
     },
     {
-      alias: 'entity_type',
+      alias: 'swift_entity_type',
       projection: "'provone_Document'"
     }
   ]
@@ -58,11 +58,11 @@ const provUsed = {
   name: 'staged_in',
   columns: [
     {
-      alias: 'entity_id',
+      alias: 'swift_entity_id',
       projection: 'file_id'
     },
     {
-      alias: 'execution_id',
+      alias: 'swift_execution_id',
       projection: 'app_exec_id'
     }
   ]
@@ -72,11 +72,11 @@ const provWasGeneratedBy = {
   name: 'staged_out',
   columns: [
     {
-      alias: 'entity_id',
+      alias: 'swift_entity_id',
       projection: 'file_id'
     },
     {
-      alias: 'execution_id',
+      alias: 'swift_execution_id',
       projection: 'app_exec_id'
     }
   ]
