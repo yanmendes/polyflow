@@ -239,11 +239,12 @@ const entityMappers = [
     slug: Provone.Classes.PORT,
     entityMapper: provonePort
   },
-  {
-    name: Prov.Classes.ENTITY,
-    slug: Prov.Classes.ENTITY,
-    entityMapper: provEntity
-  },
+  // BigDAWG query is broken
+  // {
+  //   name: Prov.Classes.ENTITY,
+  //   slug: Prov.Classes.ENTITY,
+  //   entityMapper: provEntity
+  // },
   {
     name: Provone.Classes.PROGRAM,
     slug: Provone.Classes.PROGRAM,
