@@ -197,7 +197,7 @@ query Q1 {
 ```graphql
 query Q2 {
   query(
-    query: "bdrel(select * from swift[provone_execution] as e join swift[prov_wasGeneratedBy] as wgb on e.execution_id = wgb.execution_id)"
+    query: "bdrel(select * from swift[provone_execution] as e join swift[prov_wasGeneratedBy] as wgb on e.swift_execution_id = wgb.swift_execution_id)"
   )
 }
 ```
@@ -227,7 +227,7 @@ query Q4 {
 ```graphql
 query Q5 {
   query(
-    query: "bdrel(select * from (select duration from swift[provone_execution]) as t1 left join (select EXTRACT(SECOND FROM prov_endedAtTime - prov_startedAtTime) from kepler[provone_execution]) as t2 on 1=1)"
+    query: "bdrel(select * from (select duration from swift[provone_execution]) as t1 left join (select EXTRACT(SECOND FROM kepler_prov_endedAtTime - kepler_prov_startedAtTime) from kepler[provone_execution]) as t2 on 1=1)"
   )
 }
 ```
@@ -237,7 +237,7 @@ query Q5 {
 ```graphql
 query Q6 {
   query(
-    query: "bdrel(select * from kepler[provone_execution] as e inner join kepler[provone_program] as p on p.kepler_program_id = e.kepler_provone_hadPlan left join swift[provone_program] as sp on 1=1 left join swift[provone_execution] as se on se.provone_hadPlan = sp.program_id)"
+    query: "bdrel(select * from kepler[provone_execution] as e inner join kepler[provone_program] as p on p.kepler_program_id = e.kepler_provone_hadPlan left join swift[provone_program] as sp on 1=1 left join swift[provone_execution] as se on se.swift_provone_hadPlan = sp.swift_program_id)"
   )
 }
 ```
@@ -248,48 +248,67 @@ query Q6 {
 
 ```sql
 SELECT
-  p.id as port_id,
-  CASE WHEN p.direction = 1 THEN 'out' WHEN p.direction = 0 THEN 'in' END as port_type,
-  e.name as label
-FROM port as p INNER JOIN entity as e ON p.id = e.id
+  p.id as kepler_port_id,CASE
+    WHEN p.direction = 1 THEN 'out'
+    WHEN p.direction = 0 THEN 'in'
+  END as kepler_port_type,
+  e.name as kepler_label
+FROM
+  port as p
+  INNER JOIN entity as e ON p.id = e.id
 ```
 
 - **Q2**:
 
 ```sql
-SELECT
-  app_exec_id as execution_id,
-  start_time as prov_startedAtTime,
-  script_run_id as provone_hadPlan,
-  duration
-FROM app_exec as e
-INNER JOIN (
-  SELECT file_id as entity_id,app_exec_id as execution_id FROM staged_out
-) as wgb on e.app_exec_id = wgb.execution_id
+select
+  *
+from
+  (
+    SELECT
+      app_exec_id as swift_execution_id,
+      start_time as swift_prov_startedAtTime,
+      script_run_id as swift_provone_hadPlan,
+      duration
+    FROM
+      app_exec
+  ) as e
+  join (
+    SELECT
+      file_id as swift_entity_id,
+      app_exec_id as swift_execution_id
+    FROM
+      staged_out
+  ) as wgb on e.swift_execution_id = wgb.swift_execution_idd
 ```
 
 - **Q3**:
 
 ```sql
-SELECT
-  pe.fire_id as execution_id,
-  pe.port_id as provone_hadInPort,
-  data as data
-FROM
-  port_event as pe
-INNER JOIN (
+select
+  *
+from
+  (
     SELECT
-      p.id as port_id,CASE
+      pe.fire_id as kepler_execution_id,
+      pe.port_id as kepler_provone_hadInPort,
+      data as kepler_data
+    FROM
+      port_event as pe
+    WHERE
+      pe.write_event_id = -1
+  ) as u
+  inner join (
+    SELECT
+      p.id as kepler_port_id,CASE
         WHEN p.direction = 1 THEN 'out'
         WHEN p.direction = 0 THEN 'in'
-      END as port_type,
-      e.name as label
+      END as kepler_port_type,
+      e.name as kepler_label
     FROM
       port as p
       INNER JOIN entity as e ON p.id = e.id
-) as p on pe.provone_hadInPort = p.port_id
-WHERE
-  pe.write_event_id = -1
+  ) as p on u.kepler_provone_hadInPort = p.kepler_port_id
 ```
 
 - **Q4**:
@@ -298,11 +317,11 @@ WHERE
 
   ```sql
   SELECT
-    p.id as port_id,CASE
+    p.id as kepler_port_id,CASE
       WHEN p.direction = 1 THEN 'out'
       WHEN p.direction = 0 THEN 'in'
-    END as port_type,
-    e.name as label
+    END as kepler_port_type,
+    e.name as kepler_label
   FROM
     port as p
     INNER JOIN entity as e ON p.id = e.id
@@ -311,11 +330,16 @@ WHERE
   - On Swift's DB:
 
   ```sql
-  SELECT
-    script_run_id as program_id,
-    script_filename as label
-  FROM
-    script_run
+  select
+    *
+  from
+    (
+      SELECT
+        script_run_id as swift_program_id,
+        script_filename as swift_label
+      FROM
+        script_run
+    ) as table_4
   ```
 
   - On BigDAWG's endpoint:
@@ -325,32 +349,32 @@ WHERE
   --url http://localhost:8080/bigdawg/query \
   --header 'content-type: application/json' \
   --data 'bdrel(
-  t
-  *
-  m
-  (
-  T
-  E
-  '
-  '
-  ,
-  l
-  M
-  p
-  d
-  1
-  (
-  t
-  *
-  m
-  (
-  T
-  ,
-  l
-  M
-  n
-  3
-  1
+  select
+    *
+  from
+    (
+      SELECT
+        p.id as kepler_port_id,CASE
+          WHEN p.direction = 1 THEN '\''out'\''
+          WHEN p.direction = 0 THEN '\''in'\''
+        END as kepler_port_type,
+        e.name as kepler_label
+      FROM
+        port as p
+        INNER JOIN entity as e ON p.id = e.id
+    ) as table_10
+    left join (
+      select
+        *
+      from
+        (
+          SELECT
+            script_run_id as swift_program_id,
+            script_filename as swift_label
+          FROM
+            script_run
+        ) as table_4
+    ) as programs on 1 = 1
   )'
   ```
 
@@ -359,19 +383,40 @@ WHERE
   - On Kepler's DB:
 
   ```sql
-    SELECT
-      EXTRACT(SECOND FROM end_time - start_time) as duration
-    FROM
-      actor_fire as af
+  select
+    EXTRACT(
+      SECOND
+      FROM
+        kepler_prov_endedAtTime - kepler_prov_startedAtTime
+    )
+  from
+    (
+      SELECT
+        af.id as kepler_execution_id,
+        actor_id as kepler_provone_hadPlan,
+        af.start_time as kepler_prov_startedAtTime,
+        af.end_time as kepler_prov_endedAtTime,
+        af.wf_exec_id as kepler_provone_wasPartOf
+      FROM
+        actor_fire as af
+    ) as table_7
   ```
 
   - On Swift's DB:
 
   ```sql
-  SELECT
+  select
     duration
-  FROM
-    app_exec
+  from
+    (
+      SELECT
+        app_exec_id as swift_execution_id,
+        start_time as swift_prov_startedAtTime,
+        script_run_id as swift_provone_hadPlan,
+        duration
+      FROM
+        app_exec
+    ) as table_3
   ```
 
   - On BigDAWG's endpoint:
@@ -379,6 +424,7 @@ WHERE
   ```bash
   curl --request POST \
   --url http://localhost:8080/bigdawg/query \
+  --header 'content-type: application/json' \
   --data 'bdrel(
   select
     *
@@ -389,82 +435,91 @@ WHERE
       from
         (
           SELECT
-            app_exec_id as execution_id,
-            start_time as prov_startedAtTime,
-            script_run_id as provone_hadPlan,
+            app_exec_id as swift_execution_id,
+            start_time as swift_prov_startedAtTime,
+            script_run_id as swift_provone_hadPlan,
             duration
           FROM
             app_exec
-        ) as table_7
+        ) as table_3
     ) as t1
     left join (
       select
-        EXTRACT(SECOND FROM prov_endedAtTime - prov_startedAtTime) duration
+        EXTRACT(
+          SECOND
+          FROM
+            kepler_prov_endedAtTime - kepler_prov_startedAtTime
+        )
       from
         (
           SELECT
-            af.id as execution_id,
-            af.start_time as prov_startedAtTime,
-            af.end_time as prov_endedAtTime,
-            af.wf_exec_id as provone_wasPartOf
+            af.id as kepler_execution_id,
+            actor_id as kepler_provone_hadPlan,
+            af.start_time as kepler_prov_startedAtTime,
+            af.end_time as kepler_prov_endedAtTime,
+            af.wf_exec_id as kepler_provone_wasPartOf
           FROM
             actor_fire as af
-        ) as table_0
+        ) as table_7
     ) as t2 on 1 = 1
   )'
   ```
 
 - **Q6**:
+
   - On Kepler's DB:
+
   ```sql
-    SELECT
-      *
-    FROM
-      (
-        SELECT
-          af.id as kepler_execution_id,
-          actor_id as kepler_provone_hadPlan,
-          af.start_time as kepler_prov_startedAtTime,
-          af.end_time as kepler_prov_endedAtTime,
-          af.wf_exec_id as kepler_provone_wasPartOf
-        FROM
-          actor_fire as af
-      ) as e
-      INNER JOIN (
-        SELECT
-          a.id as kepler_program_id,
-          e.name as kepler_label
-        FROM
-          actor as a
-          INNER JOIN entity as e ON a.id = e.id
-      ) as p on p.kepler_program_id = e.kepler_provone_hadPlan
-  ```
-  - On Swift's DB:
-  ```sql
-  SELECT
+  select
     *
-  FROM
+  from
     (
       SELECT
-        script_run_id as program_id,
-        script_filename as label
+        af.id as kepler_execution_id,
+        actor_id as kepler_provone_hadPlan,
+        af.start_time as kepler_prov_startedAtTime,
+        af.end_time as kepler_prov_endedAtTime,
+        af.wf_exec_id as kepler_provone_wasPartOf
       FROM
-        script_run
-    ) as sp
+        actor_fire as af
+    ) as e
     inner join (
       SELECT
-        app_exec_id as execution_id,
-        start_time as prov_startedAtTime,
-        script_run_id as provone_hadPlan,
-        duration
+        a.id as kepler_program_id,
+        e.name as kepler_label
       FROM
-        app_exec
-    ) as se on se.provone_hadPlan = sp.program_id
+        actor as a
+        INNER JOIN entity as e ON a.id = e.id
+    ) as p on p.kepler_program_id = e.kepler_provone_hadPlan
   ```
+
+  - On Swift's DB:
+
+  ```sql
+  select * from (
+    SELECT
+      script_run_id as swift_program_id,
+      script_filename as swift_label
+    FROM
+      script_run
+  ) as sp
+  left join (
+    SELECT
+      app_exec_id as swift_execution_id,
+      start_time as swift_prov_startedAtTime,
+      script_run_id as swift_provone_hadPlan,
+      duration
+    FROM
+      app_exec
+  ) as se on se.swift_provone_hadPlan = sp.swift_program_id
+  ```
+
   - On BigDAWG's endpoint:
+
   ```bash
   curl --request POST \
   --url http://localhost:8080/bigdawg/query \
+  --header 'content-type: application/json' \
   --data 'bdrel(
   select
     *
@@ -489,34 +544,19 @@ WHERE
     ) as p on p.kepler_program_id = e.kepler_provone_hadPlan
     left join (
       SELECT
-        script_run_id as program_id,
-        script_filename as label
+        script_run_id as swift_program_id,
+        script_filename as swift_label
       FROM
         script_run
     ) as sp on 1 = 1
     left join (
       SELECT
-        app_exec_id as execution_id,
-        start_time as prov_startedAtTime,
-        script_run_id as provone_hadPlan,
+        app_exec_id as swift_execution_id,
+        start_time as swift_prov_startedAtTime,
+        script_run_id as swift_provone_hadPlan,
         duration
       FROM
         app_exec
-    ) as se on se.provone_hadPlan = sp.program_id
+    ) as se on se.swift_provone_hadPlan = sp.swift_program_id
   )'
   ```
-
-## Cleaning up
-
-To stop the execution of the containers, run:
-
-```sh
-docker rm -f polyflow polyflow-catalog bigdawg-postgres-catalog bigdawg-postgres-swift bigdawg-postgres-kepler
-
-# if you're running it on a Ubuntu
-sudo docker rm -f polyflow polyflow-catalog bigdawg-postgres-catalog bigdawg-postgres-swift bigdawg-postgres-kepler
-```
-
-## Adding your own data
-
-To add your own data, refer to the [core concepts section](https://github.com/yanmendes/polyflow#core-concepts)

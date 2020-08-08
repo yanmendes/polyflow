@@ -19,7 +19,13 @@ Kepler's and Swift/T's models are similar logical models and semantically identi
 | :---------------------------------------------------: | :--------------------------: |
 | <img height="40%" src="./assets/bob-alice-model.png"> | <img src="./assets/ccm.png"> |
 
-And that's where `polyflow` comes in. Database experts/tech savy people describe mapping strategies between the CCM and the **local schemas** using an object-like syntax so that reasearchers can query a single, simplified data model.
+And that's where `polyflow` comes in. Database experts/tech savvy people describe mapping strategies between the CCM and the **local schemas** using an object-like syntax so that researchers can query a single, simplified data model.
+
+Below we show a high-level overview of how `polyflow` works. It transforms queries, during run time, from simple entities to their actual representation in underlying data sources via entity mappers.
+
+<div style='text-align: center;'>
+  <img src='assets/Polyflow architecture.png' />
+</div>
 
 This software is derived from my master's thesis and you can check the [Publications section](#publications) for aditional information.
 
