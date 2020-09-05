@@ -2,12 +2,13 @@ const createCsvWriter = require('csv-writer').createObjectCsvWriter
 const file = process.env.FILE || './logs'
 const { REPETITIONS } = require('./runExperiment')
 
-const avg = array => array.reduce((prev, curr) => prev + curr, 0) / array.length
+const avg = array =>
+  (array.reduce((prev, curr) => prev + curr, 0) / array.length).toFixed(1)
 
 const stdev = array =>
   Math.sqrt(
     array.reduce((prev, curr) => prev + Math.pow(curr - avg(array), 2), 0)
-  )
+  ).toFixed(1)
 
 const lineReader = require('readline').createInterface({
   input: require('fs').createReadStream(file)
@@ -52,30 +53,32 @@ lineReader.on('close', async _ => {
   })
 
   for (const experiment in polyflowCoreSubArrays) {
+    const totalRequestTime = polyflowCoreSubArrays[experiment]
     const aggregatedDatabaseTimes = databaseInterfaceSubArrays[experiment]
-
-    const overhead = polyflowCoreSubArrays[experiment].map(
+    totalRequestTime.shift()
+    aggregatedDatabaseTimes.shift()
+    const overhead = totalRequestTime.map(
       (val, i) => val - aggregatedDatabaseTimes[i]
     )
     const data = [
       {
         metric: 'Request time min',
-        value: Math.min(...polyflowCoreSubArrays[experiment]),
+        value: Math.min(...totalRequestTime),
         experiment
       },
       {
         metric: 'Request time max',
-        value: Math.max(...polyflowCoreSubArrays[experiment]),
+        value: Math.max(...totalRequestTime),
         experiment
       },
       {
         metric: 'Request time avg',
-        value: avg(polyflowCoreSubArrays[experiment]),
+        value: avg(totalRequestTime),
         experiment
       },
       {
         metric: 'Request time stdev',
-        value: stdev(polyflowCoreSubArrays[experiment]),
+        value: stdev(totalRequestTime),
         experiment
       },
       {
@@ -98,17 +101,18 @@ lineReader.on('close', async _ => {
         value: stdev(aggregatedDatabaseTimes),
         experiment
       },
-      { metric: 'Overhead max', value: Math.max(...overhead), experiment },
       { metric: 'Overhead min', value: Math.min(...overhead), experiment },
+      { metric: 'Overhead max', value: Math.max(...overhead), experiment },
       { metric: 'Overhead avg', value: avg(overhead), experiment },
       { metric: 'Overhead stdev', value: stdev(overhead), experiment },
       {
         metric: 'Overhead avg percentage over requests',
-        value:
+        value: (
           (avg(polyflowCoreSubArrays[experiment]) /
             avg(aggregatedDatabaseTimes) -
             1) *
-          100,
+          100
+        ).toFixed(1),
         experiment
       }
     ]

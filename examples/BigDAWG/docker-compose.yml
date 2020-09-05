@@ -12,6 +12,12 @@ services:
       - 5000:3000
     networks:
       - polyflow
+  run-experiment:
+    env_file: .env.sample
+    build: .
+    command: node runExperiment.js
+    networks:
+      - polyflow
 
 networks:
   polyflow:
