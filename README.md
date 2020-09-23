@@ -214,8 +214,6 @@ yarn run start:prod
 
 - Add support to `group by` and `order by` in the entity mapper
 
-* Export performance metrics from container
-
 ## References
 
 - Theoretical fundamentals that guided this work - ÖZSU, M. Tamer; VALDURIEZ, Patrick. Principles of distributed database systems. Springer Science & Business Media, 2011.
